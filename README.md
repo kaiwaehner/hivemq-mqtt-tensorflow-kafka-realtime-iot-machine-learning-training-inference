@@ -8,23 +8,32 @@ We use HiveMQ as open source MQTT broker to ingest data from IoT devices, ingest
 
 ## Use Case and Architecture
 
-TODO
+Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O:
+
+- Data Integration and Preprocessing
+- Model Training
+- Model Deployment
+- Real Time Scoring
+- Real Time Monitoring
+
+![Use Case: Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O](pictures/Use_Case_MQTT_HiveMQ_to_TensorFlow_via_Apache_Kafka_Streams_KSQL.png)
 
 ## Streaming Ingestion and Model Training with Kafka and TensorFlow-IO
 
-Typically, analytic models are trained in batch mode where you first ingest all historical data in a data store like HDFS, AWS S3 or GCS. Then you train the model using a framework like Spark MLlib, TensorFlow or Google ML. 
+Typically, analytic models are trained in batch mode where you first ingest all historical data in a data store like HDFS, AWS S3 or GCS. Then you train the model using a framework like Spark MLlib, TensorFlow or Google ML.
 
 [TensorFlow I/O](https://github.com/tensorflow/io) is a component of the TensorFlow framework which allows native integration with different technologies.
 
 One of these integrations is tensorflow_io.kafka which allows streaming ingestion into TensorFlow from Kafka WITHOUT the need for a data store! This *significantly simplifies the architecture  and reduces operation and development costs*.
+Yong Tang, member of the SIG TensorFlow I/O team, did a [great presentation about this at Kafka Summit 2019 in New York](https://www.confluent.io/kafka-summit-ny19/real-time-streaming-with-kafka-and-tensorflow) (video and slide deck available for free).
 
 You can pick and choose the right components from the Apache Kafka and TensorFlow ecosystems for your use case:
 
-![Machine Learning Workflow with TensorFlow and Apache Kafka Ecosystem](images/TensorFlow_Apache_Kafka_Streaming_Workflow.png)
+![Machine Learning Workflow with TensorFlow and Apache Kafka Ecosystem](pictures/TensorFlow_Apache_Kafka_Streaming_Workflow.png)
 
 This demo will do the following steps:
 
-- Consume streaming data from MQTT via a Kafka Consumer
+- Consume streaming data from MQTT Broker HiveMQ via a Kafka Consumer
 - Preprocess the data with KSQL (filter, transform)
 - Ingest the data into TensorFlow  (tf.data and tensorflow-io)
 - Build, train and save the model  (TensorFlow 2.0 API)
@@ -36,6 +45,27 @@ Optional steps (nice to have and implemented later)
 - Some kind of A/B testing
 - Re-train the model and updating the Kafka Streams application (via sending the new model to a Kafka topic)
 - Monitoring of model training (via TensorBoard) and model deployment / inference (via some kind of Kafka integration + dashboard technology)
+- todo - other ideas?
+
+## Why is this so awesome
+
+Again, you don't need another data store anymore! Just ingest the data directly from the distributed commit log of Kafka:
+
+![Model Training from the distributed commit log of Apache Kafka leveraging TensorFlow I/O](pictures/Kafka_Commit_Log_Model_Training_with_TensorFlow_IO.png)
+
+## Be aware: This is still NOT Online Training
+
+Streaming ingestion for model training is fantastic. You don't need a data store anymore. This simplifies the architecture and reduces operations and developemt costs.
+
+However, one common misunderstanding has to be clarified - as this question comes up every time you talk about TensorFlow I/O and Apache Kafka: As long as machine learning / deep learning frameworks and algorythms expect data in batches, you cannot achieve real online training (i.e. re-training / optimizing the model with each new input event).
+
+Only a few algoryhtms and implementations are available today, like Online Clustering.
+
+Thus, even with TensorFlow I/O and streaming ingestion via Apache Kafka, you still do batch training. Though, you can configure and optimize these batches to fit your use case. Additionally, only Kafka allows ingestion at large scale for use cases like connected cars or assembly lines in factories. You cannot build a scalable, reliable, mission-critical ML infrastructure just with Python.
+
+The combination of TensorFlow I/O and Apache Kafka is a great step closer to real time training of analytic models at scale!
+
+I posted many articles about videos about this discussion. Get started with [How to Build and Deploy Scalable Machine Learning in Production with Apache Kafka](https://www.confluent.io/blog/build-deploy-scalable-machine-learning-production-apache-kafka/) and check out my other resources if you want to learn more.
 
 ## Requirements and Installation
 
@@ -44,7 +74,6 @@ TODO
 ## Live Demo
 
 Until the demo is ready, you can already checkout a working [Python example of streaming ingestion of MNIST data into TensorFlow via Kafka](confluent-tensorflow-io-kafka.py).
-
 
 TODO IMPLEMENT DEMO
 
