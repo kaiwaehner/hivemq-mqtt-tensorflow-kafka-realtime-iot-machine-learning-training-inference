@@ -43,7 +43,12 @@ TODO
 
 ## Live Demo
 
-TODO (via Docker container and run via single command)
+Until the demo is ready, you can already checkout a working [Python example of streaming ingestion of MNIST data into TensorFlow via Kafka](confluent-tensorflow-io-kafka.py).
+
+
+TODO IMPLEMENT DEMO
+
+(via Docker container and run via single command)
 
 - Start HiveMQ
 - Start Confluent Platform
