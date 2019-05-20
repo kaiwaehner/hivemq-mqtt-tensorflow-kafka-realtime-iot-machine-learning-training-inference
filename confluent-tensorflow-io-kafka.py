@@ -20,6 +20,7 @@ producer.flush()
 import numpy as np
 import tensorflow as tf
 import tensorflow_io.kafka as kafka_io
+import datetime
 
 # 2. KafkaDataset with map function
 def func_x(x):
@@ -48,5 +49,10 @@ model = tf.keras.Sequential([
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
+
+# 4. Add TensorBoard to monitor the model training
+log_dir="logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
 # default: 5 epochs and 12000 steps
-model.fit(train_kafka, epochs=1, steps_per_epoch=1000)
+model.fit(train_kafka, epochs=1, steps_per_epoch=1000, callbacks=[tensorboard_callback])
