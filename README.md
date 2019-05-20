@@ -2,9 +2,9 @@
 
 WORK IN PROGRESS... NO FUNCTIONAL PROJECT YET...
 
-This project implements a scenario where you can *train new analytic models from streaming data - without the need for an additional data store* like S3,HDFS or Spark.
+This project implements a scenario where you can *train new analytic models from streaming data - without the need for an additional data store* like S3, HDFS or Spark.
 
-We use HiveMQ as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an Apache Kafka cluster for preprocessing (using Kafka Streams / KSQL),and model training (using TensorFlow 2.0 and its Kafka IO plugin).
+We use HiveMQ as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an Apache Kafka cluster for preprocessing (using Kafka Streams / KSQL), and model training (using TensorFlow 2.0 and its Kafka IO plugin).
 
 ## Use Case and Architecture
 
@@ -39,8 +39,9 @@ This demo will do the following steps:
 - Build, train and save the model  (TensorFlow 2.0 API)
 - Deploy the model within a Kafka Streams application for embedded real time scoring
 
-Optional steps (nice to have and implemented later)
+Optional steps (nice to have)
 
+- Show IoT-specific features with HiveMQ tool stack
 - Deploy the model via TensorFlow Serving
 - Some kind of A/B testing
 - Re-train the model and updating the Kafka Streams application (via sending the new model to a Kafka topic)
