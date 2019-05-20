@@ -46,6 +46,8 @@ Optional steps (nice to have)
 - Some kind of A/B testing
 - Re-train the model and updating the Kafka Streams application (via sending the new model to a Kafka topic)
 - Monitoring of model training (via TensorBoard) and model deployment / inference (via some kind of Kafka integration + dashboard technology)
+- Confluent Cloud for Kafka as a Service (-> Focus on business problems, not running infrastructure)
+- Enhance demo with C / librdkafka clients and TensorFlow Lite for edge computing
 - todo - other ideas?
 
 ## Why is this so awesome
@@ -86,4 +88,3 @@ TODO IMPLEMENT DEMO
 - Create data stream (MQTT messages)
 - Finish model training
 - Use model for inference: 1) via TensorFlow-IO Python API and 2) exported to a Kafka Streams / KSQL microservice
-
