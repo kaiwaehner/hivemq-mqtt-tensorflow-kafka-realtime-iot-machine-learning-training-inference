@@ -87,4 +87,14 @@ TODO IMPLEMENT DEMO
 - Start TensorFlow Python script consuming data to train the model
 - Create data stream (MQTT messages)
 - Finish model training
-- Use model for inference: 1) via TensorFlow-IO Python API and 2) exported to a Kafka Streams / KSQL microservice
+- Use model for inference: 1) via TensorFlow-IO Python API, 2) exported to a Kafka Streams / KSQL microservice and 3) via TensorFlow Serving
+
+## More Information
+
+### TensorFlow 1.x to 2.0 Migration and Embedded Keras API
+
+- The upgrade tool allows smooth migration, especially if your TensorFlow 1.x code also uses Keras. I just executed: "tf_upgrade_v2 --infile Python-Tensorflow-1.x-Keras-Fraud-Detection-Autoencoder.ipynb --outfile Python-Tensorflow-2.0-Keras-Fraud-Detection-Autoencoder.ipynb"
+- Python-Tensorflow-1.x-Keras-Fraud-Detection-Autoencoder.ipynb is the initial Jupyter Notebook to create the autoencoder
+- Python-Tensorflow-2.0-Keras-Fraud-Detection-Autoencoder.ipynb is the TensorFlow 2.0 version
+- You usually still need to do some custom fixes. My migration report had no errors, but I still has to replace "tensorflow.keras" with "keras" imports (and uninstall the independent Keras package via pip to be on the safe path)
+- The Jupyter Notebook now runs well with TensorFlow 2.0 and its embedded Keras API
