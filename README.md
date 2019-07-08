@@ -1,20 +1,23 @@
 # Streaming Machine Learning from IoT Devices with HiveMQ, Apache Kafka and TensorFLow
 
-WORK IN PROGRESS... NO FUNCTIONAL PROJECT YET...
+WORK IN PROGRESS... NOT FINISHED YET !!!!!!
 
 This project implements a scenario where you can *train new analytic models from streaming data - without the need for an additional data store* like S3, HDFS or Spark.
 
-We use HiveMQ as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an Apache Kafka cluster for preprocessing (using Kafka Streams / KSQL), and model training (using TensorFlow 2.0 and its Kafka IO plugin).
+We use [HiveMQ](https://github.com/hivemq/hivemq-community-edition) as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an [Apache Kafka](https://github.com/) cluster for preprocessing (using Kafka Streams / [KSQL](https://github.com/confluentinc/ksql)), and model training (using [TensorFlow 2.0](https://www.tensorflow.org/) and its Kafka IO plugin).
 
 ## Use Case and Architecture
 
-Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O:
+Streaming Machine Learning with MQTT, Apache Kafka and TensorFlow I/O:
 
-- Data Integration and Preprocessing
+- Data Integration
+- Data Preprocessing
 - Model Training
 - Model Deployment
 - Real Time Scoring
 - Real Time Monitoring
+
+All steps happen in real time. No additional data store like S3 or HDFS is required:
 
 ![Use Case: Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O](pictures/Use_Case_MQTT_HiveMQ_to_TensorFlow_via_Apache_Kafka_Streams_KSQL.png)
 
@@ -22,12 +25,12 @@ Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O:
 
 Typically, analytic models are trained in batch mode where you first ingest all historical data in a data store like HDFS, AWS S3 or GCS. Then you train the model using a framework like Spark MLlib, TensorFlow or Google ML.
 
-[TensorFlow I/O](https://github.com/tensorflow/io) is a component of the TensorFlow framework which allows native integration with different technologies.
+[TensorFlow I/O](https://github.com/tensorflow/io) is a component of the TensorFlow framework which allows native integration with various technologies.
 
-One of these integrations is tensorflow_io.kafka which allows streaming ingestion into TensorFlow from Kafka WITHOUT the need for a data store! This *significantly simplifies the architecture  and reduces operation and development costs*.
+One of these integrations is tensorflow_io.kafka which allows streaming ingestion into TensorFlow from Kafka WITHOUT the need for an additional data store! This *significantly simplifies the architecture  and reduces development, testing and operations costs*.
 Yong Tang, member of the SIG TensorFlow I/O team, did a [great presentation about this at Kafka Summit 2019 in New York](https://www.confluent.io/kafka-summit-ny19/real-time-streaming-with-kafka-and-tensorflow) (video and slide deck available for free).
 
-You can pick and choose the right components from the Apache Kafka and TensorFlow ecosystems for your use case:
+You can pick and choose the right components from the Apache Kafka and TensorFlow ecosystems to build your own machine learning infrastructure for data integration, data processing, model training and model deployment:
 
 ![Machine Learning Workflow with TensorFlow and Apache Kafka Ecosystem](pictures/TensorFlow_Apache_Kafka_Streaming_Workflow.png)
 
@@ -76,20 +79,26 @@ TODO
 
 ## Live Demo
 
-Until the demo is ready, you can already checkout a working [Python example of streaming ingestion of MNIST data into TensorFlow via Kafka](confluent-tensorflow-io-kafka.py).
+Until the full demo is ready, you can already checkout two working examples which use Kafka Python clients to produce data to Kafka topics and then consume the streaming data directly with TensorFlow I/O for streaming ML without an additional data store:
+
+- [Streaming ingestion of MNIST data into TensorFlow via Kafka for image regonition](confluent-tensorflow-io-kafka.py).
+- Autoencoder for anomaly detection of sensor data into TensorFlow via Kafka. [Producer (Python Client)](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Producer-From-CSV.py) and [Consumer (TensorFlow I/O Kafka Plugin) + Model Training](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Consumer-and-TensorFlow-Model-Training.py).
 
 TODO IMPLEMENT DEMO
-
-(via Docker container and run via single command)
 
 - Start HiveMQ
 - Start Confluent Platform
 - Start TensorFlow Python script consuming data to train the model
-- Create data stream (MQTT messages)
+- Create continuous data stream (MQTT messages)
 - Finish model training
 - Use model for inference: 1) via TensorFlow-IO Python API, 2) exported to a Kafka Streams / KSQL microservice and 3) via TensorFlow Serving
 
 ## More Information
+
+### TensorFlow 2.0 is still beta and requires Linux
+
+- At the time of writing (July 2019), TensorFlow 2.0 is still beta
+- TensorFlow 2.0 I/O does NOT work on Mac or Windows (e.g. 'pip install tensorflow-io-2.0-preview does not work'). You need to install it on a Linux system (VM or Cloud Instance) to avoid many headaches and spend your time on the problem, not the infrastructure
 
 ### TensorFlow 1.x to 2.0 Migration and Embedded Keras API
 
