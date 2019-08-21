@@ -1,14 +1,14 @@
-# Streaming Machine Learning from IoT Devices with HiveMQ, Apache Kafka and TensorFLow
+# Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow
 
 WORK IN PROGRESS... NOT FINISHED YET !!!!!!
 
-This project implements a scenario where you can *train new analytic models from streaming data - without the need for an additional data store* like S3, HDFS or Spark.
+You want to see an IoT example at real scale? Not just 100 or 1000 devices producting data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
 
-We use [HiveMQ](https://github.com/hivemq/hivemq-community-edition) as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an [Apache Kafka](https://github.com/) cluster for preprocessing (using Kafka Streams / [KSQL](https://github.com/confluentinc/ksql)), and model training (using [TensorFlow 2.0](https://www.tensorflow.org/) and its Kafka IO plugin).
+This is the right demo for you? The demo shows how you can integrate with tens or hundreds of thousands IoT devices and process the data in real time. The demo use case is anomaly detection in a connected car infrastructure.
 
-## Use Case and Architecture
+## Use Case: Anomaly Detection in Real Time for 100000+ Connected Cars
 
-Streaming Machine Learning with MQTT, Apache Kafka and TensorFlow I/O:
+Streaming Machine Learning in Real Time at Scale with MQTT, Apache Kafka and TensorFlow I/O:
 
 - Data Integration
 - Data Preprocessing
@@ -17,9 +17,23 @@ Streaming Machine Learning with MQTT, Apache Kafka and TensorFlow I/O:
 - Real Time Scoring
 - Real Time Monitoring
 
-All steps happen in real time. No additional data store like S3 or HDFS is required:
+This project implements a scenario where you can integrate with tens of thousands devices using a scalable IoT platform and an event streaming platform. The demo trains new analytic models from streaming data - without the need for an additional data store - to do anomaly detection on real time sensor data from cars:
 
 ![Use Case: Streaming Machine Learning with MQTT, Kafka and TensorFlow I/O](pictures/Use_Case_MQTT_HiveMQ_to_TensorFlow_via_Apache_Kafka_Streams_KSQL.png)
+
+## Architecture
+
+We use [HiveMQ](https://github.com/hivemq/hivemq-community-edition) as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an [Apache Kafka](https://github.com/) cluster for preprocessing (using Kafka Streams / [KSQL](https://github.com/confluentinc/ksql)), and model training (using [TensorFlow 2.0](https://www.tensorflow.org/) and its Kafka IO plugin). 
+
+We leverage additional enterprise components from HiveMQ and Confluent to allow easy operations, scalability and monitoring.
+
+Here is the architecture of the MVP (target: September 2019):
+
+![MVP Architecture](pictures/MVP_Architecture_HiveMQ_Confluent_MQTT_Kafka_IoT_TensorFlow.png)
+
+And this is the architecture of the final demo (target: October 2019):
+
+![Advanced Architecture](pictures/Advanced_Architecture_HiveMQ_Confluent_MQTT_Kafka_IoT_TensorFlow.png)
 
 ## Streaming Ingestion and Model Training with Kafka and TensorFlow-IO
 
