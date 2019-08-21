@@ -2,9 +2,9 @@
 
 WORK IN PROGRESS... NOT FINISHED YET !!!!!!
 
-You want to see an IoT example at real scale? Not just 100 or 1000 devices producting data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
+You want to see an IoT example at huge scale? Not just 100 or 1000 devices producing data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
 
-This is the right demo for you? The demo shows how you can integrate with tens or hundreds of thousands IoT devices and process the data in real time. The demo use case is anomaly detection in a connected car infrastructure.
+This is the right demo for you! The demo shows how you can integrate with tens or hundreds of thousands IoT devices and process the data in real time. The demo use case is anomaly detection in a connected car infrastructure.
 
 ## Use Case: Anomaly Detection in Real Time for 100000+ Connected Cars
 
