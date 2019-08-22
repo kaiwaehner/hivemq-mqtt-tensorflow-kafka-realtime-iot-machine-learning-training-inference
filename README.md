@@ -89,25 +89,32 @@ I posted many articles about videos about this discussion. Get started with [How
 
 ## Requirements and Installation
 
-TODO
+### Kubernetes
+
+todo
+
+### HiveMQ
+
+todo
+
+### Kafka / Confluent Platform
+
+todo
 
 ## Live Demo
+
+[TODO Step-by-Step demo guide (not ready yet)](live-demo-hivemq-confluent-kafka-tensorflow.adoc)
+
+If you are just interested in the "Streaming ML" part, check out the following:
 
 Until the full demo is ready, you can already checkout two working examples which use Kafka Python clients to produce data to Kafka topics and then consume the streaming data directly with TensorFlow I/O for streaming ML without an additional data store:
 
 - [Streaming ingestion of MNIST data into TensorFlow via Kafka for image regonition](confluent-tensorflow-io-kafka.py).
 - Autoencoder for anomaly detection of sensor data into TensorFlow via Kafka. [Producer (Python Client)](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Producer-From-CSV.py) and [Consumer (TensorFlow I/O Kafka Plugin) + Model Training](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Consumer-and-TensorFlow-Model-Training.py).
 
-TODO IMPLEMENT DEMO
-
-- Start HiveMQ
-- Start Confluent Platform
-- Start TensorFlow Python script consuming data to train the model
-- Create continuous data stream (MQTT messages)
-- Finish model training
-- Use model for inference: 1) via TensorFlow-IO Python API, 2) exported to a Kafka Streams / KSQL microservice and 3) via TensorFlow Serving
-
 ## More Information
+
+TODO Outsource additional information like this into another document:
 
 ### TensorFlow 2.0 is still beta and requires Linux
 
