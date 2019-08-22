@@ -1,0 +1,61 @@
+= HiveMQ + Confluent Kafka + TensorFLow Live Demo
+
+Kai Waehner <kontakt@kai-waehner.de>
+TODO Other contributors
+August 22nd 2019
+
+== Initial Kubernetes setup
+
+[source,bash]
+
+TODO
+
+----
+TODO
+----
+
+== Starting HiveMQ services and configuration
+
+TODO
+
+[source,bash]
+----
+TODO
+----
+
+== Starting Confluent Kafka services and configuration
+
+TODO
+
+[source,bash]
+----
+TODO
+----
+
+== Generate test data and consume data / show in UI
+
+TODO
+
+[source,bash]
+----
+TODO
+----
+
+== Advanced stuff (show very high volum, show handle of pod failure, etc.)
+
+TODO
+
+[source,bash]
+----
+TODO
+----
+
+
+== Stop services and destroy test data
+
+TODO
+
+[source,bash]
+----
+TODO
+----
