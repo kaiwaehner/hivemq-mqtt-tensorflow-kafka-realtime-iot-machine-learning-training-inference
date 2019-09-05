@@ -35,6 +35,14 @@ And this is the architecture of the final demo (target: October 2019):
 
 ![Advanced Architecture](pictures/Advanced_Architecture_HiveMQ_Confluent_MQTT_Kafka_IoT_TensorFlow.png)
 
+### Test Data - Car Sensors
+
+We generate streaming test data at scale using a [Car Data Simulator](https://github.com/sbaier1/avro-car-sensor-simulator). The test data uses Apache Avro file format to leverage features like compression, schema versioning and Confluent features like Schema Registry or KSQL's schema inference.
+
+You can either use some test data stored in the CSV file [car-sensor-data.csv](testdata/car-sensor-data.csv) or generate continuous streaming data using the script TODO.
+
+Check out the Avro file format here: [cardata-v1.avsc](cardata-v1.avsc).
+
 ## Streaming Ingestion and Model Training with Kafka and TensorFlow-IO
 
 Typically, analytic models are trained in batch mode where you first ingest all historical data in a data store like HDFS, AWS S3 or GCS. Then you train the model using a framework like Spark MLlib, TensorFlow or Google ML.
