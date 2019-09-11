@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="scenario.xsd">
+    <brokers>
+        <broker id="b1">
+            <address>broker.hivemq.com</address>
+            <port>1883</port>
+        </broker>
+    </brokers>
+    <clientGroups>
+        <clientGroup id="cg1">
+            <clientIdPattern>electric-vehicle-[0-9]{4}</clientIdPattern>
+            <count>10</count>
+            <mqttVersion>5</mqttVersion>
+        </clientGroup>
+    </clientGroups>
+    <topicGroups>
+        <topicGroup id="tg1">
+            <topicNamePattern>vehicles/sensor/data/electric-vehicle-[0-9]{4}</topicNamePattern>
+            <count>10</count>
+        </topicGroup>
+    </topicGroups>
+    <subscriptions>
+        <subscription id="sub-1">
+            <topicGroup>tg1</topicGroup>
+            <wildCard>true</wildCard>
+        </subscription>
+    </subscriptions>
+    <stages>
+        <stage id="connect" expectedDuration="20s">
+            <lifeCycle id="connect-cars" clientGroup="cg1">
+                <rampUp duration="10s"/>
+                <connect/>
+            </lifeCycle>
+        </stage>
+        <stage id="publish-disconnect">
+            <lifeCycle id="publ" clientGroup="cg1">
+                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="1" count="1000"
+                         message="" rate="2/1s" expectedDuration="20s"/>
+                <disconnect/>
+            </lifeCycle>
+        </stage>
+    </stages>
+</scenario>
