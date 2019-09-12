@@ -41,6 +41,9 @@ If you are running the [Prometheus Operator](https://github.com/coreos/prometheu
 
 To do so, just specify the `--enable-monitoring` flag when running the scenario and the extension will attempt to create a `ServiceMonitor` which will be kept in place and allow Prometheus to pick up all Device Simulator scenarios being executed automatically.
 
+**Note**: If your Prometheus instance(s) are not picking up the `ServiceMonitor` you may also have to adjust your `Prometheus` object's `serviceMonitorNamespaceSelector` field.
+
+
 The Device Simulator Commander will then create a `Service` which will target all the simulator pods, which Prometheus can then scrape. 
 
 A Grafana dashboard is provided [here](Device%20Simulator.json).
