@@ -10,6 +10,9 @@ fi
 kubectl create namespace hivemq || true
 kubectl apply -f operator-rbac.yaml
 
+kubectl create configmap hivemq-dashboard --from-file=hivemq.json || true
+kubectl label configmap/hivemq-dashboard grafana_dashboard=1 || true
+
 echo "Deploying HiveMQ operator..."
 # Warning: This is a really early development version of the operator. DO NOT USE IN PRODUCTION
 kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.1 || true
