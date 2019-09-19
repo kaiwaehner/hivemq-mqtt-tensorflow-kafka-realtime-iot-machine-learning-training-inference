@@ -43,10 +43,14 @@ To do so, just specify the `--enable-monitoring` flag when running the scenario 
 
 **Note**: If your Prometheus instance(s) are not picking up the `ServiceMonitor` you may also have to adjust your `Prometheus` object's `serviceMonitorNamespaceSelector` field.
 
-
 The Device Simulator Commander will then create a `Service` which will target all the simulator pods, which Prometheus can then scrape. 
 
-A Grafana dashboard is provided [here](Device%20Simulator.json).
+You can create a Grafana dashboard like this:
+
+```bash
+kubectl create configmap devsim-dashboard --from-file=devsim.json || true
+kubectl label configmap/devsim-dashboard grafana_dashboard=1 || true
+```
 
 ## Troubleshooting
 

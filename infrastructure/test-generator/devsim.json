@@ -2138,7 +2138,9 @@
   "refresh": "5s",
   "schemaVersion": 19,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "mqtt"
+  ],
   "templating": {
     "list": [
       {

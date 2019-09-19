@@ -5,5 +5,9 @@ if ! hash kubectl 2>/dev/null; then
     exit 1
 fi
 
+echo "Creating the monitoring dashboard configuration"
+kubectl create configmap devsim-dashboard --from-file=devsim.json || true
+kubectl label configmap/devsim-dashboard grafana_dashboard=1 || true
+
 echo "Running the scenario ad-hoc..."
 exec ./kube-cli.sh run -s scenario.xml -l car-demo -i sbaier1/device-simulator:avro

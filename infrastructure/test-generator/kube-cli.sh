@@ -35,10 +35,13 @@ Options:
     -l, --label:            Label for the test. This must be unique when running multiple tests and will be used for annotations and labels. Will be randomly created based on timestamp if none specified.
     -a, --agent-count:      Override the number of HiveMQ Device Simulator Agents to create. Will default to 3.
     -n, --namespace:        The namespace to run the test in. Will use "default" if none is specified.
+    --mem:                  The amount of memory to request in the Pod spec. (Default: 1G)
+    --cpu:                  The amount of CPU to request in the Ppd spec. (Default: 500m)
     -d, --detach:           Do not show the log and run the test in the background.
     -L, --log-level:        Log level to run the commander with
     -A, --all-logs:         When displaying pod logs, show logs for all pods instead of only the commander's. Disabled by default. Can also be used on the log subcommand.
     --enable-monitoring:    Enable Prometheus Monitoring. Disabled by default.
+    --rbac:                 Create RBAC rules for the initial commander pod. Disabled by default.
     --help:                 Print this help text.
 EOF
 }
@@ -113,6 +116,9 @@ NAMESPACE=default
 AGENT_COUNT=3
 LOG_LEVEL=INFO
 
+MEMORY=1G
+CPU=500m
+
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -154,6 +160,18 @@ while [[ $# -gt 0 ]]; do
     shift # past argument
     shift # past value
     ;;
+  --mem)
+    MEMORY="$2"
+    NOARG=false
+    shift # past argument
+    shift # past value
+    ;;
+  --cpu)
+    CPU="$2"
+    NOARG=false
+    shift # past argument
+    shift # past value
+    ;;
   --enable-monitoring)
     MONITORING=true
     NOARG=false
@@ -169,6 +187,11 @@ while [[ $# -gt 0 ]]; do
     ;;
   -d | --detach)
     DETACH=true
+    NOARG=false
+    shift # past argument with no value
+    ;;
+  --rbac)
+    RBAC_RULES=true
     NOARG=false
     shift # past argument with no value
     ;;
@@ -322,6 +345,11 @@ if [[ ${COMMAND} == "jobs" ]]; then
 fi
 
 function get_pod_template() {
+  if [[ ${RBAC_RULES} == "true" ]]; then
+    SERVICE_ACCOUNT_OPTIONAL="  serviceAccount: hivemq-device-simulator
+  serviceAccountName: hivemq-device-simulator"
+  fi
+
   if [[ -z "${POD_TEMPLATE}" ]]; then
     cat << EOF
 apiVersion: v1
@@ -356,6 +384,13 @@ spec:
           value: "/plugins"
         - name: MONITORING
           value: "${MONITORING}"
+      resources:
+        limits:
+          cpu: 6
+          memory: 8192M
+        requests:
+          cpu: ${CPU}
+          memory: ${MEMORY}
       ports:
         - containerPort: 8080
           name: rest
@@ -363,7 +398,25 @@ spec:
       volumeMounts:
         - mountPath: /app/scenario
           name: scenario
+${SERVICE_ACCOUNT_OPTIONAL}
   restartPolicy: Never
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: device-simulator-task
+            operator: In
+            values:
+              - ${LABEL}
+        topologyKey: "kubernetes.io/hostname"
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+              - hivemq
+        topologyKey: "kubernetes.io/hostname"
   volumes:
     - name: scenario
       configMap:
@@ -371,6 +424,33 @@ spec:
 EOF
   else
     eval "echo \"$(sed 's/"/\\"/g' ${POD_TEMPLATE})\""
+  fi
+}
+
+function get_rbac_rules() {
+if [[ -z "${RBAC_TEMPLATE}" ]]; then
+    cat << EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hivemq-device-simulator
+  namespace: ${NAMESPACE}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hivemq-device-simulator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: hivemq-device-simulator
+    namespace: ${NAMESPACE}
+EOF
+  else
+    eval "echo \"$(sed 's/"/\\"/g' ${RBAC_TEMPLATE})\""
   fi
 }
 
@@ -388,6 +468,12 @@ if [[ ${COMMAND} == "run" ]]; then
     echo "Using pod template:"
     get_pod_template
   fi
+
+  if [[ ${RBAC_RULES} == "true" ]]; then
+    echo "Creating RBAC rules"
+    get_rbac_rules | eval ${KUBECTL_CMD} ${KUBECTL_OPTS} apply -f -
+  fi
+
   get_pod_template | eval ${KUBECTL_CMD} ${KUBECTL_OPTS} apply -f -
 
   if [[ ${DETACH} == "true" ]]; then
@@ -403,11 +489,11 @@ if [[ ${COMMAND} == "run" ]]; then
     eval ${KUBECTL_CMD} wait ${KUBECTL_OPTS} --for=condition=Ready --timeout=5m "po/device-simulator-commander-${LABEL}"
 
     if [[ ${SHOW_ALL_LOGS} == "true" ]]; then
-      eval ${KUBECTL_CMD} logs ${KUBECTL_OPTS} -f -l "device-simulator-task=${LABEL}" || true
+      eval ${KUBECTL_CMD} logs ${KUBECTL_OPTS} -f --max-log-requests=10 -l "device-simulator-task=${LABEL}" || true
     else
       eval ${KUBECTL_CMD} logs ${KUBECTL_OPTS} -f "device-simulator-commander-${LABEL}" || true
     fi
-    eval ${KUBECTL_CMD} delete ${KUBECTL_OPTS} configmap "${LABEL}"
+    shutdown
   fi
 fi
 

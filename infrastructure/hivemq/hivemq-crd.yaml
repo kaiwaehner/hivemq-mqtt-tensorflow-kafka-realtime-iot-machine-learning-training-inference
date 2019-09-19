@@ -1,0 +1,20 @@
+apiVersion: hivemq.com/v1
+kind: HiveMQCluster
+metadata:
+  name: hivemq-cluster1
+  namespace: hivemq
+spec:
+  hivemqVersion: latest
+  image: sbaier1/hivemq-k8s
+  imagePullPolicy: Always
+  nodeCount: 5
+  logLevel: INFO
+  mqtt:
+    maxQos: 2
+  monitoring:
+    enablePrometheus: true
+  memoryRequest: 6G
+  cpuRequest: 2000m
+  configMaps:
+  - name: hivemq-license
+    path: /opt/hivemq/license
