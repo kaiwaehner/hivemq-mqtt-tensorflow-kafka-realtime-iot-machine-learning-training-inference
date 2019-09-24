@@ -3,23 +3,7 @@
           xsi:noNamespaceSchemaLocation="scenario.xsd">
     <brokers>
         <broker id="b1">
-            <address>10.56.5.4</address>
-            <port>1883</port>
-        </broker>
-        <broker id="b2">
-            <address>10.56.7.2</address>
-            <port>1883</port>
-        </broker>
-        <broker id="b3">
-            <address>10.56.10.3</address>
-            <port>1883</port>
-        </broker>
-        <broker id="b4">
-            <address>10.56.8.3</address>
-            <port>1883</port>
-        </broker>
-        <broker id="b5">
-            <address>10.56.11.5</address>
+            <address>hivemq-mqtt.hivemq.svc.cluster.local</address>
             <port>1883</port>
         </broker>
     </brokers>
@@ -57,17 +41,11 @@
                 <connect/>
             </lifeCycle>
         </stage>
-        <stage id="sub">
-            <lifeCycle id="sub-consumer" clientGroup="consumer-group">
-                <connect keepAlive="30s"/>
-                <subscribe to="sub-1-shared" qos="1"/>
-            </lifeCycle>
-        </stage>
         <stage id="publish-disconnect">
             <lifeCycle id="publ" clientGroup="cg1">
                 <rampUp duration="20s"/>
-                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="1" count="5000"
-                         message="" rate="1/30s" roundRobin="false"/>
+                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="1" count="40"
+                         message="" rate="1/20s" roundRobin="false"/>
                 <disconnect/>
             </lifeCycle>
         </stage>

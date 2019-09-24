@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hivemq-mqtt
+  namespace: hivemq
+  annotations:
+    service.spec.externalTrafficPolicy: Local
+spec:
+  selector:
+    hivemq-cluster: hivemq-cluster1
+  ports:
+    - protocol: TCP
+      port: 1883
+      targetPort: mqtt

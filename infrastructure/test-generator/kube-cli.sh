@@ -489,7 +489,7 @@ if [[ ${COMMAND} == "run" ]]; then
     eval ${KUBECTL_CMD} wait ${KUBECTL_OPTS} --for=condition=Ready --timeout=5m "po/device-simulator-commander-${LABEL}"
 
     if [[ ${SHOW_ALL_LOGS} == "true" ]]; then
-      eval ${KUBECTL_CMD} logs ${KUBECTL_OPTS} -f --max-log-requests=10 -l "device-simulator-task=${LABEL}" || true
+      eval ${KUBECTL_CMD} logs --max-log-requests="10" ${KUBECTL_OPTS} -f -l "device-simulator-task=${LABEL}" || true
     else
       eval ${KUBECTL_CMD} logs ${KUBECTL_OPTS} -f "device-simulator-commander-${LABEL}" || true
     fi
