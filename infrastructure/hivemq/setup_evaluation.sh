@@ -21,7 +21,7 @@ echo "Deploying HiveMQ operator..."
 kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.1 || true
 kubectl rollout -n hivemq status deployment operator
 
-kubectl apply -f hivemq-crd.yaml
+kubectl apply -f hivemq-crd-evaluation.yaml
 # Arbitrary sleep to wait until the operator creates the deployment
 sleep 5
 kubectl rollout -n hivemq status deployment hivemq-cluster1

@@ -9,3 +9,7 @@ kubectl create -n hivemq configmap hivemq-license --from-file=my-license.lic || 
 ```
 
 Then you can deploy HiveMQ by running `./setup.sh`
+
+# Monitoring
+
+Grafana Dashboards will be deployed using the Prometheus Operator, see the [Terraform script](../terraform-gcp)
