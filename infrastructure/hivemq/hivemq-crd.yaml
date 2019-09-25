@@ -1,0 +1,55 @@
+apiVersion: hivemq.com/v1
+kind: HiveMQCluster
+metadata:
+  name: hivemq-cluster1
+  namespace: hivemq
+spec:
+  hivemqVersion: latest
+  image: sbaier1/hivemq-k8s
+  imagePullPolicy: Always
+  nodeCount: 5
+  logLevel: INFO
+  mqtt:
+    maxQos: 2
+  monitoring:
+    enablePrometheus: true
+  memoryRequest: 6G
+  cpuRequest: 2000m
+  initContainers:
+    - name: init-kafka-plugin
+      args:
+        - |
+          # Setup extension
+          wget https://www.hivemq.com/releases/extensions/hivemq-kafka-extension-1.0.0.zip
+          unzip hivemq-kafka-extension-1.0.0.zip -d /hivemq-data/extensions
+          rm /hivemq-data/extensions/hivemq-kafka-extension/kafka-configuration.example.xml
+          cat << EOF > /hivemq-data/extensions/hivemq-kafka-extension/kafka-configuration.xml
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <kafka-configuration
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:noNamespaceSchemaLocation="kafka-extension.xsd">
+              <kafka-clusters>
+                  <kafka-cluster>
+                      <id>cluster01</id>
+                      <bootstrap-servers>kafka.operator.svc.cluster.local:9092</bootstrap-servers>
+                      <authentication>
+                          <plain>
+                              <username>test</username>
+                              <password>test123</password>
+                          </plain>
+                      </authentication>
+                  </kafka-cluster>
+              </kafka-clusters>
+              <topic-mappings>
+                  <topic-mapping>
+                      <id>sensor-data</id>
+                      <cluster-id>cluster01</cluster-id>
+                      <mqtt-topic-filters>
+                          <mqtt-topic-filter>vehicles/sensor/data/#</mqtt-topic-filter>
+                      </mqtt-topic-filters>
+                      <kafka-topic>sensor-data</kafka-topic>
+                  </topic-mapping>
+              </topic-mappings>
+          </kafka-configuration>
+          EOF
+          chmod -R 777 /hivemq-data/extensions/hivemq-kafka-extension

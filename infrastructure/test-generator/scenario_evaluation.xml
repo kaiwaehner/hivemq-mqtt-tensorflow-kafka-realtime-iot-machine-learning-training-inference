@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="scenario.xsd">
+    <brokers>
+        <broker id="b1">
+            <address>hivemq-mqtt.hivemq.svc.cluster.local</address>
+            <port>1883</port>
+        </broker>
+    </brokers>
+    <clientGroups>
+        <clientGroup id="cg1">
+            <clientIdPattern>electric-vehicle-[0-9]{5}</clientIdPattern>
+            <count>25</count>
+            <mqttVersion>5</mqttVersion>
+        </clientGroup>
+        <clientGroup id="consumer-group">
+            <clientIdPattern>consumer-[0-9]{1}</clientIdPattern>
+            <count>6</count>
+            <mqttVersion>5</mqttVersion>
+        </clientGroup>
+    </clientGroups>
+    <topicGroups>
+        <topicGroup id="tg1">
+            <topicNamePattern>vehicles/sensor/data/electric-vehicle-[0-9]{5}</topicNamePattern>
+            <count>25</count>
+        </topicGroup>
+    </topicGroups>
+    <subscriptions>
+        <subscription id="sub-1">
+            <topicGroup>tg1</topicGroup>
+            <wildCard>true</wildCard>
+        </subscription>
+        <subscription id="sub-1-shared">
+            <topicFilter>$share/consumers/vehicles/sensor/data/#</topicFilter>
+        </subscription>
+    </subscriptions>
+    <stages>
+        <stage id="connect">
+            <lifeCycle id="connect-cars" clientGroup="cg1">
+                <rampUp duration="20s"/>
+                <connect/>
+            </lifeCycle>
+        </stage>
+        <stage id="publish-disconnect">
+            <lifeCycle id="publ" clientGroup="cg1">
+                <rampUp duration="20s"/>
+                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="1" count="40"
+                         message="" rate="1/5s" roundRobin="false"/>
+                <disconnect/>
+            </lifeCycle>
+        </stage>
+    </stages>
+</scenario>
