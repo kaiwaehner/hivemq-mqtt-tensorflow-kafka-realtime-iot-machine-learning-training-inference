@@ -10,4 +10,4 @@ kubectl create configmap devsim-dashboard --from-file=devsim.json || true
 kubectl label configmap/devsim-dashboard grafana_dashboard=1 || true
 
 echo "Running the scenario ad-hoc..."
-exec ./kube-cli.sh run --agent-count 6 --enable-monitoring --rbac -s scenario.xml -l car-demo -i sbaier1/device-simulator:avro
+exec ./kube-cli.sh run --rbac -s scenario_evaluation.xml -l car-demo -i sbaier1/device-simulator:avro
