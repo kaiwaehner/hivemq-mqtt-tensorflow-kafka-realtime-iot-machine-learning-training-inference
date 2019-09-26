@@ -39,3 +39,7 @@ terraform apply
 * Forward local port to Grafana service: `kubectl port-forward service/prom-grafana 3000:service`
 * Go to [localhost:3000](http://localhost:3000) (login: admin, prom-operator)
 * Dashboards will be deployed automatically (if they are not visible, bounce the deployment by deleting the current Grafana pod. It will reload the ConfigMaps after it restarts.)
+
+# Destroy Infrastructure
+
+* Run 'terraform destroy' to stop and remove the created Kubernetes infrastructure
