@@ -15,6 +15,8 @@ gcloud container clusters get-credentials ${1} --zone ${2}
 kubectl apply -f tiller-rbac.yaml
 
 helm init --wait --service-account tiller
+# Apparently tiller is sometimes not ready after init even with --wait
+sleep 5
 
 echo "Deploying prometheus..."
 helm upgrade --install prom stable/prometheus-operator --wait
