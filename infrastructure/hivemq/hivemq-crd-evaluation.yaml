@@ -15,9 +15,6 @@ spec:
     enablePrometheus: true
   memoryRequest: 6G
   cpuRequest: 2000m
-  configMaps:
-  - name: hivemq-license
-    path: /opt/hivemq/license
   initContainers:
     - name: init-kafka-plugin
       args:
