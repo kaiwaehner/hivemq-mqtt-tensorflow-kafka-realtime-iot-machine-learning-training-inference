@@ -10,11 +10,17 @@ Applying this terraform deployment will create a K8s cluster with the following 
 It will also set your kubectl context to the gcp cluster automatically. (To undo this, see `kubectl config get-contexts` and switch to your preferred context)
 
 # Requirements
+The following components are required:
 
-* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-* helm: e.g. `brew install kubernetes-helm`
-* [terraform (0.12)](https://www.terraform.io/downloads.html)
+* jq: e.g. 'brew install jq'
+* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/): e.g. brew install kubernetes-cli (tested with 1.16.0)
+* helm: e.g. `brew install kubernetes-helm` (tested with 2.14.3)
+* [terraform (0.12)](https://www.terraform.io/downloads.html): e.g. brew install terraform
 * [GCloud CLI](https://cloud.google.com/sdk/docs/quickstart-macos) (run `gcloud init` first)
+
+The setup is tested on Mac OS X.
+
+Make sure to have updated versions, e.g. an older version of helm did not work.
 
 # Quick Start
 
@@ -32,7 +38,7 @@ terraform apply
 
 * Run `kubectl proxy &`
 * Go to [K8s dashboard](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
-* Login using The token from `gcloud config config-helper --format=json | jq -r '.credential.access_token'`
+* Login to K8s dashboard using The token from `gcloud config config-helper --format=json | jq -r '.credential.access_token'`
 
 # Grafana Dashboards
 
