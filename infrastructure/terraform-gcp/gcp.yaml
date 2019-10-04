@@ -1,0 +1,203 @@
+## Overriding values for Chart's values.yaml
+## Example values to run Confluent Operator in GCP
+global:
+  provider:
+    name: gcp
+    region: europe-west1
+    kubernetes:
+       deployment:
+         ## If kubernetes is deployed in multi zone mode then specify availability-zones as appropriate
+         ## If kubernetes is deployed in single availability zone then specify appropriate values
+         zones:
+          - europe-west1-b
+    storage:
+      ## https://kubernetes.io/docs/concepts/storage/storage-classes/#gce
+      ##
+      provisioner: kubernetes.io/gce-pd
+      ## Use Retain if you want to persist data after CP cluster has been uninstalled
+      reclaimPolicy: Delete
+      parameters:
+        type: pd-ssd
+    ## Docker registry endpoint where Confluent Images are available.
+    ##
+    registry:
+      fqdn: docker.io
+      credential:
+        required: false
+  sasl:
+    plain:
+      username: test
+      password: test123
+
+## Zookeeper cluster
+##
+zookeeper:
+  name: zookeeper
+  replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+
+## Kafka Cluster
+##
+kafka:
+  name: kafka
+  replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 1Gi
+  loadBalancer:
+    enabled: false
+    domain: ""
+  tls:
+    enabled: false
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  metricReporter:
+    enabled: false
+
+## Connect Cluster
+##
+connect:
+  name: connectors
+  replicas: 1
+  tls:
+    enabled: false
+    ## "" for none, "tls" for mutual auth
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  loadBalancer:
+    enabled: false
+    domain: ""
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka:9071
+      brokerCount: 1
+    schemaRegistry:
+      enabled: true
+      url: http://schemaregistry:8081
+## Replicator Connect Cluster
+##
+replicator:
+  name: replicator
+  replicas: 1
+  tls:
+    enabled: false
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  loadBalancer:
+    enabled: false
+    domain: ""
+  dependencies:
+    kafka:
+      brokerCount: 1
+      bootstrapEndpoint: kafka:9071
+##
+## Schema Registry
+##
+schemaregistry:
+  name: schemaregistry
+  replicas: 1
+  tls:
+    enabled: false
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  loadBalancer:
+    enabled: false
+    domain: ""
+  dependencies:
+    kafka:
+      brokerCount: 1
+      bootstrapEndpoint: kafka:9071
+
+##
+## KSQL
+##
+ksql:
+  name: ksql
+  replicas: 1
+  tls:
+    enabled: false
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  loadBalancer:
+    enabled: false
+    domain: ""
+  dependencies:
+    kafka:
+      brokerCount: 1
+      bootstrapEndpoint: kafka:9071
+      brokerEndpoints: kafka-0.kafka:9071
+    schemaRegistry:
+      enabled: false
+      tls:
+        enabled: false
+        authentication:
+          type: ""
+      url: http://schemaregistry:8081
+
+## Control Center (C3) Resource configuration
+##
+controlcenter:
+  name: controlcenter
+  license: ""
+  ##
+  ## C3 dependencies
+  ##
+  dependencies:
+    c3KafkaCluster:
+      brokerCount: 1
+      bootstrapEndpoint: kafka:9071
+      zookeeper:
+        endpoint: zookeeper:2181
+    connectCluster:
+      enabled: true
+      url: http://connectors:8083
+    ksql:
+      enabled: true
+      url: http://ksql:9088
+    schemaRegistry:
+      enabled: true
+      url: http://schemaregistry:8081
+  ##
+  ## C3 External Access
+  ##
+  loadBalancer:
+    enabled: false
+    domain: ""
+  ##
+  ## TLS configuration
+  ##
+  tls:
+    enabled: false
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  ##
+  ## C3 authentication
+  ##
+  auth:
+    basic:
+      enabled: true
+      ##
+      ## map with key as user and value as password and role
+      property:
+        admin: Developer1,Administrators
+        disallowed: no_access

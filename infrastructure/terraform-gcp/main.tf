@@ -2,12 +2,13 @@ provider "google" {
   credentials = file("account.json")
   project = var.project
   region = var.region
-  zone = var.zone
+  zone = var.zone1
 }
 
 resource "google_container_cluster" "cluster" {
   name = "car-demo-cluster"
-  location = var.region
+  location = var.zone1
+  remove_default_node_pool = true
   initial_node_count = 1
   master_auth {
     username = ""
@@ -34,7 +35,7 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "car-demo-node-pool"
-  location   = var.region
+  location   = var.zone1
   cluster    = google_container_cluster.cluster.name
   node_count = var.node_count
 
@@ -63,11 +64,14 @@ resource "null_resource" "setup-cluster" {
     id = google_container_cluster.cluster.id
     reg = var.region
     prj = var.project
+    rep = var.replicas
+    zo1 = var.zone1
     // Re-run script on deployment script changes
     script = sha1(file("setup.sh"))
+    
   }
 
   provisioner "local-exec" {
-    command = "./setup.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
+    command = "./setup.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project} ${var.replicas} ${var.zone1}"
   }
 }
