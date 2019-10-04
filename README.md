@@ -99,6 +99,7 @@ I posted many articles about videos about this discussion. Get started with [How
 
 ### Kubernetes
 
+We have prepared a terraform script to deploy the complete environment in Google Kubernetes Engine (GKE). Follow the instructions to setup the cluster [here](infrastructure/terraform-gcp/README.md)
 todo
 
 ### HiveMQ
