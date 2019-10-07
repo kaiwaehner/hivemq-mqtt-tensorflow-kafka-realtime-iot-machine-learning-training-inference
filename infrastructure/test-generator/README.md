@@ -32,7 +32,7 @@ To verify the correct installation, run `kubectl devsim`. This should print the 
 ## Running the scenario
 
 ```bash
-kubectl devsim run -s scenario.xml -l car-demo -i sbaier1/device-simulator:avro
+kubectl devsim run --rbac --enable-monitoring -s scenario.xml -l car-demo -i sbaier1/device-simulator:avro
 ```
 
 ## Monitoring integration
