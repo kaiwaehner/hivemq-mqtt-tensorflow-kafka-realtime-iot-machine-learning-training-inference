@@ -14,7 +14,7 @@ Note that at this point the extension is not perfectly idempotent, meaning somet
 
 2. (Optional): If you don't have a Kubernetes Cluster, set up Docker for Desktop Kubernetes or Minikube
 
-3. Run `run_scenario.sh`
+3. Run `run_scenario.sh` (if you use a HiveMQ license) or [run_scenario_evaluation.sh](../test-generator/run_scenario_evaluation.sh) to run the scenario with HiveMQs evaluation license and only 25 cars being simulated instead.
 
 ## Installation
 
