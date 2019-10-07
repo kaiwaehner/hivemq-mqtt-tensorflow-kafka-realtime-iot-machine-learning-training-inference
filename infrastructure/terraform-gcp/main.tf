@@ -47,7 +47,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible  = var.preemptible_nodes
-    machine_type = "n1-standard-2"
+    machine_type = "n1-standard-4"
 
     metadata = {
       disable-legacy-endpoints = "true"
