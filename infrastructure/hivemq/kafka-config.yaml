@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  kafka-configuration.xml: |-
+    <kafka-configuration
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="kafka-extension.xsd">
+        <kafka-clusters>
+            <kafka-cluster>
+                <id>cluster01</id>
+                <bootstrap-servers>kafka.operator.svc.cluster.local:9092</bootstrap-servers>
+                <authentication>
+                    <plain>
+                        <username>test</username>
+                        <password>test123</password>
+                    </plain>
+                </authentication>
+            </kafka-cluster>
+        </kafka-clusters>
+        <topic-mappings>
+            <topic-mapping>
+                <id>sensor-data</id>
+                <cluster-id>cluster01</cluster-id>
+                <mqtt-topic-filters>
+                    <mqtt-topic-filter>vehicles/sensor/data/#</mqtt-topic-filter>
+                </mqtt-topic-filters>
+                <kafka-topic>sensor-data</kafka-topic>
+            </topic-mapping>
+        </topic-mappings>
+    </kafka-configuration>
+metadata:
+  labels:
+    app: hivemq
+    hivemq.com/extension: hivemq-kafka-extension
+  name: kafka-config
+  namespace: hivemq

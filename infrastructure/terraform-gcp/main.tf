@@ -5,6 +5,10 @@ provider "google" {
 }
 
 resource "google_container_cluster" "cluster" {
+  timeouts {
+    delete = "120m"
+  }
+
   name = "car-demo-cluster"
   location = var.region
   remove_default_node_pool = true
@@ -70,7 +74,7 @@ resource "null_resource" "setup-cluster" {
     reg = var.region
     prj = var.project
     // Re-run script on deployment script changes
-    script = sha1(file("00_setup_GKE.sh")) 
+    script = sha1(file("00_setup_GKE.sh"))
   }
 
   provisioner "local-exec" {

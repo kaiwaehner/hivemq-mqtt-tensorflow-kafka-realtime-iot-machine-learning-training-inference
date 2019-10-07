@@ -4,17 +4,19 @@ metadata:
   name: hivemq-cluster1
   namespace: hivemq
 spec:
-  hivemqVersion: latest
+  hivemqVersion: 0.1.0
   image: sbaier1/hivemq-k8s
   imagePullPolicy: Always
-  nodeCount: 5
+  nodeCount: 3
   logLevel: INFO
   mqtt:
     maxQos: 2
   monitoring:
     enablePrometheus: true
-  memoryRequest: 6G
-  cpuRequest: 2000m
+  memoryRequest: 3G
+  configMaps:
+    - name: kafka-config
+  cpuRequest: 1000m
   initContainers:
     - name: init-kafka-plugin
       args:
