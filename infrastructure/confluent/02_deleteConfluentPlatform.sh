@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Delete Confluent Platform..."
+echo "Delete Confluent Platform and Operator from K8s GKE..."
 
 # Cleanup
 helm delete --purge controlcenter
