@@ -4,62 +4,27 @@ set -e
 echo "Check if cluster is running"
 gcloud container clusters list
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Deploying prometheus..."
-helm upgrade --install prom stable/prometheus-operator --wait
+helm upgrade --namespace monitoring --install prom stable/prometheus-operator --wait
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Deploying metrics server..."
 helm upgrade --install metrics stable/metrics-server --wait --force || true
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Deploying K8s dashboard..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Kubernetes Dashboard token:"
 gcloud config config-helper --format=json | jq -r '.credential.access_token'
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Download Confluent Operator"
 # check if Confluent Operator still exist
@@ -94,14 +59,7 @@ sleep 20
 echo "Patch the Service Account so it can pull Confluent Platform images"
 kubectl -n operator patch serviceaccount default -p '{"imagePullSecrets": [{"name": "confluent-docker-registry" }]}'
 
-# BEFORE running any deployments against GKE cluster, check if cluster is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Install Confluent Zookeeper"
 #helm delete --purge zookeeper
@@ -116,14 +74,7 @@ kubectl get pods -n operator
 echo "Wait 120 sec...."
 sleep 120
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Install Confluent Kafka"
 #helm delete --purge kafka
@@ -138,14 +89,7 @@ kubectl get pods -n operator
 echo "Wait 240 sec...."
 sleep 240
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Install Confluent Schema Registry"
 #helm delete --purge schemaregistry
@@ -160,14 +104,7 @@ kubectl get pods -n operator
 echo "Wait 50 sec...."
 Sleep 50
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Install Confluent KSQL"
 # helm delete --purge ksql
@@ -180,16 +117,9 @@ helm install \
 echo "After KSQL Installation: Check all pods..."
 kubectl get pods -n operator
 echo "Wait 50 sec...."
-Sleep 50
+sleep 50
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+./check_cluster_ready.sh
 
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
@@ -204,14 +134,8 @@ kubectl get pods -n operator
 echo "Wait 50 sec...."
 Sleep 50
 
-# BEFORE running any deployments against GKE cluster, check if cluser is running
-RESULT=$(bash gcloud container clusters list | grep RUNNING)
-while [ -z "${RESULT}" ]
-do
-  echo "Cluster not running...wait 20 seconds...and check again..."
-  RESULT=$(bash gcloud container clusters list | grep RUNNING)
-  sleep 20
-done
+
+./check_cluster_ready.sh
 
 echo "Create LB for Control Center"
 helm upgrade -f ./providers/gcp.yaml \

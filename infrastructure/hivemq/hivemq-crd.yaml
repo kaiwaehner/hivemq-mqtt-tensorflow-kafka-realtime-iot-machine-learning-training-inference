@@ -27,3 +27,4 @@ spec:
           wget https://www.hivemq.com/releases/extensions/hivemq-kafka-extension-1.0.0.zip
           unzip hivemq-kafka-extension-1.0.0.zip -d /hivemq-data/extensions
           rm /hivemq-data/extensions/hivemq-kafka-extension/kafka-configuration.example.xml
+          chmod -R 777 /hivemq-data/extensions/hivemq-kafka-extension
