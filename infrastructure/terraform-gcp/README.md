@@ -3,6 +3,8 @@
 Applying this terraform deployment will create a K8s cluster with the following deployed:
 
 * Tiller
+* Confluent Platform
+* HiveMQ
 
 # Requirements
 The following components are required:

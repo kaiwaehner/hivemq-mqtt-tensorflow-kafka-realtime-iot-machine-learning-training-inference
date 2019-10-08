@@ -16,7 +16,7 @@ resource "google_container_cluster" "cluster" {
   #min_master_version = "latest"
   maintenance_policy {
     daily_maintenance_window {
-      start_time = "${var.daily_maintenance_window_start_time}"
+      start_time = var.daily_maintenance_window_start_time
     }
   }
   master_auth {
@@ -79,5 +79,24 @@ resource "null_resource" "setup-cluster" {
 
   provisioner "local-exec" {
     command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
+  }
+
+  provisioner "local-exec" {
+    command = "./destroy.sh"
+    when = "destroy"
+  }
+}
+
+resource "null_resource" "setup-messaging" {
+  depends_on = [
+    null_resource.setup-cluster
+  ]
+
+  provisioner "local-exec" {
+    command = "../confluent/01_installConfluentPlatform.sh"
+  }
+
+  provisioner "local-exec" {
+    command = "../hivemq/setup_evaluation.sh"
   }
 }
