@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+cd ../hivemq/
+
 if ! hash kubectl 2>/dev/null; then
     echo "ERROR: You must install kubectl to use this script"
     exit 1

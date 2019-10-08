@@ -1,30 +1,32 @@
 #!/usr/bin/env bash
 set -e
 
+BASE_PATH=$(pwd)
+
 echo "Check if cluster is running"
 gcloud container clusters list
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Deploying prometheus..."
 helm upgrade --namespace monitoring --install prom stable/prometheus-operator --wait
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Deploying metrics server..."
 helm upgrade --install metrics stable/metrics-server --wait --force || true
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Deploying K8s dashboard..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Kubernetes Dashboard token:"
 gcloud config config-helper --format=json | jq -r '.credential.access_token'
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Download Confluent Operator"
 # check if Confluent Operator still exist
@@ -59,7 +61,7 @@ sleep 20
 echo "Patch the Service Account so it can pull Confluent Platform images"
 kubectl -n operator patch serviceaccount default -p '{"imagePullSecrets": [{"name": "confluent-docker-registry" }]}'
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Zookeeper"
 #helm delete --purge zookeeper
@@ -74,7 +76,7 @@ kubectl get pods -n operator
 echo "Wait 120 sec...."
 sleep 120
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Kafka"
 #helm delete --purge kafka
@@ -89,7 +91,7 @@ kubectl get pods -n operator
 echo "Wait 240 sec...."
 sleep 240
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Schema Registry"
 #helm delete --purge schemaregistry
@@ -104,7 +106,7 @@ kubectl get pods -n operator
 echo "Wait 50 sec...."
 Sleep 50
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent KSQL"
 # helm delete --purge ksql
@@ -119,7 +121,7 @@ kubectl get pods -n operator
 echo "Wait 50 sec...."
 sleep 50
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
@@ -135,7 +137,7 @@ echo "Wait 50 sec...."
 Sleep 50
 
 
-./check_cluster_ready.sh
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Create LB for Control Center"
 helm upgrade -f ./providers/gcp.yaml \
