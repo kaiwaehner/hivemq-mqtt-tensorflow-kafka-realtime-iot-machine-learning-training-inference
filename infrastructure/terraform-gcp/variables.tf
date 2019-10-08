@@ -1,24 +1,18 @@
 variable "node_count" {
-  default = 10
+  default = 4
 }
 
 variable "region" {
   default = "europe-west1"
 }
 
-variable "zone1" {
-  default = "europe-west1-b"
-}
-
-
 variable "preemptible_nodes" {
-  default = "true"
+  default = "false"
 }
 
-variable "replicas" {
-  default = "1"
+variable "daily_maintenance_window_start_time" {
+  default = "02:00"
 }
-
 
 variable project {
   type = "string"

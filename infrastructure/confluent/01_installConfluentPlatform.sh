@@ -1,48 +1,40 @@
 #!/usr/bin/env bash
-
-CNAME=${1}
-REGION=${2}
-PROJECT=${3}
-REPLICAS=${4}
-ZONE1=${5}
-
 set -e
 
-echo "Provisioning K8s cluster..."
+BASE_PATH=$(pwd)
 
-gcloud container clusters get-credentials ${1} --zone ${5}
-# gcloud container clusters get-credentials car-demo-cluster --zone europe-west1
+echo "Check if cluster is running"
+gcloud container clusters list
 
-# Context should be set automatically
-#kubectl use-context gke_${3}_${2}_${1}
-
-# _idempotent_ setup
-
-# Make tiller a cluster-admin so it can do whatever it wants
-kubectl apply -f tiller-rbac.yaml
-
-helm init --wait --service-account tiller
-# Apparently tiller is sometimes not ready after init even with --wait
-sleep 5
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Deploying prometheus..."
-helm upgrade --install prom stable/prometheus-operator --wait
+helm upgrade --namespace monitoring --install prom stable/prometheus-operator --wait
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Deploying metrics server..."
 helm upgrade --install metrics stable/metrics-server --wait --force || true
 
+${BASE_PATH}/check_cluster_ready.sh
+
 echo "Deploying K8s dashboard..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Kubernetes Dashboard token:"
 gcloud config config-helper --format=json | jq -r '.credential.access_token'
 
+${BASE_PATH}/check_cluster_ready.sh
+
 echo "Download Confluent Operator"
 # check if Confluent Operator still exist
-DIR="conluent-operator/"
+DIR="confluent-operator/"
 if [ -d "$DIR" ]; then
   # Take action if $DIR exists. #
   echo "Operator is installed..."
+  cd confluent-operator/
 else
   mkdir confluent-operator
   cd confluent-operator/
@@ -50,10 +42,10 @@ else
   tar -xvf confluent-operator-20190912-v0.65.1.tar.gz
   rm confluent-operator-20190912-v0.65.1.tar.gz
   cp ../gcp.yaml helm/providers/
-  cd helm/
 fi
+cd helm/
 
-#echo "Install Confluent Operator"
+echo "Install Confluent Operator"
 #helm delete --purge operator
 helm install \
 -f ./providers/gcp.yaml \
@@ -61,8 +53,15 @@ helm install \
 --namespace operator \
 --set operator.enabled=true \
 ./confluent-operator
-sleep 5
+echo "After Operator Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 20 sec...."
+sleep 20
+
+echo "Patch the Service Account so it can pull Confluent Platform images"
+kubectl -n operator patch serviceaccount default -p '{"imagePullSecrets": [{"name": "confluent-docker-registry" }]}'
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Zookeeper"
 #helm delete --purge zookeeper
@@ -72,8 +71,12 @@ helm install \
 --namespace operator \
 --set zookeeper.enabled=true \
 ./confluent-operator
-sleep 50
+echo "After Zookeeper Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 120 sec...."
+sleep 120
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Kafka"
 #helm delete --purge kafka
@@ -83,8 +86,12 @@ helm install \
 --namespace operator \
 --set kafka.enabled=true \
 ./confluent-operator
-sleep 50
+echo "After Kafka Broker Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 240 sec...."
+sleep 240
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Schema Registry"
 #helm delete --purge schemaregistry
@@ -94,8 +101,12 @@ helm install \
 --namespace operator \
 --set schemaregistry.enabled=true \
 ./confluent-operator
-Sleep 50
+echo "After Schema Registry Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 50 sec...."
+Sleep 50
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent KSQL"
 # helm delete --purge ksql
@@ -105,8 +116,12 @@ helm install \
 --namespace operator \
 --set ksql.enabled=true \
 ./confluent-operator
-Sleep 50
+echo "After KSQL Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 50 sec...."
+sleep 50
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
@@ -116,8 +131,13 @@ helm install \
 --namespace operator \
 --set controlcenter.enabled=true \
 ./confluent-operator
-Sleep 50
+echo "After Control Center Installation: Check all pods..."
 kubectl get pods -n operator
+echo "Wait 50 sec...."
+Sleep 50
+
+
+${BASE_PATH}/check_cluster_ready.sh
 
 echo "Create LB for Control Center"
 helm upgrade -f ./providers/gcp.yaml \
@@ -125,5 +145,7 @@ helm upgrade -f ./providers/gcp.yaml \
  --set controlcenter.loadBalancer.enabled=true \
  --set controlcenter.loadBalancer.domain=axvy.aa.de controlcenter \
  ./confluent-operator
-Sleep 50
+echo "After Load balancer Deployment for Control Center: Check all Service..."
 kubectl get services -n operator
+kubectl get pods -n operator
+echo "Confluent Platform into GKE cluster is finished."

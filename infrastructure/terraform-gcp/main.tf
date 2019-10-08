@@ -2,14 +2,23 @@ provider "google" {
   credentials = file("account.json")
   project = var.project
   region = var.region
-  zone = var.zone1
 }
 
 resource "google_container_cluster" "cluster" {
+  timeouts {
+    delete = "120m"
+  }
+
   name = "car-demo-cluster"
-  location = var.zone1
+  location = var.region
   remove_default_node_pool = true
   initial_node_count = 1
+  #min_master_version = "latest"
+  maintenance_policy {
+    daily_maintenance_window {
+      start_time = var.daily_maintenance_window_start_time
+    }
+  }
   master_auth {
     username = ""
     password = ""
@@ -35,10 +44,10 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "car-demo-node-pool"
-  location   = var.zone1
+  location   = var.region
   cluster    = google_container_cluster.cluster.name
   node_count = var.node_count
-
+  #version = "latest"
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible  = var.preemptible_nodes
@@ -64,14 +73,30 @@ resource "null_resource" "setup-cluster" {
     id = google_container_cluster.cluster.id
     reg = var.region
     prj = var.project
-    rep = var.replicas
-    zo1 = var.zone1
     // Re-run script on deployment script changes
-    script = sha1(file("setup.sh"))
-    
+    script = sha1(file("00_setup_GKE.sh"))
   }
 
   provisioner "local-exec" {
-    command = "./setup.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project} ${var.replicas} ${var.zone1}"
+    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
+  }
+
+  provisioner "local-exec" {
+    command = "./destroy.sh"
+    when = "destroy"
+  }
+}
+
+resource "null_resource" "setup-messaging" {
+  depends_on = [
+    null_resource.setup-cluster
+  ]
+
+  provisioner "local-exec" {
+    command = "../confluent/01_installConfluentPlatform.sh"
+  }
+
+  provisioner "local-exec" {
+    command = "../hivemq/setup_evaluation.sh"
   }
 }

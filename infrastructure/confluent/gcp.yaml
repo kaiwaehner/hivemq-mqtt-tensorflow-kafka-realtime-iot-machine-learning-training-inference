@@ -10,6 +10,8 @@ global:
          ## If kubernetes is deployed in single availability zone then specify appropriate values
          zones:
           - europe-west1-b
+          - europe-west1-c
+          - europe-west1-d
     storage:
       ## https://kubernetes.io/docs/concepts/storage/storage-classes/#gce
       ##
@@ -33,7 +35,7 @@ global:
 ##
 zookeeper:
   name: zookeeper
-  replicas: 1
+  replicas: 3
   resources:
     requests:
       cpu: 200m
@@ -43,7 +45,7 @@ zookeeper:
 ##
 kafka:
   name: kafka
-  replicas: 1
+  replicas: 3
   resources:
     requests:
       cpu: 200m
@@ -78,7 +80,7 @@ connect:
   dependencies:
     kafka:
       bootstrapEndpoint: kafka:9071
-      brokerCount: 1
+      brokerCount: 3
     schemaRegistry:
       enabled: true
       url: http://schemaregistry:8081
@@ -99,7 +101,7 @@ replicator:
     domain: ""
   dependencies:
     kafka:
-      brokerCount: 1
+      brokerCount: 3
       bootstrapEndpoint: kafka:9071
 ##
 ## Schema Registry
@@ -119,7 +121,7 @@ schemaregistry:
     domain: ""
   dependencies:
     kafka:
-      brokerCount: 1
+      brokerCount: 3
       bootstrapEndpoint: kafka:9071
 
 ##
@@ -140,9 +142,9 @@ ksql:
     domain: ""
   dependencies:
     kafka:
-      brokerCount: 1
+      brokerCount: 3
       bootstrapEndpoint: kafka:9071
-      brokerEndpoints: kafka-0.kafka:9071
+      brokerEndpoints: kafka-0.kafka:9071,kafka-1.kafka:9071,kafka-2.kafka:9071
     schemaRegistry:
       enabled: false
       tls:
@@ -161,7 +163,7 @@ controlcenter:
   ##
   dependencies:
     c3KafkaCluster:
-      brokerCount: 1
+      brokerCount: 3
       bootstrapEndpoint: kafka:9071
       zookeeper:
         endpoint: zookeeper:2181
