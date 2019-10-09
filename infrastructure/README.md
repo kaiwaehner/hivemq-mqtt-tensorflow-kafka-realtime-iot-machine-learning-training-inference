@@ -25,13 +25,20 @@ The setup is tested on Mac OS X.
 
 Make sure to have updated versions, e.g. an older version of helm did not work well. Also see the tested version above.
 
+## Configure GCP Account and Project
+
+1) Create account.json in `terraform-gcp` directory. You will have to create a [service account on GCP](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) first if you don't have one. Choose the right roles and enable google API. If something is missing terraform let you know. If you already have a Service Account, you can go to your `GCP Console in the web browser --> IAM & admin --> Service Accounts --> Create or Select Key --> Download .json file --> Rename to account.json --> Copy to terraform-gcp directory`
+2) Choose a GCP project or create a new one on your cloud console. Terraform will prompt you to specify your project name when applying.
+3) Change the file `variables.tf`. Here you will find entries which have to fit with your environment. You have to set the right region, the node count and preemptible_nodes. Mandatory change is `project`: Add your GCP project name. The others can stay default.
+
 ## Usage
 
 1. Go to `terraform-gcp` directory
-2. Run `terraform plan`
-3. Run `terraform apply`
+2. Run `terraform plan` (plans the setup)
+3. Run `terraform apply` (sets up all required infrastructure on GCP)
 4. Go to `test-generator` directory
-5. Run `./run_scenario_evaluation.sh`
+5. Run `./run_scenario_evaluation.sh` (currently configured to send a fixed amount of messages - restart to produce more messages)
+6. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure
 
 For more details about the demo, UIs, customization, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
 
