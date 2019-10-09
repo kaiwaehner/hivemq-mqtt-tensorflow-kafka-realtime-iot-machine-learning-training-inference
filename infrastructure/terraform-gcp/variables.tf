@@ -18,3 +18,8 @@ variable project {
   type = "string"
   description = "The name of your GCP project to use"
 }
+
+variable node_version {
+  type = "string"
+  default = "1.13.7-gke.24"
+}
