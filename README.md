@@ -1,6 +1,13 @@
 # Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow
 
+================
 WORK IN PROGRESS... NOT FINISHED YET !!!!!!
+The infrastructure is set up; but optimizations and the streaming ML part is still missing... Goal is to finish V2 (i.e. end-to-end integration at scale, including Streaming ML) until end of October 2019. ================
+
+If you just want to get started and quickly start the demo in a few minutes, go to the [quick start](infrastructure/README.md) to setup the infrastructure (on GCP) and run the demo.
+
+
+## Movitation: Demo an IoT Scenario at Scale
 
 You want to see an IoT example at huge scale? Not just 100 or 1000 devices producing data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
 
@@ -27,11 +34,11 @@ We use [HiveMQ](https://github.com/hivemq/hivemq-community-edition) as open sour
 
 We leverage additional enterprise components from HiveMQ and Confluent to allow easy operations, scalability and monitoring.
 
-Here is the architecture of the MVP (target: September 2019):
+Here is the architecture of the MVP (already implemented and working):
 
 ![MVP Architecture](pictures/MVP_Architecture_HiveMQ_Confluent_MQTT_Kafka_IoT_TensorFlow.png)
 
-And this is the architecture of the final demo (target: October 2019):
+And this is the architecture of the final demo (target: End of October 2019):
 
 ![Advanced Architecture](pictures/Advanced_Architecture_HiveMQ_Confluent_MQTT_Kafka_IoT_TensorFlow.png)
 
@@ -39,9 +46,13 @@ And this is the architecture of the final demo (target: October 2019):
 
 We generate streaming test data at scale using a [Car Data Simulator](https://github.com/sbaier1/avro-car-sensor-simulator). The test data uses Apache Avro file format to leverage features like compression, schema versioning and Confluent features like Schema Registry or KSQL's schema inference.
 
-You can either use some test data stored in the CSV file [car-sensor-data.csv](testdata/car-sensor-data.csv) or generate continuous streaming data using the script TODO.
+You can either use some test data stored in the CSV file [car-sensor-data.csv](testdata/car-sensor-data.csv) or generate continuous streaming data using the script (as described in the quick start). Check out the Avro file format here: [cardata-v1.avsc](cardata-v1.avsc).
 
-Check out the Avro file format here: [cardata-v1.avsc](cardata-v1.avsc).
+Here is the schema and one row of the test data:
+
+    time,car,coolant_temp,intake_air_temp,intake_air_flow_speed,battery_percentage,battery_voltage,current_draw,speed,engine_vibration_amplitude,throttle_pos,tire_pressure_1_1,tire_pressure_1_2,tire_pressure_2_1,tire_pressure_2_2,accelerometer_1_1_value,accelerometer_1_2_value,accelerometer_2_1_value,accelerometer_2_2_value,control_unit_firmware
+
+    1567606196,car1,39.395103,34.53991,123.317406,0.82654595,246.12367,0.6586535,24.934872,2493.487,0.034893095,32,31,34,34,0.5295712,0.9600553,0.88389874,0.043890715,2000
 
 ## Streaming Ingestion and Model Training with Kafka and TensorFlow-IO
 
@@ -95,24 +106,26 @@ The combination of TensorFlow I/O and Apache Kafka is a great step closer to rea
 
 I posted many articles about videos about this discussion. Get started with [How to Build and Deploy Scalable Machine Learning in Production with Apache Kafka](https://www.confluent.io/blog/build-deploy-scalable-machine-learning-production-apache-kafka/) and check out my other resources if you want to learn more.
 
-## Requirements and Installation
+## Requirements and Setup
 
-### Kubernetes
+### Full Live Demo for End-to-End MQTT-Kafka Integration
 
-We have prepared a terraform script to deploy the complete environment in Google Kubernetes Engine (GKE). Follow the instructions to setup the cluster [here](infrastructure/terraform-gcp/README.md)
-todo
+We have prepared a terraform script to deploy the complete environment in Google Kubernetes Engine (GKE). This includes:
 
-### HiveMQ
+- Kafka Cluster: Apache Kafka, KSQL, Schema Registry, Control Center
+- MQTT Cluster: HiveMQ Broker, Kafka Plugin, Test Data Generator
+- Machine Learning: TensorFlow I/O and Kafka Plugin
+- Monitoring infrastructure: Prometheus, Grafana, Control Center
 
-todo
+The setup is pretty straightforward. No previous experience required for getting the demo running. You just need to install some CLIs on your laptop (gcloud, kubectl, helm, terraform).
 
-### Kafka / Confluent Platform
+With default configuration, the demo starts at small scale. This is sufficient to show an impressive demo. It also reduces cost and to enables free usage without the need for commercial licenses. You can also try it out at extreme scale (100000+ IoT connections). This option is also described in the quick start.
 
-todo
+Afterwards, you execute one single command to set up the infrastructure and one command to generate test data. Of course, you can configure everything to your needs (like the cluster size, test data, etc).
 
-## Live Demo
+Follow the instructions in the [quick start](infrastructure/README.md) to setup the cluster.
 
-[TODO Step-by-Step demo guide (not ready yet)](live-demo-hivemq-confluent-kafka-tensorflow.adoc)
+### Streaming ML with Kafka and TensorFlow
 
 If you are just interested in the "Streaming ML" part, check out the following:
 
@@ -123,7 +136,7 @@ Until the full demo is ready, you can already checkout two working examples whic
 
 ## More Information
 
-TODO Outsource additional information like this into another document:
+TODO Outsource to TensorFlow section / folder when available.
 
 ### TensorFlow 2.0 is still beta and requires Linux
 
