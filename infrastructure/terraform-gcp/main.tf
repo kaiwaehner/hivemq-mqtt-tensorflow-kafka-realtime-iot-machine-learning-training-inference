@@ -69,6 +69,11 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   management {
     auto_upgrade = false
   }
+
+  provisioner "local-exec" {
+    command = "./destroy.sh"
+    when = "destroy"
+  }
 }
 
 resource "null_resource" "setup-cluster" {
@@ -85,11 +90,6 @@ resource "null_resource" "setup-cluster" {
 
   provisioner "local-exec" {
     command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
-  }
-
-  provisioner "local-exec" {
-    command = "./destroy.sh"
-    when = "destroy"
   }
 }
 
