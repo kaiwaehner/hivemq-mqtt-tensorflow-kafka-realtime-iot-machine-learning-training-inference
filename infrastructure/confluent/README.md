@@ -77,8 +77,16 @@ kafka-broker-api-versions --command-config kafka.properties --bootstrap-server k
 Playing with KSQL cli go into the KSQL Server:
 ```bash
 kubectl -n operator exec -it ksql-0 bash
+
 ksql
+
 ksql> list topics;
+
+ksql> PRINT 'sensor-data' FROM BEGINNING;
+
+ksql> CREATE STREAM sensorstream (car varchar, coolant_temp double) WITH (kafka_topic='sensorstream', value_format='JSON', key='car', PARTITIONS=10);
+
+ksql> SELECT * FROM SENSORSTREAM; 
 ```
 To get Access to Control Conter check the EXTERNAL-IP and use your browser:
 ```bash
