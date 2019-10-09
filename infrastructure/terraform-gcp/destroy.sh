@@ -12,7 +12,17 @@ helm delete --purge metrics
 
 
 echo "Purging namespaces..."
+kubectl delete --grace-period=0 --force --all sts --namespace=operator || true
+kubectl delete --grace-period=0 --force --all sts --namespace=monitoring || true
+
+kubectl delete --grace-period=0 --force --all deployment --namespace=hivemq || true
+kubectl delete --grace-period=0 --force --all deployment --namespace=operator || true
+kubectl delete --grace-period=0 --force --all deployment --namespace=monitoring || true
+
+kubectl delete --grace-period=0 --force --all service --namespace=monitoring || true
+kubectl delete --grace-period=0 --force --all service --namespace=hivemq || true
+kubectl delete --grace-period=0 --force --all service --namespace=operator || true
+
 kubectl delete --grace-period=0 --force --all pods --namespace=operator || true
 kubectl delete --grace-period=0 --force --all pods --namespace=hivemq || true
 kubectl delete --grace-period=0 --force --all pods --namespace=monitoring || true
-kubectl delete namespaces hivemq operator monitoring || true

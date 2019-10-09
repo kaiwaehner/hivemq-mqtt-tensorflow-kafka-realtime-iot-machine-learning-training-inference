@@ -11,14 +11,17 @@ resource "google_container_cluster" "cluster" {
 
   name = "car-demo-cluster"
   location = var.region
-  remove_default_node_pool = true
-  initial_node_count = 1
-  #min_master_version = "latest"
+
   maintenance_policy {
     daily_maintenance_window {
       start_time = var.daily_maintenance_window_start_time
     }
   }
+  remove_default_node_pool = true
+  initial_node_count = 1
+  node_version = var.node_version
+  min_master_version = var.node_version
+
   master_auth {
     username = ""
     password = ""
@@ -47,7 +50,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   location   = var.region
   cluster    = google_container_cluster.cluster.name
   node_count = var.node_count
-  #version = "latest"
+  version = var.node_version
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible  = var.preemptible_nodes
@@ -62,12 +65,15 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
+
+  management {
+    auto_upgrade = false
+  }
 }
 
 resource "null_resource" "setup-cluster" {
   depends_on = [
-    google_container_cluster.cluster,
-    google_container_node_pool.primary_preemptible_nodes
+    google_container_cluster.cluster
   ]
   triggers = {
     id = google_container_cluster.cluster.id
