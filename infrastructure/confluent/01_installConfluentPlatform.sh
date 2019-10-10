@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Check if cluster is running"
-gcloud container clusters list
+until kubectl cluster-info >/dev/null 2>&1; do
+    echo "kubeapi not available yet..."
+    sleep 3
+done
 
 echo "Deploying prometheus..."
 helm upgrade --namespace monitoring --install prom --version 6.8.1 stable/prometheus-operator --wait || true

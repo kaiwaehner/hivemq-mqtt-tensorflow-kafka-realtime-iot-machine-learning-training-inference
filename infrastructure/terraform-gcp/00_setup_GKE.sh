@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 CNAME=${1}
 REGION=${2}
 PROJECT=${3}
@@ -12,6 +14,10 @@ gcloud container clusters get-credentials ${CNAME} --region ${REGION}
 
 # _idempotent_ setup
 
+until kubectl cluster-info >/dev/null 2>&1; do
+    echo "kubeapi not available yet..."
+    sleep 3
+done
 # Make tiller a cluster-admin so it can do whatever it wants
 kubectl apply -f tiller-rbac.yaml
 
