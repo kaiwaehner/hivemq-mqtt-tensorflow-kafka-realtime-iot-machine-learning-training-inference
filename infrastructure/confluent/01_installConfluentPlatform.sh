@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-until kubectl cluster-info >/dev/null 2>&1; do
+# set current directory of script
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+#until kubectl cluster-info >/dev/null 2>&1; do
+until gcloud container clusters list --region europe-west1 | grep -E 'car-demo-cluster|RUNNING' >/dev/null 2>&1; do
     echo "kubeapi not available yet..."
     sleep 3
 done
@@ -31,7 +35,7 @@ else
   wget https://platform-ops-bin.s3-us-west-1.amazonaws.com/operator/confluent-operator-20190912-v0.65.1.tar.gz
   tar -xvf confluent-operator-20190912-v0.65.1.tar.gz
   rm confluent-operator-20190912-v0.65.1.tar.gz
-  cp ../gcp.yaml helm/providers/
+  cp ${MYDIR}/gcp.yaml helm/providers/
 fi
 
 cd helm/
@@ -134,3 +138,19 @@ echo "After Load balancer Deployment for Control Center: Check all Service..."
 kubectl get services -n operator
 kubectl get pods -n operator
 echo "Confluent Platform into GKE cluster is finished."
+
+echo "Create Topics on Confluent Platform for Test Generator"
+# Create Kafka Property file in all pods
+echo "deploy kafka.property file into all brokers"
+kubectl -n operator exec -it kafka-0 -- bash -c "printf \"bootstrap.servers=kafka:9071\nsasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"test\" password=\"test123\"\;\nsasl.mechanism=PLAIN\nsecurity.protocol=SASL_PLAINTEXT\" > /opt/kafka.properties"
+kubectl -n operator exec -it kafka-1 -- bash -c "printf \"bootstrap.servers=kafka:9071\nsasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"test\" password=\"test123\"\;\nsasl.mechanism=PLAIN\nsecurity.protocol=SASL_PLAINTEXT\" > /opt/kafka.properties"
+kubectl -n operator exec -it kafka-2 -- bash -c "printf \"bootstrap.servers=kafka:9071\nsasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"test\" password=\"test123\"\;\nsasl.mechanism=PLAIN\nsecurity.protocol=SASL_PLAINTEXT\" > /opt/kafka.properties"
+
+# Create Topic sensor-data
+echo "Create Topic sensor-data"
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10"
+# list Topics
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --list --command-config kafka.properties"
+echo "####################################"
+echo "## Confluent Deployment finshed ####"
+echo "####################################"

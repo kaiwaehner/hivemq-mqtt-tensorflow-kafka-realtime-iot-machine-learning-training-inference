@@ -41,11 +41,11 @@ terraform apply
 # destroy the GKE Cluster, enter the project name
 terraform destroy
 ```
-manually
+HINT:
 * Double check in Google Cloud Console if everything is destroyed: 
   Kubernetes Engine, Compute Engine and under Compute Engine please check also Disks and Instance Groups.
-* (HINT): 
-  If the destroy takes more than 10 minutes then terraform is throwing an error. 
+* It seems to be that the ssd Disk from Confluent will not be deleted, so please delete manually in your google console UI.
+* If the destroy takes more than 10 minutes then terraform is throwing an error. 
   Then you have to destory manually via Google Cloud Console.
   * delete instance groups in Compute Engine
   * delete not attached Disks in Compute Engine
