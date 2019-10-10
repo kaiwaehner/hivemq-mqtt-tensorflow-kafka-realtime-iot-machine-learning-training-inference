@@ -1,5 +1,8 @@
 # Install Confluent Operator and setup a Confluent Platform Cluster
 
+If you did run already terraform apply in [terraform-gcp](../terraform-gcp/) then you do not need to install Confluent Platform anymore. Please [Go to Test Confluent Platform on GKE](#test-confluent-platform-on-gke)
+
+If you run your own cluster, please go continue:
 Applying this  deployment will create in the existing K8s cluster (see [Create GKE](../terraform-gcp/README.md)) with the following deployed:
 
 * Prometheus Operator & Prometheus
@@ -10,7 +13,7 @@ Applying this  deployment will create in the existing K8s cluster (see [Create G
 
 It will also set your kubectl context to the gcp cluster automatically. (To undo this, see `kubectl config get-contexts` and switch to your preferred context)
 
-# Requirements
+#Requirements
 The following components are required:
 
 * jq: e.g. 'brew install jq'
@@ -61,7 +64,7 @@ Login into kafka-0 Broker:
 ```bash
 kubectl -n operator exec -it kafka-0 bash
 ```
-Generate Config file:
+Generate Config file (in all three brokers the kafka.property file is already deployed if you deployed with [terraform-gcp](../terraform-gcp):
 ```bash
 cat << EOF > kafka.properties
 bootstrap.servers=kafka:9071
@@ -126,3 +129,4 @@ Follow the examples of how to use and play with Confluent Platform on GCP K8s on
 kubectl get services -n operator
 kubectl get pods -n operator
 ```
+If you want to destroy the complete GKE cluster including Confluent Platform then please [go to terraform destroy](../terraform-gcp/)
