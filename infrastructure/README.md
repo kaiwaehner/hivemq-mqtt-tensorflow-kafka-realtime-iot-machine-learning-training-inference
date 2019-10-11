@@ -13,7 +13,7 @@ The following components will be installed (deployment in this order):
 
 ## Requirements
 
-The following components are required on your laptop to provison and install the demo:
+The following components are required on your laptop to provison and install the demo (ideally in the tested versions, otherwise, you might have to fix errors):
 
 * [jq](https://stedolan.github.io/jq/): Lightweight and flexible command-line JSON processor,  e.g. `brew install jq`
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/): Kubernetes CLI to deploy applications, inspect and manage cluster resources,  e.g. `brew install kubernetes-cli` (tested with 1.16.0)
@@ -23,34 +23,36 @@ The following components are required on your laptop to provison and install the
 
 The setup is tested on Mac OS X.
 
-Make sure to have updated versions, e.g. an older version of helm did not work well. Also see the tested version above.
+Make sure to have up-to-date versions (see the tested versions above). For instance, an older version of helm or kubectl CLI did not work well and threw (sometimes confusing) exceptions.
 
 ## Configure GCP Account and Project
 
 1) Create account.json in `terraform-gcp` directory. You will have to create a [service account on GCP](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) first if you don't have one. Choose the right roles and enable google API. If something is missing terraform let you know. If you already have a Service Account, you can go to your `GCP Console in the web browser --> IAM & admin --> Service Accounts --> Create or Select Key --> Download .json file --> Rename to account.json --> Copy to terraform-gcp directory`
-2) Choose a GCP project or create a new one on your cloud console. Terraform will prompt you to specify your project name when applying.
-3) Change the file `variables.tf` in terraform-gcp folder. Here you will find entries which have to fit with your environment. You have to set the right region, the node count and preemptible_nodes (cheaper). Mandatory change is `project`: Add your GCP project name or enter the correct GCP project name after terraform apply (you will ask). The others can stay default.
+2) Choose a `GCP project` or create a new one on your cloud console. Terraform will prompt you to specify your project name when applying.
+3) Change the file `variables.tf` in terraform-gcp folder. Here you will find entries which have to fit with your environment. You have to set the right region, the node count and preemptible_nodes (cheaper). Mandatory change is `project`: Add your GCP project name or enter the correct GCP project name after terraform apply (it will ask). The others can stay default.
 
 ## Usage
 
 1. Go to `terraform-gcp` directory
+    * Run `terraform init` (initializes the setup - only needed to be executed once on your laptop, not every time you want to re-create the infrastructure)
     * Run `terraform plan` (plans the setup)
-    * Run `terraform apply` (sets up all required infrastructure on GCP)
+    * Run `terraform apply` (sets up all required infrastructure on GCP - can take 10-20 minutes)
 2. Go to `test-generator` directory
     * Run `./run_scenario_evaluation.sh` (currently configured to send a fixed amount of messages - restart to produce more messages). You have to be placed in the correct folder `test-generator`
-3. Go to `confluent` directory
-    * Use the hints how to connect Confluent Control Center or working with KSQL cli
-4. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure
+3. Monitoring and interactive queries
+    * Go to [confluent](confluent) directory
+    * Use the hints to connect Confluent Control Center, Grafana, Prometheus for monitoring or working with KSQL CLI for interactive queries
+4. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. `Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
 
-For more details about the demo, UIs, customization, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
+For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
 
 ### Open Source and License Requirements
 
-The default configuration runs without any need for additional licenses. We use open source Apache Kafka, open source HiveMQ, and additional Enterprise components which are included as trial version.
+The *default configuration runs without any need for additional licenses*. We use open source Apache Kafka, open source HiveMQ, and additional Enterprise components which are included as trial version. You can use this setup for testing high throughput with up to 25 MQTT devices.
 
 Confluent components automatically include a 30 day trial license (not allowed for production usage). This license can be used without any limitations regarding scalability. You can see in Confluent Control Center how many days you have left. After 30 days, you also need to contact a Confluent person.
 
-HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 parallel connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
+HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 parallel device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
 
 If you have any questions about licensing, please contact the main contributors of this Github project or an account manager of Hive MQ or Confluent.
 
@@ -61,3 +63,4 @@ Planned until end of October 2019:
     2a) TODO KSQL Client (for preprocessing)
     2b) TODO TensorFlow I/O Clinet (for model training)
     2c) TODO Kafka Client (for model predictions)
+    2d) TODO Describe how to setup large scale demo (100K connections) 
