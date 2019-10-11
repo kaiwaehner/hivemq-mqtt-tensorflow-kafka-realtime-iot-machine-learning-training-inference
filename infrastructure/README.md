@@ -40,7 +40,8 @@ Make sure to have updated versions, e.g. an older version of helm did not work w
     * Run `./run_scenario_evaluation.sh` (currently configured to send a fixed amount of messages - restart to produce more messages). You have to be placed in the correct folder `test-generator`
 3. Go to `confluent` directory
     * Use the hints how to connect Confluent Control Center or working with KSQL cli
-4. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure
+4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl port-forward -n monitoring service/prom-grafana 3000:service`
+5. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure
 
 For more details about the demo, UIs, customization, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
 

@@ -22,8 +22,8 @@ done
 kubectl apply -f tiller-rbac.yaml
 
 helm init --wait --service-account tiller
-# Apparently tiller is sometimes not ready after init even with --wait
-sleep 5
+# This supposedly helps with flaky "lost connection to pod" errors and the like when installing a chart
+kubectl set resources -n kube-system deployment tiller-deploy --limits=memory=200Mi
 
 echo " GKE cluster created"
 gcloud container clusters list

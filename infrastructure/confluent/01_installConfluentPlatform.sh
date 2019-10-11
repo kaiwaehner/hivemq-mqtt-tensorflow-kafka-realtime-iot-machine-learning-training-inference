@@ -10,10 +10,12 @@ until gcloud container clusters list --region europe-west1 | grep 'RUNNING' >/de
 done
 
 echo "Deploying prometheus..."
+# Make sure the tiller change is rolled out
+kubectl rollout status -n kube-system deployment tiller-deploy
 helm repo update
 
 # Make upgrade idempotent by first deleting all the CRDs (the helm chart will error otherwise)
-kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com || true
+kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com 2>/dev/null || true
 helm upgrade --namespace monitoring --force --install prom --version 6.8.1 stable/prometheus-operator --wait
 
 echo "Deploying metrics server..."
