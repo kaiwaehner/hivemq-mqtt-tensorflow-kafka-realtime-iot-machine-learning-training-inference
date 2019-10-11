@@ -6,10 +6,10 @@ Let's first understand the used components in this demo. Then install the requir
 
 The following components will be installed (deployment in this order):
 
-1) [terraform-gcp](terraform-gcp): A terraform script for setting up a basic Kubernetes Cluster on GKE and provisioning it with Tiller. This terraform setup will also run the (01_installConfluentPlatform.sh)[confluent/01_installConfluentPlatform.sh] from 2) and afterwards run the (setup_evaluation.sh)[hivemq/setup_evaluation.sh]. So after terraform apply a GKE cluster with Confluent, Prometheus and HiveMQ Operator is running and Confluent Platform cluster is running as well. If this works fine, then you will find in 2) hints how to work with Confluent Platform and in 4) how to start producing test data
-2) [confluent](confluent): Script for deploying the Prometheus operator and confluent operator into GKE. A small Confluent Cluster is setup, 3 Zookeeper, 3 Kafka Broker, 1 Schema Registry, 1 KSQL-Server, 1 Control Center. Additionally hints how to work with Confluent Platform on GKE.
-3) [hivemq](hivemq): Scripting for creating the HiveMQ operator on K8s and deploying a basic cluster with the Kafka extension installed as well as a monitoring dashboard for use with the Prometheus operator.
-4) [test-generator](test-generator): Scripting for running the load generator which will simulate the car clients, publishing sensor data.
+1) [terraform-gcp](terraform-gcp): A terraform script for setting up a basic Kubernetes Cluster on GKE and provisioning it with Tiller. This terraform setup will also run the [01_installConfluentPlatform.sh](confluent/01_installConfluentPlatform.sh) from 2) and afterwards run the [setup_evaluation.sh](hivemq/setup_evaluation.sh). So after successful execution of `terraform apply`, a GKE cluster with Confluent Platform, HiveMQ and monitoring (Prometheus, Grafana) is running.
+2) [confluent](confluent): Script for deploying confluent operator and Prometheus operator into GKE. A Confluent Cluster is setup, 3 Zookeeper, 3 Kafka Broker, 2 Schema Registry, 2 KSQL-Server, 1 Control Center.
+3) [hivemq](hivemq): Script for deploying the HiveMQ operator on GKE and deploying a basic cluster with the Kafka extension installed as well as a monitoring dashboard for use with the Prometheus operator.
+4) [test-generator](test-generator): Script for running the load generator which will simulate the car clients, publishing sensor data.
 
 ## Requirements
 
