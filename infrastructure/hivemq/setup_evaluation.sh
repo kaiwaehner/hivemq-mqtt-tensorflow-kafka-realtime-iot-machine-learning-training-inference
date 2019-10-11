@@ -28,8 +28,10 @@ sleep 5
 kubectl apply -f kafka-config.yaml
 
 kubectl apply -f hivemq-crd-evaluation.yaml
-# Arbitrary sleep to wait until the operator creates the deployment
-sleep 5
+until kubectl get -n hivemq deployments | grep hivemq-cluster1; do
+    echo "Deployment not available yet"
+    sleep 5
+done
 kubectl rollout -n hivemq status --timeout=10m deployment hivemq-cluster1 || true
 
 kubectl apply -f hivemq-mqtt.yaml
