@@ -42,7 +42,8 @@ Make sure to have up-to-date versions (see the tested versions above). For insta
 3. Monitoring and interactive queries
     * Go to [confluent](confluent) directory
     * Use the hints to connect Confluent Control Center, Grafana, Prometheus for monitoring or working with KSQL CLI for interactive queries
-4. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. `Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
+4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl port-forward -n monitoring service/prom-grafana 3000:service`
+5. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. `Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
 
 For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
 
