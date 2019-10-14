@@ -8,7 +8,7 @@ data:
         <kafka-clusters>
             <kafka-cluster>
                 <id>cluster01</id>
-                <bootstrap-servers>kafka.operator.svc.cluster.local:9092</bootstrap-servers>
+                <bootstrap-servers>kafka.operator.svc.cluster.local:9071</bootstrap-servers>
                 <authentication>
                     <plain>
                         <username>test</username>
