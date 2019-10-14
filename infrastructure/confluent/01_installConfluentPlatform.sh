@@ -16,7 +16,8 @@ helm repo update
 
 # Make upgrade idempotent by first deleting all the CRDs (the helm chart will error otherwise)
 kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com 2>/dev/null || true
-helm upgrade --namespace monitoring --force --install prom --version 6.8.1 stable/prometheus-operator --wait
+helm delete --purge prom 2>/dev/null || true
+helm install --namespace monitoring --replace --name prom --version 6.8.1 stable/prometheus-operator --wait
 
 echo "Deploying metrics server..."
 helm upgrade --install metrics stable/metrics-server --version 2.8.4 --wait --force || true
