@@ -162,8 +162,8 @@ helm upgrade -f ./providers/gcp.yaml \
 echo " Loadbalancers are created please wait a couple of minutes..."
 sleep 60
 kubectl get services -n operator | grep LoadBalancer
-echo " After all external IP Adresses are seen, add yout local /etc/hosts via "
-echo "sudo /etct/hosts"
+echo " After all external IP Adresses are seen, add your local /etc/hosts via "
+echo "sudo /etc/hosts"
 echo "EXTERNAL-IP  ksql.mydevplatform.gcp.cloud ksql-bootstrap-lb ksql"
 echo "EXTERNAL-IP  schemaregistry.mydevplatform.gcp.cloud schemaregistry-bootstrap-lb schemaregistry"
 echo "EXTERNAL-IP  controlcenter.mydevplatform.gcp.cloud controlcenter controlcenter-bootstrap-lb"
