@@ -37,6 +37,7 @@ Make sure to have up-to-date versions (see the tested versions above). For insta
     * Run `terraform init` (initializes the setup - only needed to be executed once on your laptop, not every time you want to re-create the infrastructure)
     * Run `terraform plan` (plans the setup)
     * Run `terraform apply` (sets up all required infrastructure on GCP - can take 10-20 minutes)
+    * For a Confluent Control Center, KSQL, Schem Registry, REST Proxy and Kafka we use Google Load Balancers. Please change your /etc/hosts file as mentioned in the documentation [go to confluent](confluent/README.md)
 2. Go to `test-generator` directory
     * Run `./run_scenario_evaluation.sh` (currently configured to send a fixed amount of messages - restart to produce more messages). You have to be placed in the correct folder `test-generator`
 3. Monitoring and interactive queries

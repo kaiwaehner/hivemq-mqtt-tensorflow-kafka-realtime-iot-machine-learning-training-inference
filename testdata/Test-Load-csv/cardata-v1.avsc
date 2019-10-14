@@ -1,0 +1,44 @@
+{
+  "type": "record",
+  "namespace": "com.hivemq.avro",
+  "name": "cardata",
+  "version": "1",
+  "fields": [
+    {
+      "name": "coolant_temp", "type": "float"},
+    {
+      "name": "intake_air_temp", "type": "float"},
+    {
+      "name": "intake_air_flow_speed", "type": "float"},
+    {
+      "name": "battery_percentage", "type": "float"},
+    {
+      "name": "battery_voltage", "type": "float"},
+    {
+      "name": "current_draw", "type": "float"},
+    {
+      "name": "speed", "type": "float"},
+    {
+      "name": "engine_vibration_amplitude","type": "float"},
+    {
+      "name": "throttle_pos", "type": "float"},
+    {
+      "name": "tire_pressure_1_1","type": "int"},
+    {
+      "name": "tire_pressure_1_2","type": "int" },
+    {
+      "name": "tire_pressure_2_1", "type": "int"},
+    {
+      "name": "tire_pressure_2_2","type": "int"},
+    {
+      "name": "accelerometer_1_1_value", "type": "float"},
+    {
+      "name": "accelerometer_1_2_value", "type": "float"},
+    {
+      "name": "accelerometer_2_1_value", "type": "float"},
+    {
+      "name": "accelerometer_2_2_value", "type": "float" },
+    {
+      "name": "control_unit_firmware", "type": "int"}
+  ]
+}

@@ -59,7 +59,7 @@ kafka:
     privkey: |-
     cacerts: |-
   metricReporter:
-    enabled: false
+    enabled: true
 
 ## Connect Cluster
 ##
@@ -146,7 +146,7 @@ ksql:
       bootstrapEndpoint: kafka:9071
       brokerEndpoints: kafka-0.kafka:9071,kafka-1.kafka:9071,kafka-2.kafka:9071
     schemaRegistry:
-      enabled: false
+      enabled: true
       tls:
         enabled: false
         authentication:
@@ -168,11 +168,11 @@ controlcenter:
       zookeeper:
         endpoint: zookeeper:2181
     connectCluster:
-      enabled: true
+      enabled: false
       url: http://connectors:8083
     ksql:
       enabled: true
-      url: http://ksql:9088
+      url: http://ksql:8088
     schemaRegistry:
       enabled: true
       url: http://schemaregistry:8081
