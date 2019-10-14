@@ -21,9 +21,9 @@ The following components are required on your laptop to provison and install the
 * [terraform (0.12)](https://www.terraform.io/downloads.html): Enables you to safely and predictably create, change, and improve infrastructure (infrastructure independent, but currently only implemented GCP setup), e.g. `brew install terraform`
 * [gcloud](https://cloud.google.com/sdk/docs/quickstart-macos): Tool that provides the primary CLI to Google Cloud Platform, e.g.  (always run `gcloud init` first)
 
-The setup is tested on Mac OS X.
-
 Make sure to have up-to-date versions (see the tested versions above). For instance, an older version of helm or kubectl CLI did not work well and threw (sometimes confusing) exceptions.
+
+The setup is tested on Mac OS X. We used HiveMQ 4.2.1 and Confluent Platform 5.3 (with Apache Kafka 2.3).
 
 ## Configure GCP Account and Project
 
@@ -37,12 +37,14 @@ Make sure to have up-to-date versions (see the tested versions above). For insta
     * Run `terraform init` (initializes the setup - only needed to be executed once on your laptop, not every time you want to re-create the infrastructure)
     * Run `terraform plan` (plans the setup)
     * Run `terraform apply` (sets up all required infrastructure on GCP - can take 10-20 minutes)
+    * For a Confluent Control Center, KSQL, Schem Registry, REST Proxy and Kafka we use Google Load Balancers. Please change your /etc/hosts file as mentioned in the documentation [go to confluent](confluent/README.md)
 2. Go to `test-generator` directory
     * Run `./run_scenario_evaluation.sh` (currently configured to send a fixed amount of messages - restart to produce more messages). You have to be placed in the correct folder `test-generator`
 3. Monitoring and interactive queries
     * Go to [confluent](confluent) directory
     * Use the hints to connect Confluent Control Center, Grafana, Prometheus for monitoring or working with KSQL CLI for interactive queries
-4. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. `Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
+4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl port-forward -n monitoring service/prom-grafana 3000:service`
+5. When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. `Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
 
 For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator).
 
@@ -52,7 +54,7 @@ The *default configuration runs without any need for additional licenses*. We us
 
 Confluent components automatically include a 30 day trial license (not allowed for production usage). This license can be used without any limitations regarding scalability. You can see in Confluent Control Center how many days you have left. After 30 days, you also need to contact a Confluent person.
 
-HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 parallel device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
+HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
 
 If you have any questions about licensing, please contact the main contributors of this Github project or an account manager of Hive MQ or Confluent.
 
