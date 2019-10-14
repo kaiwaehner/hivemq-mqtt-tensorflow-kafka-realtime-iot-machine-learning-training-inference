@@ -26,9 +26,12 @@ We use Google Cloud Confluent Operator template [gcp.yaml](gcp.yaml) for install
 The following setup will be provisioned:
 ![GKE cluster deployed pods](images/gke_cluster.png)
 If the GKE cluster is up and running execute the script [01_installConfluentPlatform.sh](01_installConfluentPlatform.sh) manually.
-3. Iinstall the Prometheus and Confluent Operator and setup the Confluent Platform in GKE 
+
+3. Iinstall the Prometheus and Confluent Operator and setup the Confluent Platform in GKE
 It is really important that the GKE cluster is up and running. Sometimes it takes a while, because GKE doing automatic upgrades. First you create your own GKE cluster or used our terraform (see [Create GKE](../terraform-gcp/README.md)): Please execute this script only if you deployed your own cluster, if your execute our terraform then you do not need to execute the following script.
+
 Install Confluent Platform in a second step:
+
 ```bash
 # Deploy prometheus and Confluent Operator and install Confluent Platform
 ./01_installConfluentPlatform.sh
@@ -54,13 +57,17 @@ zookeeper-0                   1/1     Running   0          10m
 zookeeper-1                   1/1     Running   0          10m
 zookeeper-2                   1/1     Running   0          10m
 ```
+
 #### Access the Pods directly
+
 Access the pod into broker kafka-0:
 
 ```bash
 kubectl -n operator exec -it kafka-0 bash
 ```
+
 All Kafka brokers should have a config file like the following:
+
 ```bash
 cat kafka.properties
 bootstrap.servers=kafka:9071
@@ -68,7 +75,9 @@ sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule require
 sasl.mechanism=PLAIN
 security.protocol=SASL_PLAINTEXT
 ```
+
 Query the bootstrap server
+
 ```bash
 kafka-broker-api-versions --command-config kafka.properties --bootstrap-server kafka:9071
 ```
@@ -85,15 +94,19 @@ ksql> PRINT 'sensor-data' FROM BEGINNING;
 ksql> list streams;
 ksql> list tables;
 ```
-### external Access to the Confluent Platform running in GKE
+
+### External Access to the Confluent Platform Running in GKE
+
   Two possibilities to configure external access:
     1. do port forwarding to your local machine
     2. create external loadbalancers
 The `terraform apply (with 01_installConfluentPlatform.sh` created a couple of Google Loadbalancers already, so 2. is already implemented. If you do want to save money, then please go with 1.
 
 #### 1. Prot Forwarding
+
 First check ports where your confluent components listining to:
-```
+
+```bash
 # control center
 kubectl get pods controlcenter-0 -n operator --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}'
 # ksql
@@ -103,15 +116,19 @@ kubectl get pods schema-registry-0 -n operator --template='{{(index (index .spec
 # Kafka
 kubectl get pods kafka-0 -n operator --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}'
 ```
+
 You can do for each Confluent component create one port-fowarding, e.g. Control Center:
-```
+
+```bash
 # Port Forward Control Center
 kubectl port-forward controlcenter-0 -n operator 7000:9021
 ```
+
 Now, you can open your brower and run the control center locally on Port 7000 [Control Center](http://localhost:7000)). Please enter Username=admin and Password=Developer1
 
 If you want to forward multiple ports locally then use an utility. E.g. kubefwd;
-```
+
+```bash
 # make sure context is set
 kubectl config current-context
 # install kubefwd on macos
@@ -120,12 +137,15 @@ brew upgrade kubefwd
 # foward all services for -n operator
 sudo kubefwd svc -n operator
 ```
+
 kubefwd is generating for all k8s services an Port forwarding and add in /etc/hosts the correct hostname.
 
 #### 2. External Loadblancer
+
 The second possibiliy is to create for each Confluent Component an external Loadbalancer in GKE. What we did with the `terraform apply`.
 For this we can use the Confluent Operator and tell k8s to add a loadbalancer
-```
+
+```bash
 cd infrastructure/terraform-gcp/confluent-operator/helm/
 echo "Create LB for Kafka"
 helm upgrade -f ./providers/gcp.yaml \
@@ -152,13 +172,17 @@ helm upgrade -f ./providers/gcp.yaml \
  --set controlcenter.loadBalancer.domain=mydevplatform.gcp.cloud controlcenter \
  ./confluent-operator
 ```
+
 Because we do not want to buy a domain `mydevplatform.gcp.cloud`we have to add the IPs into our /etc/hosts file, so that we can reach the components.
 First get the external IP adresses of the load balancer:
-```
+
+```bash
 kubectl get services -n operator | grep LoadBalancer
 ```
+
 Then edit the /etc/hosts file and add the new IPs with hostnames:
-```
+
+```bash
 sudo vi /etc/hosts
 # add with your IPs
 EXTERNALIP-OF-KSQL    ksql.mydevplatform.gcp.cloud ksql-bootstrap-lb ksql
