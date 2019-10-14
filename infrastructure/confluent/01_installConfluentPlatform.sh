@@ -175,7 +175,7 @@ echo "EXTERNAL-IP  kafka.mydevplatform.gcp.cloud kafka-bootstrap-lb kafka"
 kubectl get services -n operator | grep LoadBalancer
 sleep 10
 
-echo "After Load balancer Deployments: Check all Concfluent Services..."
+echo "After Load balancer Deployments: Check all Confluent Services..."
 kubectl get services -n operator
 kubectl get pods -n operator
 echo "Confluent Platform into GKE cluster is finished."
