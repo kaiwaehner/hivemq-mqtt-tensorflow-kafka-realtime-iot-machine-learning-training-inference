@@ -21,9 +21,9 @@ The following components are required on your laptop to provison and install the
 * [terraform (0.12)](https://www.terraform.io/downloads.html): Enables you to safely and predictably create, change, and improve infrastructure (infrastructure independent, but currently only implemented GCP setup), e.g. `brew install terraform`
 * [gcloud](https://cloud.google.com/sdk/docs/quickstart-macos): Tool that provides the primary CLI to Google Cloud Platform, e.g.  (always run `gcloud init` first)
 
-The setup is tested on Mac OS X.
-
 Make sure to have up-to-date versions (see the tested versions above). For instance, an older version of helm or kubectl CLI did not work well and threw (sometimes confusing) exceptions.
+
+The setup is tested on Mac OS X. We used HiveMQ 4.2.1 and Confluent Platform 5.3 (with Apache Kafka 2.3).
 
 ## Configure GCP Account and Project
 
@@ -54,7 +54,7 @@ The *default configuration runs without any need for additional licenses*. We us
 
 Confluent components automatically include a 30 day trial license (not allowed for production usage). This license can be used without any limitations regarding scalability. You can see in Confluent Control Center how many days you have left. After 30 days, you also need to contact a Confluent person.
 
-HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 parallel device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
+HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
 
 If you have any questions about licensing, please contact the main contributors of this Github project or an account manager of Hive MQ or Confluent.
 
