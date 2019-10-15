@@ -118,7 +118,6 @@ kubectl get pods -n operator
 sleep 10
 kubectl rollout status sts -n operator ksql
 
-
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
 helm install \
@@ -131,6 +130,9 @@ echo "After Control Center Installation: Check all pods..."
 kubectl get pods -n operator
 sleep 10
 kubectl rollout status sts -n operator controlcenter
+
+# TODO Build breaks if we don't wait here until all components are ready. Is there a better solution for a check?
+sleep 200
 
 echo "Create LB for KSQL"
 helm upgrade -f ./providers/gcp.yaml \
