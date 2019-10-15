@@ -136,29 +136,33 @@ echo "Create LB for KSQL"
 helm upgrade -f ./providers/gcp.yaml \
  --set ksql.enabled=true \
  --set ksql.loadBalancer.enabled=true \
- --set ksql.loadBalancer.domain=ksql-0 ksql \
+ --set ksql.loadBalancer.domain=mydevplatform.gcp.cloud ksql \
  ./confluent-operator
+ kubectl rollout status sts -n operator ksql
 
 echo "Create LB for Kafka"
 helm upgrade -f ./providers/gcp.yaml \
  --set kafka.enabled=true \
  --set kafka.loadBalancer.enabled=true \
- --set kafka.loadBalancer.domain=kafka kafka \
+ --set kafka.loadBalancer.domain=mydevplatform.gcp.cloud kafka \
  ./confluent-operator
+ kubectl rollout status sts -n operator kafka
 
 echo "Create LB for Schemaregistry"
 helm upgrade -f ./providers/gcp.yaml \
  --set schemaregistry.enabled=true \
  --set schemaregistry.loadBalancer.enabled=true \
- --set schemaregistry.loadBalancer.domain=schemaregistry schemaregistry \
+ --set schemaregistry.loadBalancer.domain=mydevplatform.gcp.cloud schemaregistry \
  ./confluent-operator
+ kubectl rollout status sts -n operator schemaregistry
 
 echo "Create LB for Control Center"
 helm upgrade -f ./providers/gcp.yaml \
  --set controlcenter.enabled=true \
  --set controlcenter.loadBalancer.enabled=true \
- --set controlcenter.loadBalancer.domain=axvy.aa.de controlcenter \
+ --set controlcenter.loadBalancer.domain=mydevplatform.gcp.cloud controlcenter \
  ./confluent-operator
+kubectl rollout status sts -n operator controlcenter
 
 echo " Loadbalancers are created please wait a couple of minutes..."
 sleep 60
