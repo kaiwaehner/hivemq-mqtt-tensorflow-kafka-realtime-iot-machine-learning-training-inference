@@ -161,7 +161,7 @@ EXTERNALIP-OF-KB2     b2.mydevplatform.gcp.cloud kafka-2-lb kafka-2 b2
 EXTERNALIP-OF-KB      kafka.mydevplatform.gcp.cloud kafka-bootstrap-lb kafka
 
 # For example, add the line:
-# 34.77.51.245:9021 controlcenter.mydevplatform.gcp.cloud controlcenter controlcenter-bootstrap-lb
+# 34.77.51.245 controlcenter.mydevplatform.gcp.cloud controlcenter controlcenter-bootstrap-lb
 ```
 
 #### 2. Port Forwarding
