@@ -17,7 +17,7 @@ spec:
   cpuRequest: 1000m
   configMaps:
     - name: kafka-config
-  initContainers:
+  initialization:
     - name: init-kafka-plugin
       args:
         - |
