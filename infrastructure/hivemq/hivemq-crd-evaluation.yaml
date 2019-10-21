@@ -13,8 +13,8 @@ spec:
     maxQos: 2
   monitoring:
     enablePrometheus: true
-  memoryRequest: 3G
-  cpuRequest: 1000m
+  memory: 3G
+  cpu: 1000m
   configMaps:
     - name: kafka-config
   initialization:

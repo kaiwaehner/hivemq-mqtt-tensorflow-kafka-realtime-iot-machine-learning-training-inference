@@ -1,34 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "6.3.4"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -46,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1568621099221,
+  "iteration": 1571661635541,
   "links": [],
   "panels": [
     {
@@ -54,35 +24,32 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
       "fill": 1,
       "fillGradient": 0,
-      "grid": {},
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 16,
+      "id": 50,
       "legend": {
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "show": true,
         "total": false,
         "values": false
       },
       "lines": true,
       "linewidth": 1,
-      "links": [],
-      "nullPointMode": "connected",
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [],
@@ -91,65 +58,22 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "cpu.total - $tag_node",
-          "dsType": "influxdb",
-          "expr": "com_hivemq_system_os_global_cpu_total_total{job = \"$job\"}",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "auto"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} cpu.total",
-          "measurement": "cpu",
-          "metric": "com_hivemq_system_os_global_cpu_total_total",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT mean(\"usage_user\") + mean(\"usage_guest\")  + mean(\"usage_guest_nice\") + mean(\"usage_iowait\") + mean(\"usage_irq\") + mean(\"usage_nice\") + mean(\"usage_softirq\") + mean(\"usage_steal\") + mean(\"usage_system\") FROM \"cpu\" WHERE $timeFilter GROUP BY time($interval), \"node\" fill(null)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "usage_user"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
+          "expr": "rate(kafka_extension_topic_mapping_sensor_data_send_count[1m])",
+          "legendFormat": "sent {{ pod }}",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(kafka_extension_total_success_count[1m])",
+          "legendFormat": "success {{ pod }}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "System CPU Used %",
+      "title": "Kafka write rates",
       "tooltip": {
-        "msResolution": false,
         "shared": true,
         "sort": 0,
         "value_type": "individual"
@@ -164,157 +88,11 @@
       },
       "yaxes": [
         {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
+          "format": "wps",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
-      "id": 17,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "connected",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "mem.total - $tag_node",
-          "dsType": "influxdb",
-          "expr": "com_hivemq_system_os_global_memory_total{job = \"$job\"} - com_hivemq_system_os_global_memory_available{job = \"$job\"}",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "auto"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "node"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} mem.used",
-          "measurement": "mem",
-          "metric": "com_hivemq_system_os_global_memory_available",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT mean(\"usage_user\") + mean(\"usage_guest\")  + mean(\"usage_guest_nice\") + mean(\"usage_iowait\") + mean(\"usage_irq\") + mean(\"usage_nice\") + mean(\"usage_softirq\") + mean(\"usage_steal\") + mean(\"usage_system\") FROM \"cpu\" WHERE $timeFilter GROUP BY time($interval), \"node\" fill(null)",
-          "rawQuery": false,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "used_percent"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        },
-        {
-          "expr": "com_hivemq_system_os_global_memory_total{job = \"$job\"}",
-          "format": "time_series",
-          "hide": false,
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} mem.total",
-          "metric": "com_hivemq_system_os_global_memory_total",
-          "refId": "B",
-          "step": 10
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "System Memory Used %",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "decbytes",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
           "show": true
         },
         {
@@ -756,18 +534,15 @@
       "fillGradient": 0,
       "grid": {},
       "gridPos": {
-        "h": 4,
-        "w": 4,
+        "h": 5,
+        "w": 6,
         "x": 0,
         "y": 5
       },
-      "id": 20,
+      "id": 16,
       "legend": {
-        "alignAsTable": false,
         "avg": false,
         "current": false,
-        "hideEmpty": true,
-        "hideZero": true,
         "max": false,
         "min": false,
         "show": false,
@@ -791,300 +566,9 @@
       "steppedLine": false,
       "targets": [
         {
+          "alias": "cpu.total - $tag_node",
           "dsType": "influxdb",
-          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_tasks\", job = \"$job\"}",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "measurement": "/com.hivemq.persistence.executor.*.tasks/",
-          "metric": "",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        },
-        {
-          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_tasks.*\", job = \"$job\"}",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "refId": "D",
-          "step": 10
-        },
-        {
-          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_.*_tasks\", job = \"$job\"}",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "refId": "B",
-          "step": 10
-        },
-        {
-          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_.*_tasks.*\", job = \"$job\"}",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "refId": "C",
-          "step": 10
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Single Writer Tasks",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 5
-      },
-      "id": 21,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "hideEmpty": true,
-        "hideZero": true,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "connected",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "$4 - $tag_host",
-          "dsType": "influxdb",
-          "expr": "{__name__=~\"com_hivemq_cluster_sent_.*\", job = \"$job\"}",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "measurement": "/com.hivemq.cluster.sent.*/",
-          "metric": "com_hivemq_control_center_executor_duration",
-          "policy": "default",
-          "query": "SELECT difference(mean(\"count\")) FROM /com.hivemq.cluster.sent.*/ WHERE $timeFilter GROUP BY time(1m), \"host\" fill(null)",
-          "rawQuery": false,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "count"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              },
-              {
-                "params": [
-                  "10s"
-                ],
-                "type": "non_negative_derivative"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Cluster Requests Sent (1m)",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 5
-      },
-      "id": 12,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "retained-messages - $tag_host",
-          "dsType": "influxdb",
-          "expr": "com_hivemq_messages_retained_current{job = \"$job\"}",
+          "expr": "com_hivemq_system_os_global_cpu_total_total{job = \"$job\"}",
           "format": "time_series",
           "groupBy": [
             {
@@ -1107,18 +591,20 @@
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} retained-messages",
-          "measurement": "com.hivemq.messages.retained.current",
-          "metric": "com_hivemq_messages_retained_current",
+          "legendFormat": "{{pod}} cpu.total",
+          "measurement": "cpu",
+          "metric": "com_hivemq_system_os_global_cpu_total_total",
           "orderByTime": "ASC",
           "policy": "default",
+          "query": "SELECT mean(\"usage_user\") + mean(\"usage_guest\")  + mean(\"usage_guest_nice\") + mean(\"usage_iowait\") + mean(\"usage_irq\") + mean(\"usage_nice\") + mean(\"usage_softirq\") + mean(\"usage_steal\") + mean(\"usage_system\") FROM \"cpu\" WHERE $timeFilter GROUP BY time($interval), \"node\" fill(null)",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "usage_user"
                 ],
                 "type": "field"
               },
@@ -1136,7 +622,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Retained Messages (stacked)",
+      "title": "System CPU Used %",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -1153,7 +639,153 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 5
+      },
+      "id": 17,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "mem.total - $tag_node",
+          "dsType": "influxdb",
+          "expr": "com_hivemq_system_os_global_memory_total{job = \"$job\"} - com_hivemq_system_os_global_memory_available{job = \"$job\"}",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "auto"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "node"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} mem.used",
+          "measurement": "mem",
+          "metric": "com_hivemq_system_os_global_memory_available",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"usage_user\") + mean(\"usage_guest\")  + mean(\"usage_guest_nice\") + mean(\"usage_iowait\") + mean(\"usage_irq\") + mean(\"usage_nice\") + mean(\"usage_softirq\") + mean(\"usage_steal\") + mean(\"usage_system\") FROM \"cpu\" WHERE $timeFilter GROUP BY time($interval), \"node\" fill(null)",
+          "rawQuery": false,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "used_percent"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        },
+        {
+          "expr": "com_hivemq_system_os_global_memory_total{job = \"$job\"}",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} mem.total",
+          "metric": "com_hivemq_system_os_global_memory_total",
+          "refId": "B",
+          "step": 10
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "System Memory Used %",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1922,426 +1554,6 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 0,
-        "y": 9
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "hideEmpty": true,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "connected",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "connections - $tag_host",
-          "dsType": "influxdb",
-          "expr": "com_hivemq_networking_connections_current{job = \"$job\"}",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} connections",
-          "measurement": "com.hivemq.networking.connections.current",
-          "metric": "com_hivemq_networking_connections_current",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "max"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Current Connections (stacked, 1m)",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 9
-      },
-      "id": 8,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "hideEmpty": true,
-        "hideZero": true,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "connect.rate - $tag_host",
-          "dsType": "influxdb",
-          "expr": "delta(com_hivemq_messages_incoming_connect_count{job = \"$job\"}[1m])",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} connect.rate",
-          "measurement": "com.hivemq.messages.incoming.connect.count",
-          "metric": "com_hivemq_messages_incoming_connect_count",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "count"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "max"
-              },
-              {
-                "params": [
-                  "1m"
-                ],
-                "type": "non_negative_derivative"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "CONNECT (stacked, 1m)",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 9
-      },
-      "id": 9,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "closed_connections.rate - $tag_host",
-          "dsType": "influxdb",
-          "expr": "delta(com_hivemq_networking_connections_closed_total_count{job = \"$job\"}[1m])",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} closed_connections.rate",
-          "measurement": "com.hivemq.networking.connections-closed.total.count",
-          "metric": "com_hivemq_networking_connections_closed_total_count",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "count"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "max"
-              },
-              {
-                "params": [
-                  "1m"
-                ],
-                "type": "non_negative_derivative"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Closed Connections (stacked, 1m)",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 4,
-        "w": 4,
         "x": 12,
         "y": 9
       },
@@ -2759,13 +1971,15 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 13
+        "y": 10
       },
-      "id": 6,
-      "interval": "60s",
+      "id": 20,
       "legend": {
+        "alignAsTable": false,
         "avg": false,
         "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": false,
@@ -2775,7 +1989,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
         "dataLinks": []
       },
@@ -2785,18 +1999,17 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": true,
+      "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "publish.incoming - $tag_host",
           "dsType": "influxdb",
-          "expr": "delta(com_hivemq_messages_incoming_publish_count{job = \"$job\"}[1m])",
+          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_tasks\", job = \"$job\"}",
           "format": "time_series",
           "groupBy": [
             {
               "params": [
-                "1m"
+                "$interval"
               ],
               "type": "time"
             },
@@ -2808,48 +2021,60 @@
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} publish.incoming",
-          "measurement": "com.hivemq.messages.incoming.publish.count",
-          "metric": "com_hivemq_messages_incoming_publish_count",
-          "orderByTime": "ASC",
+          "legendFormat": "",
+          "measurement": "/com.hivemq.persistence.executor.*.tasks/",
+          "metric": "",
           "policy": "default",
-          "query": "increase(metrics_com_hivemq_messages_incoming_total_count_count)",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "count"
+                  "value"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "max"
-              },
-              {
-                "params": [
-                  "1m"
-                ],
-                "type": "non_negative_derivative"
+                "type": "mean"
               }
             ]
           ],
-          "step": 120,
+          "step": 10,
           "tags": []
+        },
+        {
+          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_tasks.*\", job = \"$job\"}",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "refId": "D",
+          "step": 10
+        },
+        {
+          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_.*_tasks\", job = \"$job\"}",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "refId": "B",
+          "step": 10
+        },
+        {
+          "expr": "{__name__=~\"com_hivemq_persistence_executor_.*_.*_tasks.*\", job = \"$job\"}",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "refId": "C",
+          "step": 10
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "PUBLISH incoming (stacked, 1m)",
+      "title": "Single Writer Tasks",
       "tooltip": {
         "msResolution": false,
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -2896,12 +2121,14 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 13
+        "y": 10
       },
-      "id": 7,
+      "id": 21,
       "legend": {
         "avg": false,
         "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": false,
@@ -2911,7 +2138,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
         "dataLinks": []
       },
@@ -2921,13 +2148,13 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": true,
+      "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "publish.outgoing - $tag_host",
+          "alias": "$4 - $tag_host",
           "dsType": "influxdb",
-          "expr": "delta(com_hivemq_messages_outgoing_publish_count{job = \"$job\"}[1m])",
+          "expr": "{__name__=~\"com_hivemq_cluster_sent_.*\", job = \"$job\"}",
           "format": "time_series",
           "groupBy": [
             {
@@ -2941,14 +2168,22 @@
                 "host"
               ],
               "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} publish.outgoing",
-          "measurement": "com.hivemq.messages.outgoing.publish.count",
-          "metric": "com_hivemq_messages_outgoing_publish_count",
-          "orderByTime": "ASC",
+          "legendFormat": "",
+          "measurement": "/com.hivemq.cluster.sent.*/",
+          "metric": "com_hivemq_control_center_executor_duration",
           "policy": "default",
+          "query": "SELECT difference(mean(\"count\")) FROM /com.hivemq.cluster.sent.*/ WHERE $timeFilter GROUP BY time(1m), \"host\" fill(null)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2961,11 +2196,11 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               },
               {
                 "params": [
-                  "1m"
+                  "10s"
                 ],
                 "type": "non_negative_derivative"
               }
@@ -2979,11 +2214,11 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "PUBLISH outgoing (stacked, 1m)",
+      "title": "Cluster Requests Sent (1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -3030,10 +2265,9 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 13
+        "y": 10
       },
-      "id": 46,
-      "interval": "60s",
+      "id": 12,
       "legend": {
         "avg": false,
         "current": false,
@@ -3060,14 +2294,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "ping.incoming - $tag_host",
+          "alias": "retained-messages - $tag_host",
           "dsType": "influxdb",
-          "expr": "delta(com_hivemq_messages_incoming_pingreq_count{job = \"$job\"}[1m])",
+          "expr": "com_hivemq_messages_retained_current{job = \"$job\"}",
           "format": "time_series",
           "groupBy": [
             {
               "params": [
-                "1m"
+                "auto"
               ],
               "type": "time"
             },
@@ -3076,39 +2310,37 @@
                 "host"
               ],
               "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} ping.incoming",
-          "measurement": "com.hivemq.messages.incoming.pingreq.count",
-          "metric": "com_hivemq_messages_incoming_pingreq_count",
+          "legendFormat": "{{pod}} retained-messages",
+          "measurement": "com.hivemq.messages.retained.current",
+          "metric": "com_hivemq_messages_retained_current",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "increase(metrics_com_hivemq_messages_incoming_total_count_count)",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "count"
+                  "value"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  "1m"
-                ],
-                "type": "non_negative_derivative"
+                "type": "mean"
               }
             ]
           ],
-          "step": 120,
+          "step": 10,
           "tags": []
         }
       ],
@@ -3116,7 +2348,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "PING incoming (stacked, 1m)",
+      "title": "Retained Messages (stacked)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -3133,7 +2365,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -3575,7 +2807,7 @@
     },
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "Prometheus",
@@ -3584,21 +2816,24 @@
       "grid": {},
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 4,
         "x": 0,
-        "y": 17
+        "y": 14
       },
-      "id": 22,
+      "id": 2,
       "legend": {
+        "alignAsTable": false,
         "avg": false,
         "current": false,
+        "hideEmpty": true,
+        "hideZero": false,
         "max": false,
         "min": false,
         "show": false,
         "total": false,
         "values": false
       },
-      "lines": false,
+      "lines": true,
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
@@ -3615,9 +2850,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "GC M&S - $tag_host",
+          "alias": "connections - $tag_host",
           "dsType": "influxdb",
-          "expr": "delta(com_hivemq_jvm_garbage_collector_marksweepcompact_count{job = \"$job\"}[1m])",
+          "expr": "com_hivemq_networking_connections_current{job = \"$job\"}",
           "format": "time_series",
           "groupBy": [
             {
@@ -3640,9 +2875,10 @@
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} GC M&S",
-          "measurement": "com.hivemq.jvm.garbage-collector.G1-Young-Generation.count",
-          "metric": "com_hivemq_jvm_garbage_collector_G1_Young_Generation_count",
+          "legendFormat": "{{pod}} connections",
+          "measurement": "com.hivemq.networking.connections.current",
+          "metric": "com_hivemq_networking_connections_current",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -3656,13 +2892,7 @@
               },
               {
                 "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  "10s"
-                ],
-                "type": "non_negative_derivative"
+                "type": "max"
               }
             ]
           ],
@@ -3674,7 +2904,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Garbage Collections (1m)",
+      "title": "Current Connections (stacked, 1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -3724,13 +2954,16 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
-        "y": 17
+        "x": 4,
+        "y": 14
       },
-      "id": 24,
+      "id": 8,
       "legend": {
+        "alignAsTable": false,
         "avg": false,
         "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": false,
@@ -3740,7 +2973,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "connected",
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
@@ -3750,13 +2983,13 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "GC Young Time - $tag_host",
+          "alias": "connect.rate - $tag_host",
           "dsType": "influxdb",
-          "expr": "delta(com_hivemq_jvm_garbage_collector_marksweepcompact_time{job = \"$job\"}[1m])",
+          "expr": "delta(com_hivemq_messages_incoming_connect_count{job = \"$job\"}[1m])",
           "format": "time_series",
           "groupBy": [
             {
@@ -3779,9 +3012,10 @@
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} GC Young Time",
-          "measurement": "com.hivemq.jvm.garbage-collector.G1-Young-Generation.time",
-          "metric": "com_hivemq_jvm_garbage_collector_G1_Young_Generation_time",
+          "legendFormat": "{{pod}} connect.rate",
+          "measurement": "com.hivemq.messages.incoming.connect.count",
+          "metric": "com_hivemq_messages_incoming_connect_count",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -3789,7 +3023,7 @@
             [
               {
                 "params": [
-                  "value"
+                  "count"
                 ],
                 "type": "field"
               },
@@ -3797,62 +3031,11 @@
                 "params": [],
                 "type": "max"
               },
-              {
-                "params": [],
-                "type": "difference"
-              }
-            ]
-          ],
-          "step": 10,
-          "tags": []
-        },
-        {
-          "alias": "GC Old Time - $tag_host",
-          "dsType": "influxdb",
-          "expr": "delta(com_hivemq_jvm_garbage_collector_marksweepcompact_time{job = \"$job\"}[1m])",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "host"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "legendFormat": "{{pod}} GC Old Time",
-          "measurement": "com.hivemq.jvm.garbage-collector.G1-Old-Generation.time",
-          "metric": "com_hivemq_jvm_garbage_collector_G1_Old_Generation_time",
-          "policy": "default",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
               {
                 "params": [
-                  "value"
+                  "1m"
                 ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "max"
-              },
-              {
-                "params": [],
-                "type": "difference"
+                "type": "non_negative_derivative"
               }
             ]
           ],
@@ -3864,7 +3047,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Garbage Collections Times (1m)",
+      "title": "CONNECT (stacked, 1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -3881,7 +3064,147 @@
       },
       "yaxes": [
         {
-          "format": "ms",
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 14
+      },
+      "id": 9,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "closed_connections.rate - $tag_host",
+          "dsType": "influxdb",
+          "expr": "delta(com_hivemq_networking_connections_closed_total_count{job = \"$job\"}[1m])",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "1m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} closed_connections.rate",
+          "measurement": "com.hivemq.networking.connections-closed.total.count",
+          "metric": "com_hivemq_networking_connections_closed_total_count",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "max"
+              },
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "non_negative_derivative"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Closed Connections (stacked, 1m)",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -4380,9 +3703,10 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 21
+        "y": 18
       },
-      "id": 30,
+      "id": 6,
+      "interval": "60s",
       "legend": {
         "avg": false,
         "current": false,
@@ -4395,7 +3719,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "connected",
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
@@ -4405,18 +3729,18 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Overload Protection level - $tag_host",
+          "alias": "publish.incoming - $tag_host",
           "dsType": "influxdb",
-          "expr": "com_hivemq_overload_protection_level{job = \"$job\"}",
+          "expr": "delta(com_hivemq_messages_incoming_publish_count{job = \"$job\"}[1m])",
           "format": "time_series",
           "groupBy": [
             {
               "params": [
-                "10s"
+                "1m"
               ],
               "type": "time"
             },
@@ -4428,27 +3752,36 @@
             }
           ],
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} Overload Protection level",
-          "measurement": "com.hivemq.overload-protection.level",
-          "metric": "com_hivemq_overload_protection_level",
+          "legendFormat": "{{pod}} publish.incoming",
+          "measurement": "com.hivemq.messages.incoming.publish.count",
+          "metric": "com_hivemq_messages_incoming_publish_count",
+          "orderByTime": "ASC",
           "policy": "default",
+          "query": "increase(metrics_com_hivemq_messages_incoming_total_count_count)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "count"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "last"
+                "type": "max"
+              },
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "non_negative_derivative"
               }
             ]
           ],
-          "step": 10,
+          "step": 120,
           "tags": []
         }
       ],
@@ -4456,7 +3789,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Overload Protection Level",
+      "title": "PUBLISH incoming (stacked, 1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -4469,21 +3802,19 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
-          "max": "10",
+          "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -4509,9 +3840,9 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 21
+        "y": 18
       },
-      "id": 29,
+      "id": 7,
       "legend": {
         "avg": false,
         "current": false,
@@ -4524,7 +3855,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "connected",
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
@@ -4534,18 +3865,18 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "",
+          "alias": "publish.outgoing - $tag_host",
           "dsType": "influxdb",
-          "expr": "com_hivemq_overload_protection_clients_average_credits{job = \"$job\"}",
+          "expr": "delta(com_hivemq_messages_outgoing_publish_count{job = \"$job\"}[1m])",
           "format": "time_series",
           "groupBy": [
             {
               "params": [
-                "10s"
+                "1m"
               ],
               "type": "time"
             },
@@ -4554,19 +3885,13 @@
                 "host"
               ],
               "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
             }
           ],
-          "hide": false,
           "intervalFactor": 2,
-          "legendFormat": "{{pod}} Average Credits",
-          "measurement": "com.hivemq.overload-protection.clients.average-credits",
-          "metric": "com_hivemq_overload_protection_clients_average_credits",
+          "legendFormat": "{{pod}} publish.outgoing",
+          "measurement": "com.hivemq.messages.outgoing.publish.count",
+          "metric": "com_hivemq_messages_outgoing_publish_count",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -4574,13 +3899,19 @@
             [
               {
                 "params": [
-                  "value"
+                  "count"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "max"
+              },
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "non_negative_derivative"
               }
             ]
           ],
@@ -4592,7 +3923,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Overload Protection avg Credits (1m)",
+      "title": "PUBLISH outgoing (stacked, 1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -4605,13 +3936,11 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -4645,9 +3974,10 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 21
+        "y": 18
       },
-      "id": 32,
+      "id": 46,
+      "interval": "60s",
       "legend": {
         "avg": false,
         "current": false,
@@ -4660,7 +3990,7 @@
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "connected",
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
@@ -4670,18 +4000,18 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "",
+          "alias": "ping.incoming - $tag_host",
           "dsType": "influxdb",
-          "expr": "com_hivemq_overload_protection_credits_per_tick{job = \"$job\"}",
+          "expr": "delta(com_hivemq_messages_incoming_pingreq_count{job = \"$job\"}[1m])",
           "format": "time_series",
           "groupBy": [
             {
               "params": [
-                "10s"
+                "1m"
               ],
               "type": "time"
             },
@@ -4692,28 +4022,37 @@
               "type": "tag"
             }
           ],
-          "hide": false,
           "intervalFactor": 2,
-          "measurement": "com.hivemq.overload-protection.credits.per-tick",
-          "metric": "com_hivemq_overload_protection_credits_per_tick",
+          "legendFormat": "{{pod}} ping.incoming",
+          "measurement": "com.hivemq.messages.incoming.pingreq.count",
+          "metric": "com_hivemq_messages_incoming_pingreq_count",
+          "orderByTime": "ASC",
           "policy": "default",
+          "query": "increase(metrics_com_hivemq_messages_incoming_total_count_count)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "count"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "last"
+              },
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "non_negative_derivative"
               }
             ]
           ],
-          "step": 10,
+          "step": 120,
           "tags": []
         }
       ],
@@ -4721,7 +4060,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Overload Protection Credits per tick (10s)",
+      "title": "PING incoming (stacked, 1m)",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -4734,13 +4073,11 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -5151,6 +4488,729 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 22
+      },
+      "id": 22,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "GC M&S - $tag_host",
+          "dsType": "influxdb",
+          "expr": "delta(com_hivemq_jvm_garbage_collector_PS_MarkSweep_count{job = \"$job\"}[1m])",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "1m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} GC M&S",
+          "measurement": "com.hivemq.jvm.garbage-collector.G1-Young-Generation.count",
+          "metric": "com_hivemq_jvm_garbage_collector_G1_Young_Generation_count",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              },
+              {
+                "params": [
+                  "10s"
+                ],
+                "type": "non_negative_derivative"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Garbage Collections (1m)",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 22
+      },
+      "id": 24,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "GC Young Time - $tag_host",
+          "dsType": "influxdb",
+          "expr": "delta(com_hivemq_jvm_garbage_collector_PS_MarkSweep_time{job = \"$job\"}[1m])",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "1m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} GC Young Time",
+          "measurement": "com.hivemq.jvm.garbage-collector.G1-Young-Generation.time",
+          "metric": "com_hivemq_jvm_garbage_collector_G1_Young_Generation_time",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "max"
+              },
+              {
+                "params": [],
+                "type": "difference"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        },
+        {
+          "alias": "GC Old Time - $tag_host",
+          "dsType": "influxdb",
+          "expr": "delta(com_hivemq_jvm_garbage_collector_PS_MarkSweep_time{job = \"$job\"}[1m])",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "1m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} GC Old Time",
+          "measurement": "com.hivemq.jvm.garbage-collector.G1-Old-Generation.time",
+          "metric": "com_hivemq_jvm_garbage_collector_G1_Old_Generation_time",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "max"
+              },
+              {
+                "params": [],
+                "type": "difference"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Garbage Collections Times (1m)",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "ms",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 26
+      },
+      "id": 30,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Overload Protection level - $tag_host",
+          "dsType": "influxdb",
+          "expr": "com_hivemq_overload_protection_level{job = \"$job\"}",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "10s"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            }
+          ],
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} Overload Protection level",
+          "measurement": "com.hivemq.overload-protection.level",
+          "metric": "com_hivemq_overload_protection_level",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Overload Protection Level",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": "10",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 26
+      },
+      "id": 29,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "expr": "com_hivemq_overload_protection_clients_average_credits{job = \"$job\"}",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "10s"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}} Average Credits",
+          "measurement": "com.hivemq.overload-protection.clients.average-credits",
+          "metric": "com_hivemq_overload_protection_clients_average_credits",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Overload Protection avg Credits (1m)",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 26
+      },
+      "id": 32,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "expr": "com_hivemq_overload_protection_credits_per_tick{job = \"$job\"}",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "10s"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 2,
+          "measurement": "com.hivemq.overload-protection.credits.per-tick",
+          "metric": "com_hivemq_overload_protection_credits_per_tick",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "step": 10,
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Overload Protection Credits per tick (10s)",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "5s",
@@ -5195,7 +5255,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "hivemq-cluster1-monitoring",
+          "value": "hivemq-cluster1-monitoring"
+        },
         "datasource": "Prometheus",
         "definition": "",
         "hide": 0,
@@ -5249,5 +5312,5 @@
   "timezone": "browser",
   "title": "HiveMQ Cluster",
   "uid": "ML74c76mz",
-  "version": 2
+  "version": 1
 }

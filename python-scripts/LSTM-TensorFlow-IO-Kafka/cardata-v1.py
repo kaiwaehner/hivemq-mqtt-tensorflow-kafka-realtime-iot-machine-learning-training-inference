@@ -2,6 +2,14 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_io.kafka as kafka_io
 
+kafka_config = [
+    "broker.version.fallback=0.10.0.0",
+    "security.protocol=sasl_plaintext",
+    "sasl.username=test",
+    "sasl.password=test123",
+    "sasl.mechanisms=PLAIN"
+]
+
 with open('cardata-v1.avsc') as f:
     schema = f.read()
 
@@ -9,13 +17,7 @@ with open('cardata-v1.avsc') as f:
 def kafka_dataset(servers, topic, offset, schema, eof=True):
     print("Create: ", "{}:0:{}".format(topic, offset))
     dataset = kafka_io.KafkaDataset(["{}:0:{}".format(topic, offset, offset)], servers=servers, group="cardata-v1",
-                                    eof=eof, config_global=[
-            "broker.version.fallback=0.10.0.0",
-            "security.protocol=sasl_plaintext",
-            "sasl.username=test",
-            "sasl.password=test123",
-            "sasl.mechanisms=PLAIN"
-        ])
+                                    eof=eof, config_global=kafka_config)
 
     # remove kafka framing
     dataset = dataset.map(lambda e: tf.strings.substr(e, 5, -1))
@@ -158,7 +160,7 @@ dataset = dataset.map(normalize_fn)
 
 features = 18
 look_back = 1
-batch_size = 1
+batch_size = 5
 
 # create and fit the LSTM network
 model = tf.keras.models.Sequential()
@@ -197,9 +199,9 @@ dataset_predict = dataset_x.batch(batch_size).skip(1000).take(200)
 class OutputCallback(tf.keras.callbacks.Callback):
     """KafkaOutputCallback"""
 
-    def __init__(self, batch_size, topic, servers):
+    def __init__(self, batch_size, topic, servers, config):
         self._sequence = kafka_io.KafkaOutputSequence(
-            topic=topic, servers=servers)
+            topic=topic, servers=servers, global_config=config)
         self._batch_size = batch_size
 
     def on_predict_batch_end(self, batch, logs=None):
@@ -215,7 +217,7 @@ class OutputCallback(tf.keras.callbacks.Callback):
 
 
 # Use same batch_size, but result_topic
-output = OutputCallback(batch_size, result_topic, servers)
+output = OutputCallback(batch_size, result_topic, servers, kafka_config)
 
 predict = model.predict(dataset_predict, callbacks=[output])
 
