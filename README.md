@@ -1,6 +1,5 @@
 # Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow
 
-================
 If you just want to get started and quickly start the demo in a few minutes, go to the [quick start](infrastructure/README.md) to setup the infrastructure (on GCP) and run the demo.
 
 ## Movitation: Demo an IoT Scenario at Scale
@@ -66,6 +65,7 @@ You can pick and choose the right components from the Apache Kafka and TensorFlo
 This demo will do the following steps:
 
 - Consume streaming data from MQTT Broker HiveMQ via a Kafka Consumer
+- Ingest, store and scale the IoT data with Apache Kafka and Confluent Platform
 - Preprocess the data with KSQL (filter, transform)
 - Ingest the data into TensorFlow  (tf.data and tensorflow-io)
 - Build, train and save the model  (TensorFlow 2.0 API)
@@ -110,8 +110,8 @@ We have prepared a terraform script to deploy the complete environment in Google
 
 - Kafka Cluster: Apache Kafka, KSQL, Schema Registry, Control Center
 - MQTT Cluster: HiveMQ Broker, Kafka Plugin, Test Data Generator
-- Machine Learning: TensorFlow I/O and Kafka Plugin
-- Monitoring infrastructure: Prometheus, Grafana, Control Center
+- Streaming Machine Learning (Model Training and Inference): TensorFlow I/O and Kafka Plugin
+- Monitoring Infrastructure: Prometheus, Grafana, Control Center
 
 The setup is pretty straightforward. No previous experience required for getting the demo running. You just need to install some CLIs on your laptop (gcloud, kubectl, helm, terraform).
 
@@ -123,7 +123,7 @@ Follow the instructions in the [quick start](infrastructure/README.md) to setup 
 
 ### Streaming ML with Kafka and TensorFlow
 
-If you are just interested in the "Streaming ML" part, check out the following:
+If you are just interested in the "Streaming ML" part for model training and model inference, check out the following:
 
 [Python Application leveraging Apache Kafka and TensorFlow for Streaming Model Training and Inference](python-scripts/LSTM-TensorFlow-IO-Kafka/README.md).
 
