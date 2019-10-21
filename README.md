@@ -126,6 +126,7 @@ Follow the instructions in the [quick start](infrastructure/README.md) to setup 
 If you are just interested in the "Streaming ML" part for model training and model inference, check out the following:
 
 [Python Application leveraging Apache Kafka and TensorFlow for Streaming Model Training and Inference](python-scripts/LSTM-TensorFlow-IO-Kafka/README.md).
+python-scripts/LSTM-TensorFlow-IO-Kafka/README.md
 
 The ML part is not scipted yet. You have to deploy the application (via Docker) manually.
 
