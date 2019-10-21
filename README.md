@@ -1,11 +1,7 @@
 # Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow
 
 ================
-WORK IN PROGRESS... NOT FINISHED YET !!!!!!
-The infrastructure is set up; but optimizations and the streaming ML part is still missing... Goal is to finish V2 (i.e. end-to-end integration at scale, including Streaming ML) until end of October 2019. ================
-
 If you just want to get started and quickly start the demo in a few minutes, go to the [quick start](infrastructure/README.md) to setup the infrastructure (on GCP) and run the demo.
-
 
 ## Movitation: Demo an IoT Scenario at Scale
 
@@ -129,24 +125,11 @@ Follow the instructions in the [quick start](infrastructure/README.md) to setup 
 
 If you are just interested in the "Streaming ML" part, check out the following:
 
-Until the full demo is ready, you can already checkout two working examples which use Kafka Python clients to produce data to Kafka topics and then consume the streaming data directly with TensorFlow I/O for streaming ML without an additional data store:
+[Python Application leveraging Apache Kafka and TensorFlow for Streaming Model Training and Inference](python-scripts/LSTM-TensorFlow-IO-Kafka/README.md).
+
+The ML part is not scipted yet. You have to deploy the application (via Docker) manually.
+
+Until the full demo is ready, you can also already checkout two working examples which use Kafka Python clients to produce data to Kafka topics and then consume the streaming data directly with TensorFlow I/O for streaming ML without an additional data store:
 
 - [Streaming ingestion of MNIST data into TensorFlow via Kafka for image regonition](confluent-tensorflow-io-kafka.py).
 - Autoencoder for anomaly detection of sensor data into TensorFlow via Kafka. [Producer (Python Client)](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Producer-From-CSV.py) and [Consumer (TensorFlow I/O Kafka Plugin) + Model Training](https://github.com/kaiwaehner/hivemq-mqtt-tensorflow-kafka-realtime-iot-machine-learning-training-inference/blob/master/python-scripts/autoencoder-anomaly-detection/Sensor-Kafka-Consumer-and-TensorFlow-Model-Training.py).
-
-## More Information
-
-TODO Outsource to TensorFlow section / folder when available.
-
-### TensorFlow 2.0 is still beta and requires Linux
-
-- At the time of writing (July 2019), TensorFlow 2.0 is still beta
-- TensorFlow 2.0 I/O does NOT work on Mac or Windows (e.g. 'pip install tensorflow-io-2.0-preview does not work'). You need to install it on a Linux system (VM or Cloud Instance) to avoid many headaches and spend your time on the problem, not the infrastructure
-
-### TensorFlow 1.x to 2.0 Migration and Embedded Keras API
-
-- The upgrade tool allows smooth migration, especially if your TensorFlow 1.x code also uses Keras. I just executed: "tf_upgrade_v2 --infile Python-Tensorflow-1.x-Keras-Fraud-Detection-Autoencoder.ipynb --outfile Python-Tensorflow-2.0-Keras-Fraud-Detection-Autoencoder.ipynb"
-- Python-Tensorflow-1.x-Keras-Fraud-Detection-Autoencoder.ipynb is the initial Jupyter Notebook to create the autoencoder
-- Python-Tensorflow-2.0-Keras-Fraud-Detection-Autoencoder.ipynb is the TensorFlow 2.0 version
-- You usually still need to do some custom fixes. My migration report had no errors, but I still has to replace "tensorflow.keras" with "keras" imports (and uninstall the independent Keras package via pip to be on the safe path)
-- The Jupyter Notebook now runs well with TensorFlow 2.0 and its embedded Keras API
