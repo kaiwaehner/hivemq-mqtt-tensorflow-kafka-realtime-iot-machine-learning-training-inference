@@ -197,6 +197,8 @@ kubectl -n operator exec -it kafka-2 -- bash -c "printf \"bootstrap.servers=kafk
 # Create Topic sensor-data
 echo "Create Topic sensor-data"
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10"
+echo "Create Topic model-predictions"
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10"
 # list Topics
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --list --command-config kafka.properties"
 # Create STREAMS
