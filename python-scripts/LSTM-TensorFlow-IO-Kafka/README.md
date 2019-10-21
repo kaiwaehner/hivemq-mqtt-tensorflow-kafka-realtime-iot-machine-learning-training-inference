@@ -2,6 +2,9 @@
 
 We train a LSTM Neural Network from the car sensor data and use the model for predictions on new data in real time. The data is ingested via MQTT (HiveMQ) into a Kafka Topic (Confluent). TensorFlow (Python application) does model training and model inference in real time (without the need for another data store like S3 or HDFS).
 
+`WARNING:
+This part (deployment of the Python application) is not scripted yet. You have to deploy the application (via Docker) manually. Target for automated scripting: End of October 2019.`
+
 ## Python application
 
 The Python application consumes from the Kafka topic `car-sensor`. We use TensorFlow IO for training and inference. The only dependency of tensorflow-io is TensorFlow (+ Kafka). This really simplified almost everything and is one of the biggest advantages of tenorflow-io.
