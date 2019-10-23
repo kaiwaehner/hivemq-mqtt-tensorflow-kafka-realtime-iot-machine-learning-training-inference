@@ -160,7 +160,7 @@ dataset = dataset.map(normalize_fn)
 
 features = 18
 look_back = 1
-batch_size = 5
+batch_size = 1
 
 # create and fit the LSTM network
 model = tf.keras.models.Sequential()
@@ -217,7 +217,7 @@ class OutputCallback(tf.keras.callbacks.Callback):
 
 
 # Use same batch_size, but result_topic
-output = OutputCallback(batch_size, result_topic, servers, kafka_config)
+output = OutputCallback(batch_size, result_topic, servers, config=kafka_config)
 
 predict = model.predict(dataset_predict, callbacks=[output])
 
