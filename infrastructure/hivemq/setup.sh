@@ -20,7 +20,7 @@ kubectl label -n monitoring configmap/hivemq-dashboard grafana_dashboard=1 || tr
 
 echo "Deploying HiveMQ operator..."
 # Warning: This is a really early development version of the operator. DO NOT USE IN PRODUCTION
-kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.3 || true
+kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.4 || true
 kubectl rollout -n hivemq status deployment operator
 # Arbitrary sleep to wait until the operator creates the CRD
 sleep 5
@@ -34,4 +34,4 @@ until kubectl get -n hivemq deployments | grep hivemq-cluster1; do
 done
 kubectl rollout -n hivemq status --timeout=10m deployment hivemq-cluster1 || true
 
-kubectl apply -f hivemq-mqtt.yaml
+kubectl apply -f hivemq-mqtt.yaml -f hivemq-control-center.yaml
