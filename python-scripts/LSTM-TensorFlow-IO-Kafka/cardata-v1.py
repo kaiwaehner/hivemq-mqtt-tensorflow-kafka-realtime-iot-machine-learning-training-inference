@@ -201,7 +201,7 @@ class OutputCallback(tf.keras.callbacks.Callback):
 
     def __init__(self, batch_size, topic, servers):
         self._sequence = kafka_io.KafkaOutputSequence(
-            topic=topic, servers=servers)
+            topic=topic, servers=servers, configuration=kafka_config)
         self._batch_size = batch_size
 
     def on_predict_batch_end(self, batch, logs=None):
@@ -217,7 +217,7 @@ class OutputCallback(tf.keras.callbacks.Callback):
 
 
 # Use same batch_size, but result_topic
-output = OutputCallback(batch_size, result_topic, servers)
+output = OutputCallback(batch_size, topic=result_topic, servers=servers)
 
 predict = model.predict(dataset_predict, callbacks=[output])
 
