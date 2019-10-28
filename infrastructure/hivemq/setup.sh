@@ -34,4 +34,4 @@ until kubectl get -n hivemq deployments | grep hivemq-cluster1; do
 done
 kubectl rollout -n hivemq status --timeout=10m deployment hivemq-cluster1 || true
 
-kubectl apply -f hivemq-mqtt.yaml
+kubectl apply -f hivemq-mqtt.yaml -f hivemq-control-center.yaml

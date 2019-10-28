@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hivemq-control-center
+  namespace: hivemq
+spec:
+  selector:
+    hivemq-cluster: hivemq-cluster1
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  sessionAffinity: ClientIP
+  type: LoadBalancer
