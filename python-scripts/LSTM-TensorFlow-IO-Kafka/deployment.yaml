@@ -18,4 +18,4 @@ spec:
           image: sbaier1/car-sensor-model:latest
           imagePullPolicy: Always
           command: ["python3"]
-          args: ["cardata-v1.py", "kafka.operator.svc.cluster.local:9071", "sensor-data", "0", "model-predictions"]
+          args: ["cardata-v1.py", "kafka.operator.svc.cluster.local:9071", "SENSOR_DATA_S_AVRO", "0", "model-predictions"]

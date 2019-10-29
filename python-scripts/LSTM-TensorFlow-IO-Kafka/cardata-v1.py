@@ -8,6 +8,8 @@ kafka_config = [
     "sasl.username=test",
     "sasl.password=test123",
     "sasl.mechanisms=PLAIN"
+    # Tried to force kafka library to use the correct address
+    # "bootstrap.servers=kafka.operator.svc.cluster.local:9071"
 ]
 
 with open('cardata-v1.avsc') as f:
@@ -26,24 +28,25 @@ def kafka_dataset(servers, topic, offset, schema, eof=True):
     dataset = dataset.map(
         lambda e: kafka_io.decode_avro(
             e, schema=schema, dtype=[
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.int32,
-                tf.int32,
-                tf.int32,
-                tf.int32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.float32,
-                tf.int32]))
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.int64,
+                tf.int64,
+                tf.int64,
+                tf.int64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.float64,
+                tf.int64,
+                tf.string]))
     return dataset
 
 
@@ -65,13 +68,14 @@ def normalize_fn(
         accelerometer_1_2_value,
         accelerometer_2_1_value,
         accelerometer_2_2_value,
-        control_unit_firmware):
-    tire_pressure_1_1 = tf.cast(tire_pressure_1_1, tf.float32)
-    tire_pressure_1_2 = tf.cast(tire_pressure_1_2, tf.float32)
-    tire_pressure_2_1 = tf.cast(tire_pressure_2_1, tf.float32)
-    tire_pressure_2_2 = tf.cast(tire_pressure_2_2, tf.float32)
+        control_unit_firmware,
+        failure_occurred):
+    tire_pressure_1_1 = tf.cast(tire_pressure_1_1, tf.float64)
+    tire_pressure_1_2 = tf.cast(tire_pressure_1_2, tf.float64)
+    tire_pressure_2_1 = tf.cast(tire_pressure_2_1, tf.float64)
+    tire_pressure_2_2 = tf.cast(tire_pressure_2_2, tf.float64)
 
-    control_unit_firmware = tf.cast(control_unit_firmware, tf.float32)
+    control_unit_firmware = tf.cast(control_unit_firmware, tf.float64)
 
     def scale_fn(value, value_min, value_max):
         return (value - value_min) / (value_max - value_min) * 2.0 - 1.0
