@@ -16,7 +16,8 @@ helm repo update
 
 # Make upgrade idempotent by first deleting all the CRDs (the helm chart will error otherwise)
 kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com 2>/dev/null || true
-helm upgrade --namespace monitoring --force --install prom --version 6.8.1 stable/prometheus-operator --wait
+helm delete --purge prom 2>/dev/null || true
+helm install --namespace monitoring --replace --name prom --version 6.8.1 stable/prometheus-operator --wait
 
 echo "Deploying metrics server..."
 helm upgrade --install metrics stable/metrics-server --version 2.8.4 --wait --force || true
@@ -117,7 +118,6 @@ kubectl get pods -n operator
 sleep 10
 kubectl rollout status sts -n operator ksql
 
-
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
 helm install \
@@ -131,33 +131,40 @@ kubectl get pods -n operator
 sleep 10
 kubectl rollout status sts -n operator controlcenter
 
+# TODO Build breaks if we don't wait here until all components are ready. Is there a better solution for a check?
+sleep 200
+
 echo "Create LB for KSQL"
 helm upgrade -f ./providers/gcp.yaml \
  --set ksql.enabled=true \
  --set ksql.loadBalancer.enabled=true \
- --set ksql.loadBalancer.domain=ksql-0 ksql \
+ --set ksql.loadBalancer.domain=mydevplatform.gcp.cloud ksql \
  ./confluent-operator
+ kubectl rollout status sts -n operator ksql
 
 echo "Create LB for Kafka"
 helm upgrade -f ./providers/gcp.yaml \
  --set kafka.enabled=true \
  --set kafka.loadBalancer.enabled=true \
- --set kafka.loadBalancer.domain=kafka kafka \
+ --set kafka.loadBalancer.domain=mydevplatform.gcp.cloud kafka \
  ./confluent-operator
+ kubectl rollout status sts -n operator kafka
 
 echo "Create LB for Schemaregistry"
 helm upgrade -f ./providers/gcp.yaml \
  --set schemaregistry.enabled=true \
  --set schemaregistry.loadBalancer.enabled=true \
- --set schemaregistry.loadBalancer.domain=schemaregistry schemaregistry \
+ --set schemaregistry.loadBalancer.domain=mydevplatform.gcp.cloud schemaregistry \
  ./confluent-operator
+ kubectl rollout status sts -n operator schemaregistry
 
 echo "Create LB for Control Center"
 helm upgrade -f ./providers/gcp.yaml \
  --set controlcenter.enabled=true \
  --set controlcenter.loadBalancer.enabled=true \
- --set controlcenter.loadBalancer.domain=axvy.aa.de controlcenter \
+ --set controlcenter.loadBalancer.domain=mydevplatform.gcp.cloud controlcenter \
  ./confluent-operator
+kubectl rollout status sts -n operator controlcenter
 
 echo " Loadbalancers are created please wait a couple of minutes..."
 sleep 60
@@ -174,13 +181,14 @@ echo "EXTERNAL-IP  kafka.mydevplatform.gcp.cloud kafka-bootstrap-lb kafka"
 kubectl get services -n operator | grep LoadBalancer
 sleep 10
 
-echo "After Load balancer Deployments: Check all Concfluent Services..."
+echo "After Load balancer Deployments: Check all Confluent Services..."
 kubectl get services -n operator
 kubectl get pods -n operator
 echo "Confluent Platform into GKE cluster is finished."
 
 echo "Create Topics on Confluent Platform for Test Generator"
 # Create Kafka Property file in all pods
+kubectl rollout status sts -n operator kafka
 echo "deploy kafka.property file into all brokers"
 kubectl -n operator exec -it kafka-0 -- bash -c "printf \"bootstrap.servers=kafka:9071\nsasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"test\" password=\"test123\";\nsasl.mechanism=PLAIN\nsecurity.protocol=SASL_PLAINTEXT\" > /opt/kafka.properties"
 kubectl -n operator exec -it kafka-1 -- bash -c "printf \"bootstrap.servers=kafka:9071\nsasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"test\" password=\"test123\";\nsasl.mechanism=PLAIN\nsecurity.protocol=SASL_PLAINTEXT\" > /opt/kafka.properties"
@@ -189,6 +197,8 @@ kubectl -n operator exec -it kafka-2 -- bash -c "printf \"bootstrap.servers=kafk
 # Create Topic sensor-data
 echo "Create Topic sensor-data"
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10"
+echo "Create Topic model-predictions"
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10"
 # list Topics
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --list --command-config kafka.properties"
 # Create STREAMS

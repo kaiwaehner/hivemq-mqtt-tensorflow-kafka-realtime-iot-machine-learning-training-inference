@@ -46,14 +46,14 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name       = "car-demo-node-pool"
-  location   = var.region
-  cluster    = google_container_cluster.cluster.name
+  name = "car-demo-node-pool"
+  location = var.region
+  cluster = google_container_cluster.cluster.name
   node_count = var.node_count
   version = var.node_version
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
-    preemptible  = var.preemptible_nodes
+    preemptible = var.preemptible_nodes
     machine_type = "n1-standard-4"
 
     metadata = {
@@ -104,5 +104,9 @@ resource "null_resource" "setup-messaging" {
 
   provisioner "local-exec" {
     command = "../hivemq/setup_evaluation.sh"
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl apply -f ../../python-scripts/LSTM-TensorFlow-IO-Kafka/deployment.yaml"
   }
 }

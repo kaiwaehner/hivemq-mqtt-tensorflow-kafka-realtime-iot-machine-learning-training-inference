@@ -13,13 +13,12 @@ spec:
     maxQos: 2
   monitoring:
     enablePrometheus: true
-  memoryRequest: 6G
-  cpuRequest: 2000m
+  memory: 6G
+  cpu: 2000m
   configMaps:
     - name: hivemq-license
-      path: /opt/hivemq/license
     - name: kafka-config
-  initContainers:
+  initialization:
     - name: init-kafka-plugin
       args:
         - |
