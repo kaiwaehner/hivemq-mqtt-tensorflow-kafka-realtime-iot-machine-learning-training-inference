@@ -35,6 +35,7 @@ The setup is tested on Mac OS X. We used HiveMQ 4.2.1 and Confluent Platform 5.3
 ## Usage
 
 1. Go to `terraform-gcp` directory
+    * Run `helm repo update` to refresh the repo of Helm first.
     * Run `terraform init` (initializes the setup - only needed to be executed once on your laptop, not every time you want to re-create the infrastructure)
     * Run `terraform plan` (plans the setup)
     * Run `terraform apply` (sets up all required infrastructure on GCP - can take 10-20 minutes)

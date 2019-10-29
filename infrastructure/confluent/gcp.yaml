@@ -50,6 +50,8 @@ kafka:
     requests:
       cpu: 200m
       memory: 1Gi
+  volume:
+    data0: 100Gi
   loadBalancer:
     enabled: false
     domain: ""
