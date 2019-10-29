@@ -12,7 +12,8 @@ done
 echo "Deploying prometheus..."
 # Make sure the tiller change is rolled out
 kubectl rollout status -n kube-system deployment tiller-deploy
-helm repo update
+# Commented next command, please do a helm repo update before executing terraform
+# helm repo update
 
 # Make upgrade idempotent by first deleting all the CRDs (the helm chart will error otherwise)
 kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com 2>/dev/null || true
@@ -196,9 +197,9 @@ kubectl -n operator exec -it kafka-2 -- bash -c "printf \"bootstrap.servers=kafk
 
 # Create Topic sensor-data
 echo "Create Topic sensor-data"
-kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10"
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10 --config retention.ms=7200000"
 echo "Create Topic model-predictions"
-kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10"
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10 --config retention.ms=7200000"
 # list Topics
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --list --command-config kafka.properties"
 # Create STREAMS

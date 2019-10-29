@@ -21,5 +21,5 @@ variable project {
 
 variable node_version {
   type = "string"
-  default = "1.13.7-gke.24"
+  default = "1.13.11-gke.9"
 }

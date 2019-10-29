@@ -100,7 +100,7 @@ Thus, even with TensorFlow I/O and streaming ingestion via Apache Kafka, you sti
 
 The combination of TensorFlow I/O and Apache Kafka is a great step closer to real time training of analytic models at scale!
 
-I posted many articles about videos about this discussion. Get started with [How to Build and Deploy Scalable Machine Learning in Production with Apache Kafka](https://www.confluent.io/blog/build-deploy-scalable-machine-learning-production-apache-kafka/) and check out my other resources if you want to learn more.
+I posted many articles and videos about this discussion. Get started with [How to Build and Deploy Scalable Machine Learning in Production with Apache Kafka](https://www.confluent.io/blog/build-deploy-scalable-machine-learning-production-apache-kafka/) and check out my other resources if you want to learn more.
 
 ## Requirements and Setup
 

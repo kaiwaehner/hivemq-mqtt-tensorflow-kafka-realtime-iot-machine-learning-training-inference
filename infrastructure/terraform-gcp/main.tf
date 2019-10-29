@@ -50,7 +50,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   location = var.region
   cluster = google_container_cluster.cluster.name
   node_count = var.node_count
-  version = var.node_version
+  //version = var.node_version
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible = var.preemptible_nodes
