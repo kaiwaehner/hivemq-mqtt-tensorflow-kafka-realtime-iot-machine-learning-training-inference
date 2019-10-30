@@ -50,7 +50,7 @@ cd helm/
 echo "Install Confluent Operator"
 #helm delete --purge operator
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name operator \
 --namespace operator \
 --set operator.enabled=true \
@@ -66,7 +66,7 @@ kubectl -n operator patch serviceaccount default -p '{"imagePullSecrets": [{"nam
 echo "Install Confluent Zookeeper"
 #helm delete --purge zookeeper
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name zookeeper \
 --namespace operator \
 --set zookeeper.enabled=true \
@@ -81,7 +81,7 @@ kubectl rollout status sts -n operator zookeeper
 echo "Install Confluent Kafka"
 #helm delete --purge kafka
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name kafka \
 --namespace operator \
 --set kafka.enabled=true \
@@ -95,7 +95,7 @@ kubectl rollout status sts -n operator kafka
 echo "Install Confluent Schema Registry"
 #helm delete --purge schemaregistry
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name schemaregistry \
 --namespace operator \
 --set schemaregistry.enabled=true \
@@ -109,7 +109,7 @@ kubectl rollout status sts -n operator schemaregistry
 echo "Install Confluent KSQL"
 # helm delete --purge ksql
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name ksql \
 --namespace operator \
 --set ksql.enabled=true \
@@ -122,7 +122,7 @@ kubectl rollout status sts -n operator ksql
 echo "Install Confluent Control Center"
 # helm delete --purge controlcenter
 helm install \
--f ../../gcp.yaml \
+-f ${MYDIR}/gcp.yaml \
 --name controlcenter \
 --namespace operator \
 --set controlcenter.enabled=true \
@@ -136,7 +136,7 @@ kubectl rollout status sts -n operator controlcenter
 sleep 200
 
 echo "Create LB for KSQL"
-helm upgrade -f ../../gcp.yaml \
+helm upgrade -f ${MYDIR}/gcp.yaml \
  --set ksql.enabled=true \
  --set ksql.loadBalancer.enabled=true \
  --set ksql.loadBalancer.domain=mydevplatform.gcp.cloud ksql \
@@ -144,7 +144,7 @@ helm upgrade -f ../../gcp.yaml \
  kubectl rollout status sts -n operator ksql
 
 echo "Create LB for Kafka"
-helm upgrade -f ../../gcp.yaml \
+helm upgrade -f ${MYDIR}/gcp.yaml \
  --set kafka.enabled=true \
  --set kafka.loadBalancer.enabled=true \
  --set kafka.loadBalancer.domain=mydevplatform.gcp.cloud kafka \
@@ -152,7 +152,7 @@ helm upgrade -f ../../gcp.yaml \
  kubectl rollout status sts -n operator kafka
 
 echo "Create LB for Schemaregistry"
-helm upgrade -f ../../gcp.yaml \
+helm upgrade -f ${MYDIR}/gcp.yaml \
  --set schemaregistry.enabled=true \
  --set schemaregistry.loadBalancer.enabled=true \
  --set schemaregistry.loadBalancer.domain=mydevplatform.gcp.cloud schemaregistry \
@@ -160,7 +160,7 @@ helm upgrade -f ../../gcp.yaml \
  kubectl rollout status sts -n operator schemaregistry
 
 echo "Create LB for Control Center"
-helm upgrade -f ../../gcp.yaml \
+helm upgrade -f ${MYDIR}/gcp.yaml \
  --set controlcenter.enabled=true \
  --set controlcenter.loadBalancer.enabled=true \
  --set controlcenter.loadBalancer.domain=mydevplatform.gcp.cloud controlcenter \
