@@ -1,17 +1,25 @@
 # Python Application deploying a LSTM using TensorFlow IO and Apache Kafka
 
-We train a LSTM Neural Network from the car sensor data and use the model for predictions on new data in real time. The data is ingested via MQTT (HiveMQ) into a Kafka Topic (Confluent). TensorFlow (Python application) does model training and model inference in real time (without the need for another data store like S3 or HDFS).
+The following contains an explanation of the Python application using TensorFlow IO to consume data from Kafka, train the model, do model inference and send the predictions back to a Kafka topic.
+
+Please note that all of the below is already automated and included in the Terraform build of the quick start guide.
 
 `WARNING:
-This part (deployment of the Python application) is not scripted yet. You have to deploy the application (via Docker) manually. Target for automated scripting: End of October 2019.`
+This part (model training and inference with TensorFlow IO) works, but still has a few issues. We are working on a complete automated demo - target: End of October 2019.`
 
-## Python application
+## Use Case: LSTM for Predictive Maintenance
+
+We train a LSTM Neural Network from the car sensor data and use the model for predictions on new data in real time. The data is ingested via MQTT (HiveMQ) into a Kafka Topic (Confluent). TensorFlow (Python application) does model training and model inference in real time (without the need for another data store like S3 or HDFS).
+
+## Technical Details
+
+### Python Application
 
 The Python application consumes from the Kafka topic `car-sensor`. We use TensorFlow IO for training and inference. The only dependency of tensorflow-io is TensorFlow (+ Kafka). This really simplified almost everything and is one of the biggest advantages of tenorflow-io.
 
-See the Python application here: [cardata-v1.py](LSTM-TensorFlow-IO-Kafka/cardata-v1.py).
+See the Python application here: [cardata-v1.py](cardata-v1.py).
 
-## Build the Docker Image for the Python Application
+### Build the Docker Image for the Python Application
 
 There is a Dockerfile which could be used for building a docker image and deploy locally or on Kuberentes clusters.
 
@@ -36,72 +44,74 @@ Some explanation about each args in localhost:9092 cardata-v1 0 cardata-v1-resul
 
 The docker image has schema (cardata-v1.avsc) embedded. If you change the schema you will need to rebuild the docker image with file included.
 
-## Kubernetes Integration
+### Kubernetes Integration
 
 As you could see the docker image could run standalone so it should be easy to just parameterize the docker image into kubernetes yams.
 
-TensorFlow does support distributed training (e.g., through MirrorStrategy). I haven't had this part in place yet. But we could add distributed training in next phase.
+The file [deployment.yaml](deployment.yaml) is used in the Terraform build to automatically deploy the Python application as Pod using the `Deployment`  Kubernetes concept.
 
-Note distributed training will requires special kubernetes settings (than simply launching the container). We could get it in place later.
+## ML Process for Streaming Model Training and Inference
 
-## Details about Model Training with TensorFlow IO
+Model training and model inference are separated processes. They can both run in the same application, or in separate applications. We will demonstrate both examples:
 
-In general, tensorflow-io is capable of providing either training or inference to tf.keras's high level API.
+1. Use the Python application [cardata-v1.py](cardata-v1.py) to train the model and do inference on other events.
+2. Save the model with the Python application and load the model into a Java application (TODO => e.g. Kafka Streams or KSQL) and do the model inference here - completelely separeated from the model training.
 
-### For Model Inference
-
-- Inference/predict is done through tf.keras' `model.predict()` in a streaming fashion. tensorflow-io will continue pulling data from Kafka stream and feed to model.predict() in a fashion similar to a pipeline.
-
-- tensorflow-io could also optionally write the predict result back in kafka (e.g., in another kafka topic).
-
-### For Model training
-
-- Training is done through tf.keras' `model.fit` in a streaming fashion as well. At each epoch run, tensorflow-io will continue pulling data from Kafka stream from the beginning to end, and feed to `model.fit`. Since training might invoke multiple epoch runs, tensorflow-io will repeat the iteration at each epoch run.
-
-### Batch
-
-- tf.keras's training or inference could always support batching. Batching serves multiple purposes: 1) to max the data flow to fit the GPU (if available), 2) to adjust input in neural network model.
-
-- tensorflow-io returns a `dataset` which you could easily adjust the batch by calling a method `dataset.batch(batch_size)`.
-
-- The returned dataset is always the variable to be passed to either model.fit or model.predict (prediction and training/fit requires slightly different dataset shape).
-
-### Model for streaming data
+### Create Model for Streaming Data
 
 There are quite a few ways to build a model for streaming data.
 
 Since training in tf.keras requires a feature dataset, and a label dataset, we will need to come up with a way to get feature and label.
 
-- In normal situations, label could be done through alternative methods. For example, I assume Car IoT device sensor data could be labels by human or ground truth. In the data set I receive, I couldn't find the label field though.
+In normal situations, label could be done through alternative methods. For example, Car IoT device sensor data could be labels by human or ground truth.
 
-- We could also create label based on history. For example, let's say we have history data from past month. We could assume past month most of the time the data is "normal". Then we could create a sliding window of, say, each day. We could use every data as the feature dataset, and the immediate next hour/min as the label data. If we have one month of data, then the feature set will be the sliding window of 1day from day 0 to day 29, and the label set will be from day 1+0hour to day 30+0hour.
+In our example, the field `failure_occurred` in the data set classifies any data point as either „true“ or „false“ depending on whether any of the failure modes occurred for the given model. This field is used as label for training the LSTM. The field will be predicted in real time to predict potential failures in new car sensor events.
 
- Ideally the first case (with ground truth labeling) would be better. But since I don't see label in the data I am using second case.
-
-In [cardata-v1.py](LSTM-TensorFlow-IO-Kafka/cardata-v1.py), you could see we are creating a `look_back` which is the window size, for feature dataset (dataset_x). I am also `skip(look_back)` for label dataset (dataset_y) because the first `look_back` we could only use it for feature. (the next 1 will be the label corresponding to the feature in first `look_back`).
-
-### Model.fit
-
-Model.fit will train the model. Once the model has been trained, it could be saved for later use (predict). It also could be used directly for predict.
-
-### Predict
+### Do Predictions
 
 After model has been trained, a different set of data could be passed to model.predict for inference.
 
-If you look into cardata-v1.py, I use the first 1000 records for training, and then use the next 200 records for inference. We could adjust these two values.
+If you look into cardata-v1.py, we use the first 1000 records for training, and then use the next 200 records for inference. We could adjust these two values.
 
-### Write predict results back into Kafka
+For example, if you run the demo with 100000 instead of 25 simulated cars, you should increase these values to use more events for training and inference.
 
-To show a complete pipeline: Essentially, tensorflow reads data from Apache Kafka, do either training or inference (or both), then write the inference back to Kafka. Other programs could just pull the inference results from Kafka and do additional processing if needed.
+### Write Predict Results back into another Kafka Topic
 
-In cardata-v1.py we just concat the prediction results into a csv string. The string is written into Kafka. Ideally we could also serialize the prediction result with Avro schema, so that it will be even easier for Kafka to process. We may need some discussion on what schema might be needed.
+To show a complete pipeline: Essentially, tensorflow reads data from Apache Kafka, do either training or inference (or both), then write the inference back to Kafka. Other programs could just pull the inference results from Kafka and do additional processing (e.g. by a real time alerting system, mobile app, or another batch analytics tool).
+
+In [cardata-v1.py](cardata-v1.py) we just concat the prediction results into a csv string. The string is written into a Kafka Topic.
+
+TODO Ideally we could also serialize the prediction result with Avro schema, so that it will be even easier for Kafka to process.
+
+## Details about Model Training and Inference with TensorFlow IO
+
+In general, tensorflow-io is capable of providing either training or inference to tf.keras's high level API.
+
+### Model training
+
+Training is done through tf.keras' `model.fit` in a streaming fashion as well. At each epoch run, tensorflow-io will continue pulling data from Kafka stream from the beginning to end, and feed to `model.fit`. Since training might invoke multiple epoch runs, tensorflow-io will repeat the iteration at each epoch run.
+
+Once the model has been trained, it could be saved for later use (predict). It also could be used directly for predict.
+
+### Model Inference
+
+Inference / predict is done through tf.keras' `model.predict()` in a streaming fashion. tensorflow-io will continue pulling data from Kafka stream and feed to model.predict() in a fashion similar to a pipeline.
+
+tensorflow-io could also optionally write the predict result back in kafka (e.g., in another kafka topic). This is what we do in our example to show an end-to-end ML pipeline.
+
+### Streaming vs. Batch Training and Inference
+
+tf.keras's training or inference could always support batching. Batching serves multiple purposes:
+
+1) to max the data flow to fit the GPU (if available)
+2) to adjust input in neural network model.
+
+tensorflow-io returns a `dataset` which you could easily adjust the batch by calling a method `dataset.batch(batch_size)`.
+
+The returned dataset is always the variable to be passed to either model.fit or model.predict (prediction and training / fit requires slightly different dataset shape).
 
 ## Open TODOs
 
-1. Add this Python container and usage to the quick start guide including automated scripting.
+1. *Save the model* to also allow the usage from another application (like a Kafka Streams or KSQLs app deployed in another container).
 
-2. Test with larger scale IoT data and see how much we can scale without breaking the Python code -> to find out what we can show in a demo without further changes
-
-3. Save the model to also allow the usage from another application (like a Kafka Streams or KSQLs app deployed in another container
-
-4. Depending on 1), implement the distributed training. I dont think this is urgent, but of course this overall demo has the right setup to show an impressive use case.
+2. *Implement the distributed training*: TensorFlow does support distributed training (e.g., through MirrorStrategy). Note distributed training will require special kubernetes settings (than simply launching the container).
