@@ -1,1 +1,159 @@
-{"type":"record","namespace":"com.hivemq.avro","name":"CarData","version":"1","fields":[{"name":"coolant_temp","type":"float","doc":"battery/enginecoolanttemperaturein°C"},{"name":"intake_air_temp","type":"float","doc":"Airintaketemperaturein°C"},{"name":"intake_air_flow_speed","type":"float","doc":"Airintakemassg/s"},{"name":"battery_percentage","type":"float","doc":"Batterycelltotalpercentageleft"},{"name":"battery_voltage","type":"float","doc":"BatterypackvoltageinmV"},{"name":"current_draw","type":"float","doc":"CurrentinAdrawnfromthebattery"},{"name":"speed","type":"float","doc":"Speedofthevehiclebasedonenginesensorsinm/s"},{"name":"engine_vibration_amplitude","type":"float","doc":"Measuredenginevibration,mightindicatemechanicalfailureofengineordriveshaft.Pickedupbypiezoelectricelement,measuredinmV"},{"name":"throttle_pos","type":"float","doc":"Howfarthethrottleispushed[0..1]"},{"name":"tire_pressure_1_1","type":"int","doc":"Tirepressureinpsifrontleft"},{"name":"tire_pressure_1_2","type":"int","doc":"Tirepressureinpsifrontright"},{"name":"tire_pressure_2_1","type":"int","doc":"Tirepressureinpsibackleft"},{"name":"tire_pressure_2_2","type":"int","doc":"Tirepressureinpsibackright"},{"name":"accelerometer_1_1_value","type":"float","doc":"Accelerationinm/s^2ofthefrontleftchassisaccelerometer"},{"name":"accelerometer_1_2_value","type":"float","doc":"Accelerationinm/s^2ofthefrontrightchassisaccelerometer"},{"name":"accelerometer_2_1_value","type":"float","doc":"Accelerationinm/s^2ofthebackleftchassisaccelerometer"},{"name":"accelerometer_2_2_value","type":"float","doc":"Accelerationinm/s^2ofthebackrightchassisaccelerometer"},{"name":"control_unit_firmware","type":"int","doc":"Firmwareversion,increasinginteger,showsoutdatedsystems"}]}
+{
+  "type": "record",
+  "name": "KsqlDataSourceSchema",
+  "namespace": "io.confluent.ksql.avro_schemas",
+  "fields": [
+    {
+      "name": "COOLANT_TEMP",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "INTAKE_AIR_TEMP",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "INTAKE_AIR_FLOW_SPEED",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "BATTERY_PERCENTAGE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "BATTERY_VOLTAGE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "CURRENT_DRAW",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "SPEED",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ENGINE_VIBRATION_AMPLITUDE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "THROTTLE_POS",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE_1_1",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE_1_2",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE_2_1",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE_2_2",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER_1_1_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER_1_2_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER_2_1_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER_2_2_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "CONTROL_UNIT_FIRMWARE",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "FAILURE_OCCURRED",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

@@ -37,7 +37,7 @@
     <stages>
         <stage id="connect">
             <lifeCycle id="connect-cars" clientGroup="cg1">
-                <rampUp duration="20s"/>
+                <rampUp duration="5s"/>
                 <connect/>
             </lifeCycle>
         </stage>
