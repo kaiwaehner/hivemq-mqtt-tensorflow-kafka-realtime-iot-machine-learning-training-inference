@@ -37,15 +37,15 @@ def kafka_dataset(servers, topic, offset, schema, eof=True):
                 tf.float64,
                 tf.float64,
                 tf.float64,
-                tf.int64,
-                tf.int64,
-                tf.int64,
-                tf.int64,
+                tf.int32,
+                tf.int32,
+                tf.int32,
+                tf.int32,
                 tf.float64,
                 tf.float64,
                 tf.float64,
                 tf.float64,
-                tf.int64,
+                tf.int32,
                 tf.string]))
     return dataset
 
@@ -122,6 +122,8 @@ def normalize_fn(
     # control_unit_firmware [1000|2000] => (-1.0, 1.0)
     control_unit_firmware = scale_fn(control_unit_firmware, 1000.0, 2000.0)
 
+    failure_occurred = tf.cast(1 if failure_occurred is "true" else 0, tf.float64)
+    # failure_occurred = tf.cast(failure_occurred, tf.string)
     return tf.stack([
         coolant_temp,
         intake_air_temp,
@@ -140,7 +142,8 @@ def normalize_fn(
         accelerometer_1_2_value,
         accelerometer_2_1_value,
         accelerometer_2_2_value,
-        control_unit_firmware])
+        control_unit_firmware
+    ])
 
 
 import sys

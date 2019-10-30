@@ -76,47 +76,39 @@
       "default": null
     },
     {
-      "name": "TIRE_PRESSURE_1_1",
+      "name": "TIRE_PRESSURE11",
       "type": [
         "null",
-        "long"
+        "int"
       ],
       "default": null
     },
     {
-      "name": "TIRE_PRESSURE_1_2",
+      "name": "TIRE_PRESSURE12",
       "type": [
         "null",
-        "long"
+        "int"
       ],
       "default": null
     },
     {
-      "name": "TIRE_PRESSURE_2_1",
+      "name": "TIRE_PRESSURE21",
       "type": [
         "null",
-        "long"
+        "int"
       ],
       "default": null
     },
     {
-      "name": "TIRE_PRESSURE_2_2",
+      "name": "TIRE_PRESSURE22",
       "type": [
         "null",
-        "long"
+        "int"
       ],
       "default": null
     },
     {
-      "name": "ACCELEROMETER_1_1_VALUE",
-      "type": [
-        "null",
-        "double"
-      ],
-      "default": null
-    },
-    {
-      "name": "ACCELEROMETER_1_2_VALUE",
+      "name": "ACCELEROMETER11_VALUE",
       "type": [
         "null",
         "double"
@@ -124,7 +116,7 @@
       "default": null
     },
     {
-      "name": "ACCELEROMETER_2_1_VALUE",
+      "name": "ACCELEROMETER12_VALUE",
       "type": [
         "null",
         "double"
@@ -132,7 +124,15 @@
       "default": null
     },
     {
-      "name": "ACCELEROMETER_2_2_VALUE",
+      "name": "ACCELEROMETER21_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER22_VALUE",
       "type": [
         "null",
         "double"
@@ -143,7 +143,7 @@
       "name": "CONTROL_UNIT_FIRMWARE",
       "type": [
         "null",
-        "long"
+        "int"
       ],
       "default": null
     },

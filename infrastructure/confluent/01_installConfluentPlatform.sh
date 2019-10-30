@@ -197,18 +197,63 @@ kubectl -n operator exec -it kafka-2 -- bash -c "printf \"bootstrap.servers=kafk
 
 # Create Topic sensor-data
 echo "Create Topic sensor-data"
-kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10 --config retention.ms=7200000"
+# Topic might exist already, make idempotent by ignoring errors here
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic sensor-data --replication-factor 3 --partitions 10 --config retention.ms=7200000" || true
 echo "Create Topic model-predictions"
-kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10 --config retention.ms=7200000"
+# Topic might exist already, make idempotent by ignoring errors here
+kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --command-config kafka.properties --create --topic model-predictions --replication-factor 3 --partitions 10 --config retention.ms=7200000" || true
 # list Topics
 kubectl -n operator exec -it kafka-0 -- bash -c "kafka-topics --bootstrap-server kafka:9071 --list --command-config kafka.properties"
+
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"TERMINATE QUERY CTAS_SENSOR_DATA_EVENTS_PER_5MIN_T_2;\",
+  \"streamsProperties\": {}
+}'" || true
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"DROP TABLE IF EXISTS SENSOR_DATA_EVENTS_PER_5MIN_T;\",
+  \"streamsProperties\": {}
+}'"
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"TERMINATE QUERY CSAS_SENSOR_DATA_S_AVRO_REKEY_1;\",
+  \"streamsProperties\": {}
+}'" || true
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"DROP STREAM IF EXISTS SENSOR_DATA_S_AVRO_REKEY;\",
+  \"streamsProperties\": {}
+}'"
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"TERMINATE QUERY CSAS_SENSOR_DATA_S_AVRO_0;\",
+  \"streamsProperties\": {}
+}'" || true
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"DROP STREAM IF EXISTS SENSOR_DATA_S_AVRO;\",
+  \"streamsProperties\": {}
+}'"
+kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
+     -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
+     -d $'{
+  \"ksql\": \"DROP STREAM IF EXISTS SENSOR_DATA_S;\",
+  \"streamsProperties\": {}
+}'"
 # Create STREAMS
 # CURL CREATE
 echo "CREATE STREAM SENSOR_DATA_S"
 kubectl -n operator exec -it ksql-0 -- bash -c "curl -X \"POST\" \"http://ksql:8088/ksql\" \
      -H \"Content-Type: application/vnd.ksql.v1+json; charset=utf-8\" \
      -d $'{
-  \"ksql\": \"CREATE STREAM SENSOR_DATA_S (coolant_temp DOUBLE, intake_air_temp DOUBLE, intake_air_flow_speed DOUBLE, battery_percentage DOUBLE, battery_voltage DOUBLE, current_draw DOUBLE, speed DOUBLE, engine_vibration_amplitude DOUBLE, throttle_pos DOUBLE, tire_pressure_1_1 BIGINT, tire_pressure_1_2 BIGINT, tire_pressure_2_1 BIGINT, tire_pressure_2_2 BIGINT, accelerometer_1_1_value DOUBLE, accelerometer_1_2_value DOUBLE, accelerometer_2_1_value DOUBLE, accelerometer_2_2_value DOUBLE, control_unit_firmware BIGINT, coolantTemp DOUBLE, intakeAirTemp DOUBLE, intakeAirFlowSpeed DOUBLE, batteryPercentage DOUBLE, batteryVoltage DOUBLE, currentDraw DOUBLE, engineVibrationAmplitude DOUBLE, throttlePos DOUBLE, tirePressure11 BIGINT, tirePressure12 BIGINT, tirePressure21 BIGINT, tirePressure22 BIGINT, accelerometer11Value DOUBLE, accelerometer12Value DOUBLE, accelerometer21Value DOUBLE, accelerometer22Value DOUBLE, controlUnitFirmware BIGINT) WITH (kafka_topic=\'sensor-data\', value_format=\'JSON\');\",
+  \"ksql\": \"CREATE STREAM SENSOR_DATA_S (coolant_temp DOUBLE, intake_air_temp DOUBLE, intake_air_flow_speed DOUBLE, battery_percentage DOUBLE, battery_voltage DOUBLE, current_draw DOUBLE, speed DOUBLE, engine_vibration_amplitude DOUBLE, throttle_pos DOUBLE, tire_pressure11 INT, tire_pressure12 INT, tire_pressure21 INT, tire_pressure22 INT, accelerometer11_value DOUBLE, accelerometer12_value DOUBLE, accelerometer21_value DOUBLE, accelerometer22_value DOUBLE, control_unit_firmware INT, failure_occurred STRING) WITH (kafka_topic=\'sensor-data\', value_format=\'JSON\');\",
   \"streamsProperties\": {}
 }'"
 echo "CREATE STREAM SENSOR_DATA_S_AVRO"
