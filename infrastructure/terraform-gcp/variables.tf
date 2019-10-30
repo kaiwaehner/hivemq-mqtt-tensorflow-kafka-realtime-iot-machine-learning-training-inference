@@ -16,10 +16,5 @@ variable "daily_maintenance_window_start_time" {
 
 variable project {
   type = "string"
-  description = "The name of your GCP project to use"
-}
-
-variable node_version {
-  type = "string"
-  default = "1.13.11-gke.9"
+  description = "todo-add-your-project-name-here"
 }
