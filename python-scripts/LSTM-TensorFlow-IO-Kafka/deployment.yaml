@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: model
-          image: sbaier1/car-sensor-model:latest
+          image: megachucky/car-sensor-model:latest
           imagePullPolicy: Always
           command: ["python3"]
           args: ["cardata-v2.py", "kafka.operator.svc.cluster.local:9071", "SENSOR_DATA_S_AVRO", "0", "model-predictions"]
