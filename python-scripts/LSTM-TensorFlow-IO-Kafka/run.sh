@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-IMAGE=${IMAGE:-sbaier1/car-sensor-model:test2}
+IMAGE=${IMAGE:-sbaier1/car-sensor-model:latest}
 MODEL_NAME=${MODEL_NAME:-model1.h5}
 
 echo "Running model training with image ${IMAGE}, writing to ${MODEL_NAME}"

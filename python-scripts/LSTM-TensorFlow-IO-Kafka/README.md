@@ -46,9 +46,11 @@ The docker image has schema (cardata-v1.avsc) embedded. If you change the schema
 
 ### Kubernetes Integration
 
-As you could see the docker image could run standalone so it should be easy to just parameterize the docker image into kubernetes yams.
+As you could see the docker image could run standalone so it should be easy to just parameterize the docker image into kubernetes yamls.
 
-The file [deployment.yaml](deployment.yaml) is used in the Terraform build to automatically deploy the Python application as Pod using the `Deployment`  Kubernetes concept.
+The current procedure is training the model first, then deploying the prediction pods as a scalable Deployment onto Kubernetes.
+
+Simply execute the [run.sh](run.sh) script to automatically perform these steps.
 
 ## ML Process for Streaming Model Training and Inference
 
