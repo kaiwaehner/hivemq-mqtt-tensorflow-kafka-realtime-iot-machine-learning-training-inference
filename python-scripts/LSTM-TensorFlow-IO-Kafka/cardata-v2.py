@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow_io.kafka as kafka_io
+from google.cloud import storage
 
 kafka_config = [
     "broker.version.fallback=0.10.0.0",
@@ -14,6 +15,10 @@ kafka_config = [
 
 with open('cardata-v1.avsc') as f:
     schema = f.read()
+
+# Configure google storage bucket access
+client = storage.Client.from_service_account_json('/credentials/credentials.json')
+bucket = client.get_bucket("car-demo-model-storage")
 
 
 def kafka_dataset(servers, topic, offset, schema, eof=True):
@@ -37,15 +42,15 @@ def kafka_dataset(servers, topic, offset, schema, eof=True):
                 tf.float64,
                 tf.float64,
                 tf.float64,
-                tf.int64,
-                tf.int64,
-                tf.int64,
-                tf.int64,
+                tf.int32,
+                tf.int32,
+                tf.int32,
+                tf.int32,
                 tf.float64,
                 tf.float64,
                 tf.float64,
                 tf.float64,
-                tf.int64,
+                tf.int32,
                 tf.string]))
     return dataset
 
@@ -122,6 +127,8 @@ def normalize_fn(
     # control_unit_firmware [1000|2000] => (-1.0, 1.0)
     control_unit_firmware = scale_fn(control_unit_firmware, 1000.0, 2000.0)
 
+    failure_occurred = tf.cast(1 if failure_occurred is "true" else 0, tf.float64)
+    # failure_occurred = tf.cast(failure_occurred, tf.string)
     return tf.stack([
         coolant_temp,
         intake_air_temp,
@@ -140,27 +147,27 @@ def normalize_fn(
         accelerometer_1_2_value,
         accelerometer_2_1_value,
         accelerometer_2_2_value,
-        control_unit_firmware])
+        control_unit_firmware
+    ])
 
 
 import sys
 
 print("Options: ", sys.argv)
 
-if len(sys.argv) != 4 and len(sys.argv) != 5:
-    print("Usage: python3 cardata-v1.py <servers> <topic> <offset> [result_topic]")
+if len(sys.argv) != 7:
+    print("Usage: python3 cardata-v1.py <servers> <topic> <offset> <result_topic> <mode> <model-file>")
     sys.exit(1)
 
 servers = sys.argv[1]
 topic = sys.argv[2]
 offset = sys.argv[3]
-result_topic = None if len(sys.argv) != 5 else sys.argv[4]
-
-# create data for training
-dataset = kafka_dataset(servers, topic, offset, schema)
-
-# normalize data
-dataset = dataset.map(normalize_fn)
+result_topic = sys.argv[4]
+mode = sys.argv[5].strip().lower()
+if mode != "predict" and mode != "train":
+    print("Mode is invalid, must be either 'train' or 'predict':", mode)
+    sys.exit(1)
+model_file = sys.argv[6]
 
 features = 18
 look_back = 1
@@ -179,29 +186,35 @@ model.compile(metrics=['accuracy'], loss='mean_squared_error', optimizer='adam')
 
 model.summary()
 
-# dataset x: look_back x features (batch x look_back x features eventually)
-# dataset x: window(look_back)
-dataset_x = dataset.window(look_back, shift=1, drop_remainder=True)
-dataset_x = dataset_x.flat_map(lambda window: window.batch(look_back))
+if mode == "train":
+    print("Running training")
 
-# dataset x: 1 * features (batch x 1 x features eventually)
-# dataset y: skip(look_back)
-dataset_y = dataset.skip(look_back).map(lambda e: tf.expand_dims(e, 0))
+    # create data for training
+    dataset = kafka_dataset(servers, topic, offset, schema)
 
-dataset = tf.data.Dataset.zip((dataset_x, dataset_y)).batch(batch_size).take(1000)
-print("DATASET: ", dataset)
+    # normalize data
+    dataset = dataset.map(normalize_fn)
+    # dataset x: look_back x features (batch x look_back x features eventually)
+    # dataset x: window(look_back)
+    dataset_x = dataset.window(look_back, shift=1, drop_remainder=True)
+    dataset_x = dataset_x.flat_map(lambda window: window.batch(look_back))
 
-model.fit(dataset, epochs=5, verbose=2).history
+    # dataset x: 1 * features (batch x 1 x features eventually)
+    # dataset y: skip(look_back)
+    dataset_y = dataset.skip(look_back).map(lambda e: tf.expand_dims(e, 0))
 
-print("Training complete")
+    dataset = tf.data.Dataset.zip((dataset_x, dataset_y)).batch(batch_size).take(1000)
+    print("DATASET: ", dataset)
 
-# Store model into file:
-model.save('car_prediction_tensorflow_model.h5')
-print("Model stored to file 'car_prediction_tensorflow_model.h5' successfully")
+    model.fit(dataset, epochs=5, verbose=2).history
 
-# Create predict dataset (with 200 data points)
-# Note: skip the first 1000 data points which have been used for training
-dataset_predict = dataset_x.batch(batch_size).skip(1000).take(200)
+    print("Training complete")
+
+    # Store model into file:
+    model.save("/" + model_file)
+    blob = bucket.blob(model_file)
+    blob.upload_from_filename("/" + model_file)
+    print("Model stored successfully ", model_file)
 
 
 class OutputCallback(tf.keras.callbacks.Callback):
@@ -224,14 +237,40 @@ class OutputCallback(tf.keras.callbacks.Callback):
         self._sequence.flush()
 
 
-# Use same batch_size, but result_topic
-output = OutputCallback(batch_size, topic=result_topic, servers=servers)
+if mode == "predict":
+    print("Downloading model", model_file)
+    blob = bucket.blob(model_file)
+    blob.download_to_filename("/" + model_file)
+    print("Loading model")
+    model = tf.keras.models.load_model("/" + model_file)
 
-predict = model.predict(dataset_predict, callbacks=[output])
+    # create data for training
+    dataset = kafka_dataset(servers, topic, offset, schema)
 
-output.flush()
+    # normalize data
+    dataset = dataset.map(normalize_fn)
+    # dataset x: look_back x features (batch x look_back x features eventually)
+    # dataset x: window(look_back)
+    dataset_x = dataset.window(look_back, shift=1, drop_remainder=True)
+    dataset_x = dataset_x.flat_map(lambda window: window.batch(look_back))
 
-print("Predict complete")
+    # dataset x: 1 * features (batch x 1 x features eventually)
+    # dataset y: skip(look_back)
+    dataset_y = dataset.skip(look_back).map(lambda e: tf.expand_dims(e, 0))
+
+    dataset = tf.data.Dataset.zip((dataset_x, dataset_y)).batch(batch_size).take(1000)
+    # Create predict dataset (with 200 data points)
+    # Note: skip the first 1000 data points which have been used for training
+    dataset_predict = dataset_x.batch(batch_size).skip(1000).take(200)
+
+    # Use same batch_size, but result_topic
+    output = OutputCallback(batch_size, topic=result_topic, servers=servers)
+
+    predict = model.predict(dataset_predict, callbacks=[output])
+
+    output.flush()
+
+    print("Predict complete")
 
 # Note: usage example for training+inference
 # docker build -t tensorflow-io .

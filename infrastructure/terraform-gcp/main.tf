@@ -4,6 +4,10 @@ provider "google" {
   region = var.region
 }
 
+provider "kubernetes" {
+  config_context = "gke_${var.project}_${var.region}_car-demo-cluster"
+}
+
 resource "google_container_cluster" "cluster" {
   timeouts {
     delete = "120m"
@@ -106,5 +110,64 @@ resource "null_resource" "setup-messaging" {
 
   provisioner "local-exec" {
     command = "kubectl apply -f ../../python-scripts/LSTM-TensorFlow-IO-Kafka/deployment.yaml"
+  }
+}
+
+# Object storage for model updates
+
+resource "google_service_account" "storage-account" {
+  account_id = "car-demo-storage-account"
+  display_name = "car-demo-storage-account"
+}
+
+resource "google_storage_bucket" "model-bucket" {
+  name = "car-demo-model-storage"
+  location = "EU"
+}
+
+resource "google_storage_bucket_iam_binding" "model-bucket-access" {
+  depends_on = [
+    google_service_account.storage-account,
+    google_storage_bucket.model-bucket
+  ]
+
+  bucket = google_storage_bucket.model-bucket.name
+
+  members = [
+    "serviceAccount:${google_service_account.storage-account.email}"
+  ]
+  role = "roles/storage.objectAdmin"
+}
+
+
+resource "google_storage_bucket_iam_binding" "storage-account-access2" {
+  depends_on = [
+    google_service_account.storage-account,
+    google_storage_bucket.model-bucket
+  ]
+
+  bucket = google_storage_bucket.model-bucket.name
+
+  members = [
+    "serviceAccount:${google_service_account.storage-account.email}"
+  ]
+
+  role = "roles/storage.legacyBucketWriter"
+}
+resource "google_service_account_key" "storage-key" {
+  depends_on = [
+    google_service_account.storage-account]
+  service_account_id = google_service_account.storage-account.name
+}
+
+resource "kubernetes_secret" "storage-account-credentials" {
+  depends_on = [
+    google_service_account_key.storage-key,
+    google_service_account.storage-account]
+  metadata {
+    name = "google-application-credentials"
+  }
+  data = {
+    "credentials.json" = base64decode(google_service_account_key.storage-key.private_key)
   }
 }

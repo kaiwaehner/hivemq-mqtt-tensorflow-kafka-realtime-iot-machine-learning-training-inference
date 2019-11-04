@@ -18,9 +18,9 @@ kubectl delete --grace-period=0 --force --all deployment --namespace=hivemq || t
 kubectl delete --grace-period=0 --force --all deployment --namespace=operator || true
 kubectl delete --grace-period=0 --force --all deployment --namespace=monitoring || true
 
-kubectl delete --grace-period=0 --force --all service --namespace=monitoring || true
-kubectl delete --grace-period=0 --force --all service --namespace=hivemq || true
-kubectl delete --grace-period=0 --force --all service --namespace=operator || true
+kubectl delete --grace-period=20 --force --all service --namespace=monitoring || true
+kubectl delete --grace-period=20 --force --all service --namespace=hivemq || true
+kubectl delete --grace-period=20 --force --all service --namespace=operator || true
 
 kubectl delete --grace-period=0 --force --all pods --namespace=operator || true
 kubectl delete --grace-period=0 --force --all pods --namespace=hivemq || true
