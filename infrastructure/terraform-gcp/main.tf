@@ -107,10 +107,6 @@ resource "null_resource" "setup-messaging" {
   provisioner "local-exec" {
     command = "../hivemq/setup_evaluation.sh"
   }
-
-  provisioner "local-exec" {
-    command = "kubectl apply -f ../../python-scripts/LSTM-TensorFlow-IO-Kafka/deployment.yaml"
-  }
 }
 
 # Object storage for model updates
@@ -123,6 +119,7 @@ resource "google_service_account" "storage-account" {
 resource "google_storage_bucket" "model-bucket" {
   name = "car-demo-model-storage"
   location = "EU"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_iam_binding" "model-bucket-access" {
