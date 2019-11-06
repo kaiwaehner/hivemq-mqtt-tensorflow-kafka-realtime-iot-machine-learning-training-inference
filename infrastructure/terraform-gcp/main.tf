@@ -5,7 +5,7 @@ provider "google" {
 }
 
 provider "kubernetes" {
-  config_context = "gke_${var.project}_${var.region}_car-demo-cluster"
+  config_context = "gke_${var.project}_${var.zone}_car-demo-cluster"
 }
 
 resource "google_container_cluster" "cluster" {
@@ -14,7 +14,7 @@ resource "google_container_cluster" "cluster" {
   }
 
   name = "car-demo-cluster"
-  location = var.region
+  location = var.zone
 
   maintenance_policy {
     daily_maintenance_window {
@@ -49,14 +49,15 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name = "car-demo-node-pool"
-  location = var.region
+  location = var.zone
+
   cluster = google_container_cluster.cluster.name
   node_count = var.node_count
   //version = var.node_version
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible = var.preemptible_nodes
-    machine_type = "n1-standard-4"
+    machine_type = "n1-standard-8"
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -70,11 +71,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   management {
     auto_upgrade = false
-  }
-
-  provisioner "local-exec" {
-    command = "./destroy.sh"
-    when = "destroy"
   }
 }
 
@@ -91,7 +87,7 @@ resource "null_resource" "setup-cluster" {
   }
 
   provisioner "local-exec" {
-    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
+    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.zone} ${var.project}"
   }
 }
 
@@ -107,6 +103,11 @@ resource "null_resource" "setup-messaging" {
   provisioner "local-exec" {
     command = "../hivemq/setup_evaluation.sh"
   }
+
+  provisioner "local-exec" {
+    command = "./destroy.sh"
+    when = "destroy"
+  }
 }
 
 # Object storage for model updates
@@ -117,7 +118,7 @@ resource "google_service_account" "storage-account" {
 }
 
 resource "google_storage_bucket" "model-bucket" {
-  name = "car-demo-model-storage"
+  name = "car-demo-tensorflow-models"
   location = "EU"
   force_destroy = true
 }

@@ -1,9 +1,14 @@
 variable "node_count" {
-  default = 4
+  default = 9
 }
 
 variable "region" {
   default = "europe-west1"
+}
+
+
+variable "zone" {
+  default = "europe-west1-b"
 }
 
 variable "preemptible_nodes" {
