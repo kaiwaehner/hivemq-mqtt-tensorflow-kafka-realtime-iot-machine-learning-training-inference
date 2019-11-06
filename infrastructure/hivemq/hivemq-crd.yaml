@@ -13,8 +13,9 @@ spec:
     maxQos: 2
   monitoring:
     enablePrometheus: true
-  memory: 6G
-  cpu: 2000m
+  memory: 10G
+  # This will result in 4 cpu cores being requested, but we can overcommit to all 8.
+  cpu: "4"
   configMaps:
     - name: hivemq-license
     - name: kafka-config

@@ -18,7 +18,7 @@ with open('cardata-v1.avsc') as f:
 
 # Configure google storage bucket access
 client = storage.Client.from_service_account_json('/credentials/credentials.json')
-bucket = client.get_bucket("car-demo-model-storage")
+bucket = client.get_bucket("car-demo-tensorflow-models")
 
 
 def kafka_dataset(servers, topic, offset, schema, eof=True):
