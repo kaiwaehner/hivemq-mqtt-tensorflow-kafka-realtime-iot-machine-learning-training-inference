@@ -4,10 +4,6 @@ provider "google" {
   region = var.region
 }
 
-provider "kubernetes" {
-  config_context = "gke_${var.project}_${var.zone}_car-demo-cluster"
-}
-
 resource "google_container_cluster" "cluster" {
   timeouts {
     delete = "120m"
@@ -101,6 +97,10 @@ resource "null_resource" "setup-messaging" {
   }
 
   provisioner "local-exec" {
+    environment = {
+      SA_KEY = google_service_account_key.storage-key.private_key
+    }
+
     command = "../hivemq/setup_evaluation.sh"
   }
 
@@ -156,16 +156,4 @@ resource "google_service_account_key" "storage-key" {
   depends_on = [
     google_service_account.storage-account]
   service_account_id = google_service_account.storage-account.name
-}
-
-resource "kubernetes_secret" "storage-account-credentials" {
-  depends_on = [
-    google_service_account_key.storage-key,
-    google_service_account.storage-account]
-  metadata {
-    name = "google-application-credentials"
-  }
-  data = {
-    "credentials.json" = base64decode(google_service_account_key.storage-key.private_key)
-  }
 }

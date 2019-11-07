@@ -4,7 +4,7 @@ set -e
 # set current directory of script
 MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-until gcloud container clusters list --region europe-west1 | grep 'RUNNING' >/dev/null 2>&1; do
+until gcloud container clusters list --zone europe-west1-b | grep 'RUNNING' >/dev/null 2>&1; do
     echo "kubeapi not available yet..."
     sleep 3
 done
