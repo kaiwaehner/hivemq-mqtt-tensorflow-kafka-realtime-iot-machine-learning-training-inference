@@ -1,0 +1,159 @@
+{
+  "type": "record",
+  "name": "KsqlDataSourceSchema",
+  "namespace": "io.confluent.ksql.avro_schemas",
+  "fields": [
+    {
+      "name": "COOLANT_TEMP",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "INTAKE_AIR_TEMP",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "INTAKE_AIR_FLOW_SPEED",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "BATTERY_PERCENTAGE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "BATTERY_VOLTAGE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "CURRENT_DRAW",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "SPEED",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ENGINE_VIBRATION_AMPLITUDE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "THROTTLE_POS",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE11",
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE12",
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE21",
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
+    },
+    {
+      "name": "TIRE_PRESSURE22",
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER11_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER12_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER21_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "ACCELEROMETER22_VALUE",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "CONTROL_UNIT_FIRMWARE",
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
+    },
+    {
+      "name": "FAILURE_OCCURRED",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

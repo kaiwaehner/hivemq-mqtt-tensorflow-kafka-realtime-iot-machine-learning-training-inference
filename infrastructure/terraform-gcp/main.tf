@@ -118,7 +118,7 @@ resource "google_service_account" "storage-account" {
 }
 
 resource "google_storage_bucket" "model-bucket" {
-  name = "car-demo-tensorflow-models"
+  name = "car-demo-tensorflow-models_${var.project}"
   location = "EU"
   force_destroy = true
 }
