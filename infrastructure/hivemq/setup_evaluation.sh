@@ -35,3 +35,9 @@ done
 kubectl rollout -n hivemq status --timeout=10m deployment hivemq-cluster1 || true
 
 kubectl apply -f hivemq-mqtt.yaml -f hivemq-control-center.yaml
+
+echo "${SA_KEY}" | base64 -D > credentials.json
+
+kubectl create secret generic --from-file credentials.json google-application-credentials || true
+
+rm -f credentials.json || true
