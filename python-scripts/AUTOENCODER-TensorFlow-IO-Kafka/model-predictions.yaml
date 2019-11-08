@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tf-model
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: tensorflow
+  template:
+    metadata:
+      labels:
+        app: tensorflow
+    spec:
+      nodeSelector:
+        failure-domain.beta.kubernetes.io/zone: europe-west1-b
+      containers:
+        - name: model
+          image: sbaier1/car-sensor-model:autoencoder
+          imagePullPolicy: Always
+          command: ["python3"]
+          args:
+            - cardata-v3.py
+            - kafka.operator.svc.cluster.local:9071
+            - SENSOR_DATA_S_AVRO
+            - "0"
+            - model-predictions
+            - predict
+            - model1.h5
+            - kai-waehner-project
+          volumeMounts:
+          - name: storage-secret
+            mountPath: /credentials
+            readOnly: true
+      volumes:
+        - name: storage-secret
+          secret:
+            secretName: google-application-credentials
