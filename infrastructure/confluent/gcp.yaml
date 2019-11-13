@@ -160,6 +160,8 @@ ksql:
 controlcenter:
   name: controlcenter
   license: ""
+  volume:
+    data0: 100Gi
   ##
   ## C3 dependencies
   ##
