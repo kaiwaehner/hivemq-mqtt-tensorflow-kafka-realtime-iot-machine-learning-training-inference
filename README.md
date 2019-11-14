@@ -2,11 +2,17 @@
 
 If you just want to get started and quickly start the demo in a few minutes, go to the [quick start](infrastructure/README.md) to setup the infrastructure (on GCP) and run the demo.
 
+You can also check out the 20min video recording with a live demo: [Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow](https://www.youtube.com/watch?v=7oVSLt0AZ3M).
+
 ## Movitation: Demo an IoT Scenario at Scale
 
 You want to see an IoT example at huge scale? Not just 100 or 1000 devices producing data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
 
 This is the right demo for you! The demo shows how you can integrate with tens or hundreds of thousands IoT devices and process the data in real time. The demo use case is predictive maintenance (i.e. anomaly detection) in a connected car infrastructure to predict motor engine failures.
+
+### Background: Cloud-Native MQTT and Kafka
+
+If you need more background about the challenges of building a scalable IoT infrastructure, the differences and relation between MQTT and Apache Kafka, and best practices for realizing a cloud-native IoT infrastructure based on Kubernetes, check out the slide deck "[Best Practices for Streaming IoT Data with MQTT and Apache Kafka](https://www.slideshare.net/KaiWaehner/best-practices-for-streaming-iot-data-with-mqtt-and-apache-kafka)".
 
 ## Use Case: Anomaly Detection in Real Time for 100000+ Connected Cars
 
