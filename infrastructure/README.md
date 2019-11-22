@@ -14,6 +14,8 @@ The following components will be installed (deployment in this order):
 
 ## Requirements
 
+ATTENTION: This demo does not yet support Helm 3! This was a major change to Kubernetes (and removed the dependency to Tiller). We will upgrade the demo as soon as Confluent Platform 5.4 is out in December 2019 (where Confluent Operator will support Helm 3). For now, you have to use Helm 2. Thus, be careful with `brew upgrade helm` or similar commands.
+
 The following components are required on your laptop to provison and install the demo (ideally in the tested versions, otherwise, you might have to fix errors):
 
 * [jq](https://stedolan.github.io/jq/): Lightweight and flexible command-line JSON processor,  e.g. `brew install jq`
