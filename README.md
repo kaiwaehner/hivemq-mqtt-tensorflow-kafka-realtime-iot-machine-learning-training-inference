@@ -4,6 +4,8 @@ If you just want to get started and quickly start the demo in a few minutes, go 
 
 You can also check out the 20min video recording with a live demo: [Streaming Machine Learning at Scale from 100000 IoT Devices with HiveMQ, Apache Kafka and TensorFLow](https://www.youtube.com/watch?v=7oVSLt0AZ3M).
 
+There is also a blog post with more details about [use cases for event streaming and streaming analytics in the automotive industry](https://www.kai-waehner.de/blog/2019/11/22/apache-kafka-automotive-industry-industrial-iot-iiot/).
+
 ## Movitation: Demo an IoT Scenario at Scale
 
 You want to see an IoT example at huge scale? Not just 100 or 1000 devices producing data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
