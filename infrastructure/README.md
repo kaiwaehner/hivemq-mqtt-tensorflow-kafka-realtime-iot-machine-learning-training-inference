@@ -10,7 +10,7 @@ The following components will be installed (deployment in this order):
 2) [confluent](confluent): Script for deploying confluent operator and Prometheus operator into GKE. A Confluent Cluster is setup, 3 Zookeeper, 3 Kafka Broker, 2 Schema Registry, 2 KSQL-Server, 1 Control Center.
 3) [hivemq](hivemq): Script for deploying the HiveMQ operator on GKE and deploying a basic cluster with the Kafka extension installed as well as a monitoring dashboard for use with the Prometheus operator.
 4) [test-generator](test-generator): Script for running the load generator which will simulate the car clients, publishing sensor data.
-5) [Python Application for Streaming ML](../python-scripts/LSTM-TensorFlow-IO-Kafka/README.md)): Deployment of a container which does streaming model training and inference using Kafka and TensorFlow IO.  
+5) [Python Application for Streaming ML](../python-scripts/README.md): Deployment of a container which does streaming model training and inference using Kafka and TensorFlow IO.  
 
 ## Requirements
 
@@ -48,9 +48,9 @@ The setup is tested on Mac OS X. We used HiveMQ 4.2.1 and Confluent Platform 5.3
     * Go to [confluent](confluent) directory
     * Use the hints to connect Confluent Control Center, Grafana, Prometheus for monitoring or working with KSQL CLI for interactive queries
 4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl port-forward -n monitoring service/prom-grafana 3000:service`
-5. Streaming Model Training and inference with Kafka and TensorFlow io: TODO Add Script - for now, go to [python-scripts/LSTM-TensorFlow-IO-Kafka/README.md](../python-scripts/LSTM-TensorFlow-IO-Kafka/README.md).
+5. Streaming Model Training and Inference with Kafka and TensorFlow IO: This includes seperated steps which are explained here: [python-scripts/README.md](../python-scripts/README.md).
 
-For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator), [tensorflow-io](python-scripts/LSTM-TensorFlow-IO-Kafka/README.md).
+For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator), [tensorflow-io](python-scripts/README.md).
 
 ## Deletion of Demo Infrastructure
 
