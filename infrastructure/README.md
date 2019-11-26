@@ -65,12 +65,3 @@ Confluent components automatically include a 30 day trial license (not allowed f
 HiveMQ does not require a test license. However, be aware that the open source version is limited to 25 device connections. If you wish to run the test at large scale (e.g. 100k MQTT clients),please go to [hivemq](hivemq) to get a license, add the license as described there, and run `./setup.sh` to update the cluster to use the license.
 
 If you have any questions about licensing, please contact the main contributors of this Github project or an account manager of Hive MQ or Confluent.
-
-## TODOs - Not implemented in MVP
-
-Planned until end of October 2019:
-
-    2a) TODO KSQL Client (for preprocessing)
-    2b) TODO TensorFlow I/O Clinet (for model training)
-    2c) TODO Kafka Client (for model predictions)
-    2d) TODO Describe how to setup large scale demo (100K connections) 
