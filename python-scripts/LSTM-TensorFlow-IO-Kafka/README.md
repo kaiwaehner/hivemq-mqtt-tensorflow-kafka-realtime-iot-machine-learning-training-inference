@@ -111,9 +111,3 @@ tf.keras's training or inference could always support batching. Batching serves 
 tensorflow-io returns a `dataset` which you could easily adjust the batch by calling a method `dataset.batch(batch_size)`.
 
 The returned dataset is always the variable to be passed to either model.fit or model.predict (prediction and training / fit requires slightly different dataset shape).
-
-## Open TODOs
-
-1. *Save the model* to also allow the usage from another application (like a Kafka Streams or KSQLs app deployed in another container).
-
-2. *Implement the distributed training*: TensorFlow does support distributed training (e.g., through MirrorStrategy). Note distributed training will require special kubernetes settings (than simply launching the container).
