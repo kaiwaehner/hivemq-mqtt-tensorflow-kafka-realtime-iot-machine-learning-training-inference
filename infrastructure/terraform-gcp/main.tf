@@ -10,7 +10,7 @@ resource "google_container_cluster" "cluster" {
   }
 
   name = "car-demo-cluster"
-  location = var.region
+  location = var.zone
 
   maintenance_policy {
     daily_maintenance_window {
@@ -19,8 +19,6 @@ resource "google_container_cluster" "cluster" {
   }
   remove_default_node_pool = true
   initial_node_count = 1
-  node_version = var.node_version
-  min_master_version = var.node_version
 
   master_auth {
     username = ""
@@ -47,14 +45,15 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name = "car-demo-node-pool"
-  location = var.region
+  location = var.zone
+
   cluster = google_container_cluster.cluster.name
   node_count = var.node_count
   //version = var.node_version
   node_config {
     // We use preemptible nodes because they're cheap (for testing purposes). Set this to false if you want consistent performance.
     preemptible = var.preemptible_nodes
-    machine_type = "n1-standard-4"
+    machine_type = "n1-standard-8"
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -68,11 +67,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   management {
     auto_upgrade = false
-  }
-
-  provisioner "local-exec" {
-    command = "./destroy.sh"
-    when = "destroy"
   }
 }
 
@@ -89,7 +83,7 @@ resource "null_resource" "setup-cluster" {
   }
 
   provisioner "local-exec" {
-    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
+    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.zone} ${var.project}"
   }
 }
 
@@ -103,10 +97,63 @@ resource "null_resource" "setup-messaging" {
   }
 
   provisioner "local-exec" {
+    environment = {
+      SA_KEY = google_service_account_key.storage-key.private_key
+    }
+
     command = "../hivemq/setup_evaluation.sh"
   }
 
   provisioner "local-exec" {
-    command = "kubectl apply -f ../../python-scripts/LSTM-TensorFlow-IO-Kafka/deployment.yaml"
+    command = "./destroy.sh"
+    when = "destroy"
   }
+}
+
+# Object storage for model updates
+
+resource "google_service_account" "storage-account" {
+  account_id = "car-demo-storage-account"
+  display_name = "car-demo-storage-account"
+}
+
+resource "google_storage_bucket" "model-bucket" {
+  name = "car-demo-tensorflow-models_${var.project}"
+  location = "EU"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_binding" "model-bucket-access" {
+  depends_on = [
+    google_service_account.storage-account,
+    google_storage_bucket.model-bucket
+  ]
+
+  bucket = google_storage_bucket.model-bucket.name
+
+  members = [
+    "serviceAccount:${google_service_account.storage-account.email}"
+  ]
+  role = "roles/storage.objectAdmin"
+}
+
+
+resource "google_storage_bucket_iam_binding" "storage-account-access2" {
+  depends_on = [
+    google_service_account.storage-account,
+    google_storage_bucket.model-bucket
+  ]
+
+  bucket = google_storage_bucket.model-bucket.name
+
+  members = [
+    "serviceAccount:${google_service_account.storage-account.email}"
+  ]
+
+  role = "roles/storage.legacyBucketWriter"
+}
+resource "google_service_account_key" "storage-key" {
+  depends_on = [
+    google_service_account.storage-account]
+  service_account_id = google_service_account.storage-account.name
 }

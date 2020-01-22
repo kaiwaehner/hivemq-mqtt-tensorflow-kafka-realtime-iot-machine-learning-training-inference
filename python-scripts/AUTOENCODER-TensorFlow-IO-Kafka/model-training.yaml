@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "sensor-model-training"
+spec:
+  restartPolicy: Never
+  containers:
+    - name: training
+      image: sbaier1/car-sensor-model:autoencoder
+      imagePullPolicy: Always
+      command: ["python3"]
+      args:
+       - cardata-v3.py
+       - kafka.operator.svc.cluster.local:9071
+       - SENSOR_DATA_S_AVRO
+       - "0"
+       - model-predictions
+       - train
+       - model1.h5
+       - kai-waehner-project
+      volumeMounts:
+        - name: storage-secret
+          mountPath: /credentials
+          readOnly: true
+  volumes:
+    - name: storage-secret
+      secret:
+        secretName: google-application-credentials

@@ -44,8 +44,9 @@
         <stage id="publish-disconnect">
             <lifeCycle id="publ" clientGroup="cg1">
                 <rampUp duration="20s"/>
-                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="1" count="1000"
-                         message="" rate="1/20s" roundRobin="false"/>
+                <!-- TODO increase message rate -->
+                <publish topicGroup="tg1" payloadGeneratorType="com.hivemq.CarDataPayloadGenerator" qos="0" count="3000"
+                         message="" rate="1/10s" roundRobin="false"/>
                 <disconnect/>
             </lifeCycle>
         </stage>

@@ -7,7 +7,7 @@ REGION=${2}
 PROJECT=${3}
 
 echo "Provisioning K8s cluster..."
-gcloud container clusters get-credentials ${CNAME} --region ${REGION}
+gcloud container clusters get-credentials ${CNAME} --zone ${REGION}
 
 # Context should be set automatically
 #kubectl use-context gke_${3}_${2}_${1}

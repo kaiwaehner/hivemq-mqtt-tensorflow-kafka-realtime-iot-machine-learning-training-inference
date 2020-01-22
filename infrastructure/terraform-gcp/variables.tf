@@ -1,9 +1,14 @@
 variable "node_count" {
-  default = 4
+  default = 9
 }
 
 variable "region" {
   default = "europe-west1"
+}
+
+
+variable "zone" {
+  default = "europe-west1-b"
 }
 
 variable "preemptible_nodes" {
@@ -16,7 +21,7 @@ variable "daily_maintenance_window_start_time" {
 
 variable project {
   type = "string"
-  description = "The name of your GCP project to use"
+  description = "todo-add-your-gcp-project-name"
 }
 
 variable node_version {
