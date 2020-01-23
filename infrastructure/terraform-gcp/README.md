@@ -1,4 +1,4 @@
-# Create GCP K8s 
+# Create GCP K8s
 
 Applying this terraform deployment will create a K8s cluster with the following deployed:
 
@@ -7,14 +7,14 @@ Applying this terraform deployment will create a K8s cluster with the following 
 * Confluent Platform
 * HiveMQ
 
-# Requirements
+## Requirements
+
 The following components are required:
 
 * jq: e.g. 'brew install jq'
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/): e.g. brew install kubernetes-cli (tested with 1.16.0)
 * helm 3: e.g. `brew reinstall helm` (tested with 3.0.2)
-  see Migrate from Helm 2 to 3: [migrate Helm 2 to 3]{https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/}
-  install helm 3.0.2: [Install](https://helm.sh/docs/intro/install/)
+  see [Migrate from Helm 2 to 3](https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/), [install helm 3.0.2](https://helm.sh/docs/intro/install/) and [Helm 2 to Helm 3 Upgrade](https://runkiss.blogspot.com/2019/12/helm-2-to-helm-3-updates.html). In most cases, you just need to install Helm 3 and then add the stable Helm Repo: `helm repo add stable https://kubernetes-charts.storage.googleapis.com/`
 * [terraform (0.12.19)](https://www.terraform.io/downloads.html): e.g. brew install terraform
 * [GCloud CLI v. 277.0.0](https://cloud.google.com/sdk/docs/quickstart-macos) (run `gcloud init` first)
 
@@ -22,10 +22,11 @@ The setup is tested on Mac OS X.
 
 Make sure to have updated versions, e.g. an older version of helm did not work.
 
-# Quick Start
+## Quick Start
 
 1. Ensure account.json is in this folder. You will have to [create a service account](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) on GCP first. Choose the right roles and enable google API. If something is missing terraform let you know.
 My service Account has the following roles
+
 * Compute Admin
 * Compute Network Admin
 * Compute Storage Admin
@@ -51,7 +52,8 @@ terraform init
 terraform plan
 terraform apply
 ```
-# Destroy Infrastructure
+
+## Destroy Infrastructure
 
 * Run 'terraform destroy' to stop and remove the created Kubernetes infrastructure
 ```bash
