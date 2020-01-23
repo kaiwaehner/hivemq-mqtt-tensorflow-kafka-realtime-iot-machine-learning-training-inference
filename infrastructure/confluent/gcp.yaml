@@ -53,8 +53,8 @@ kafka:
   volume:
     data0: 100Gi
   loadBalancer:
-    enabled: false
-    domain: ""
+    enabled: true
+    domain: "mydevplatform.gcp.cloud"
   tls:
     enabled: false
     fullchain: |-
@@ -63,48 +63,6 @@ kafka:
   metricReporter:
     enabled: true
 
-## Connect Cluster
-##
-connect:
-  name: connectors
-  replicas: 1
-  tls:
-    enabled: false
-    ## "" for none, "tls" for mutual auth
-    authentication:
-      type: ""
-    fullchain: |-
-    privkey: |-
-    cacerts: |-
-  loadBalancer:
-    enabled: false
-    domain: ""
-  dependencies:
-    kafka:
-      bootstrapEndpoint: kafka:9071
-      brokerCount: 3
-    schemaRegistry:
-      enabled: true
-      url: http://schemaregistry:8081
-## Replicator Connect Cluster
-##
-replicator:
-  name: replicator
-  replicas: 1
-  tls:
-    enabled: false
-    authentication:
-      type: ""
-    fullchain: |-
-    privkey: |-
-    cacerts: |-
-  loadBalancer:
-    enabled: false
-    domain: ""
-  dependencies:
-    kafka:
-      brokerCount: 3
-      bootstrapEndpoint: kafka:9071
 ##
 ## Schema Registry
 ##
@@ -119,8 +77,8 @@ schemaregistry:
     privkey: |-
     cacerts: |-
   loadBalancer:
-    enabled: false
-    domain: ""
+    enabled: true
+    domain: "mydevplatform.gcp.cloud"
   dependencies:
     kafka:
       brokerCount: 3
@@ -140,8 +98,8 @@ ksql:
     privkey: |-
     cacerts: |-
   loadBalancer:
-    enabled: false
-    domain: ""
+    enabled: true
+    domain: "mydevplatform.gcp.cloud"
   dependencies:
     kafka:
       brokerCount: 3
@@ -184,8 +142,8 @@ controlcenter:
   ## C3 External Access
   ##
   loadBalancer:
-    enabled: false
-    domain: ""
+    enabled: true
+    domain: "mydevplatform.gcp.cloud"
   ##
   ## TLS configuration
   ##
