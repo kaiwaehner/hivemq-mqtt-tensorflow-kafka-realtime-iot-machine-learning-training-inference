@@ -119,8 +119,8 @@ resource "null_resource" "setup-messaging" {
 # Object storage for model updates
 
 resource "google_service_account" "storage-account" {
-  account_id = "car-demo-storage-account"
-  display_name = "car-demo-storage-account"
+  account_id = "car-demo-storage-account-${var.name}"
+  display_name = "car-demo-storage-account-${var.name}"
 }
 
 resource "google_storage_bucket" "model-bucket" {
