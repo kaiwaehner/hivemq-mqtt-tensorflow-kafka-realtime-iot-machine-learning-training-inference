@@ -20,7 +20,7 @@ helm delete prometheus 2>/dev/null || true
 helm install --replace --atomic prometheus --version 8.5.14 stable/prometheus-operator -n monitoring --wait
 
 echo "Deploying K8s dashboard..."
-kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
 
 echo "Download Confluent Operator"
 # check if Confluent Operator still exist
