@@ -16,7 +16,7 @@ echo "Deploying prometheus..."
 helm repo update
 kubectl create namespace monitoring || true
 
-helm delete prometheus 2>/dev/null || true
+helm delete prometheus -n monitoring 2>/dev/null || true
 helm install --replace --atomic prometheus --version 8.5.14 stable/prometheus-operator -n monitoring --wait
 
 echo "Deploying K8s dashboard..."
