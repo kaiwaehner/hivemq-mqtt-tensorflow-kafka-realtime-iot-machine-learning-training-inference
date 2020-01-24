@@ -19,6 +19,13 @@ variable "daily_maintenance_window_start_time" {
   default = "02:00"
 }
 
+
+variable name {
+  type = "string"
+  default = "car-demo-cluster"
+  description = "Name for the GKE cluster"
+}
+
 variable project {
   type = "string"
   description = "todo-add-your-gcp-project-name"

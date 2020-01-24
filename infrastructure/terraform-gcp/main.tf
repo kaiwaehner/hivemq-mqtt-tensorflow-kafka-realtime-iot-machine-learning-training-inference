@@ -9,7 +9,7 @@ resource "google_container_cluster" "cluster" {
     delete = "120m"
   }
 
-  name = "car-demo-cluster"
+  name = var.name
   location = var.zone
 
   maintenance_policy {
@@ -26,6 +26,12 @@ resource "google_container_cluster" "cluster" {
 
     client_certificate_config {
       issue_client_certificate = false
+    }
+  }
+
+  addons_config {
+    kubernetes_dashboard {
+      disabled = false
     }
   }
 

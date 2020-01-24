@@ -10,7 +10,7 @@ if ! hash kubectl 2>/dev/null; then
 fi
 
 # To make sure the Prometheus operator can discover the HiveMQ service monitor
-kubectl patch -n monitoring prometheus prom-prometheus-operator-prometheus --type='json' -p='[{"op": "replace", "path": "/spec/serviceMonitorSelector", "value":{}}]'
+kubectl patch -n monitoring prometheus prometheus-prometheus-oper-prometheus --type='json' -p='[{"op": "replace", "path": "/spec/serviceMonitorSelector", "value":{}}]'
 
 kubectl create namespace hivemq || true
 kubectl apply -f operator-rbac.yaml
@@ -20,7 +20,7 @@ kubectl label -n monitoring configmap/hivemq-dashboard grafana_dashboard=1 || tr
 
 echo "Deploying HiveMQ operator..."
 # Warning: This is a really early development version of the operator. DO NOT USE IN PRODUCTION
-kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.4 || true
+kubectl run operator --namespace hivemq --serviceaccount=hivemq-operator --image=sbaier1/hivemq-operator:0.0.5 || true
 kubectl rollout -n hivemq status deployment operator
 # Arbitrary sleep to wait until the operator creates the CRD
 sleep 5
