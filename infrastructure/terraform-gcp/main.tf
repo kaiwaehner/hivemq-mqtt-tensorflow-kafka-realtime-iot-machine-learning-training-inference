@@ -49,7 +49,7 @@ resource "google_container_cluster" "cluster" {
   }*/
 }
 
-resource "google_container_node_pool" "primary_preemptible_nodes" {
+resource "google_container_node_pool" "primary_nodes" {
   name = "car-demo-node-pool"
   location = var.zone
 
@@ -124,7 +124,7 @@ resource "google_service_account" "storage-account" {
 }
 
 resource "google_storage_bucket" "model-bucket" {
-  name = "car-demo-tensorflow-models_${var.project}"
+  name = "tf-models_${var.project}_${var.name}"
   location = "EU"
   force_destroy = true
 }

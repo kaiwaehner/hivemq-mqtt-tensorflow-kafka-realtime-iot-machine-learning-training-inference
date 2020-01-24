@@ -15,7 +15,9 @@ echo "Deploying prometheus..."
 # Commented next command, please do a helm repo update before executing terraform
 helm repo update
 kubectl create namespace monitoring || true
-helm upgrade --install --force prometheus --version 8.5.14 stable/prometheus-operator -n monitoring --wait
+
+helm delete prometheus 2>/dev/null || true
+helm install --replace --atomic prometheus --version 8.5.14 stable/prometheus-operator -n monitoring --wait
 
 echo "Deploying K8s dashboard..."
 kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
