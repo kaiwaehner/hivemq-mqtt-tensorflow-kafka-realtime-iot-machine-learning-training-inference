@@ -50,7 +50,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "primary_nodes" {
-  name = "car-demo-node-pool"
+  name = "car-demo-node-pool-${var.name}"
   location = var.zone
 
   cluster = google_container_cluster.cluster.name
