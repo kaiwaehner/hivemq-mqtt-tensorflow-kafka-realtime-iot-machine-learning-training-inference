@@ -1,5 +1,5 @@
 variable "node_count" {
-  default = 9
+  default = 3
 }
 
 variable "region" {
@@ -17,6 +17,13 @@ variable "preemptible_nodes" {
 
 variable "daily_maintenance_window_start_time" {
   default = "02:00"
+}
+
+
+variable name {
+  type = "string"
+  default = "car-demo-cluster"
+  description = "Name for the GKE cluster"
 }
 
 variable project {

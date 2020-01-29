@@ -4,37 +4,23 @@ set -e
 # set current directory of script
 MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-until gcloud container clusters list --zone europe-west1-b | grep 'RUNNING' >/dev/null 2>&1; do
-    echo "kubeapi not available yet..."
-    sleep 3
-done
-
 echo "Deploying prometheus..."
 # Make sure the tiller change is rolled out
 # kubectl rollout status -n kube-system deployment tiller-deploy
 # Commented next command, please do a helm repo update before executing terraform
 helm repo update
+kubectl create namespace monitoring || true
 
-# Make upgrade idempotent by first deleting all the CRDs (the helm chart will error otherwise)
-kubectl create namespace monitoring
-kubectl delete crd alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com 2>/dev/null || true
-helm delete --purge prometheus 2>/dev/null || true
-# helm install --namespace monitoring --replace --name prom --version 6.8.1 stable/prometheus-operator --wait
-helm install prometheus --namespace monitoring stable/prometheus-operator
-
-#echo "Deploying metrics server..."
-#helm upgrade --install metrics stable/metrics-server --version 2.8.4 --wait --force || true
+helm delete prometheus -n monitoring 2>/dev/null || true
+helm install --replace --atomic prometheus --version 8.5.14 stable/prometheus-operator -n monitoring --wait
 
 echo "Deploying K8s dashboard..."
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
-
-echo "Kubernetes Dashboard token:"
-gcloud config config-helper --format=json | jq -r '.credential.access_token'
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
 
 echo "Download Confluent Operator"
 # check if Confluent Operator still exist
 DIR="confluent-operator/"
-if [ -d "$DIR" ]; then
+if [[ -d "$DIR" ]]; then
   # Take action if $DIR exists. #
   echo "Operator is installed..."
   cd confluent-operator/
@@ -64,9 +50,9 @@ cd helm/
 
 # or one by one
 #prepare Confluent Operator installation
-kubectl create namespace operator
+kubectl create namespace operator || true
 # Operator
-helm install \
+helm upgrade --install \
 operator \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -78,7 +64,7 @@ kubectl rollout status deployment -n operator cc-operator
 kubectl get crd | grep confluent
 
 # Zookeeper
-helm install \
+helm upgrade --install \
 zookeeper \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -91,7 +77,7 @@ sleep 10
 kubectl rollout status sts -n operator zookeeper
 
 # kafka
-helm install \
+helm upgrade --install \
 kafka \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -105,7 +91,7 @@ kubectl rollout status sts -n operator kafka
 
 
 # SR
-helm install \
+helm upgrade --install \
 schemaregistry \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -118,7 +104,7 @@ sleep 10
 kubectl rollout status sts -n operator schemaregistry
 
 # ksql
-helm install \
+helm upgrade --install \
 ksql \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -131,7 +117,7 @@ sleep 10
 kubectl rollout status sts -n operator ksql
 
 # C3
-helm install \
+helm upgrade --install \
 controlcenter \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \

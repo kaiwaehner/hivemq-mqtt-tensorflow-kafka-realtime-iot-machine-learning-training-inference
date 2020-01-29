@@ -4,25 +4,19 @@ metadata:
   name: hivemq-cluster1
   namespace: hivemq
 spec:
-  hivemqVersion: 0.1.0
+  hivemqVersion: 0.1.1-4.2.2
   image: sbaier1/hivemq-k8s
   imagePullPolicy: Always
-  nodeCount: 3
+  nodeCount: 5
   logLevel: INFO
   mqtt:
     maxQos: 2
   monitoring:
     enablePrometheus: true
-  memory: 3G
-  cpu: 1000m
-  configMaps:
-    - name: kafka-config
-  initialization:
-    - name: init-kafka-plugin
-      args:
-        - |
-          # Setup extension
-          wget https://www.hivemq.com/releases/extensions/hivemq-kafka-extension-1.0.0.zip
-          unzip hivemq-kafka-extension-1.0.0.zip -d /hivemq-data/extensions
-          rm /hivemq-data/extensions/hivemq-kafka-extension/kafka-configuration.example.xml
-          chmod -R 777 /hivemq-data/extensions/hivemq-kafka-extension
+  memory: 10G
+  # This will result in 4 cpu cores being requested, but we can overcommit to all 8.
+  cpu: "4"
+  extensions:
+    - name: hivemq-kafka-extension
+      extensionUri: https://www.hivemq.com/releases/extensions/hivemq-kafka-extension-1.0.0.zip
+      configMap: kafka-config
