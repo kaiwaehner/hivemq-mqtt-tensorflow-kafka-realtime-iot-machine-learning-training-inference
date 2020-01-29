@@ -2,6 +2,7 @@ provider "google" {
   credentials = file("account.json")
   project = var.project
   region = var.region
+  version = "3.5.0"
 }
 
 resource "google_container_cluster" "cluster" {
@@ -10,13 +11,8 @@ resource "google_container_cluster" "cluster" {
   }
 
   name = var.name
-  location = var.zone
+  location = var.region
 
-  maintenance_policy {
-    daily_maintenance_window {
-      start_time = var.daily_maintenance_window_start_time
-    }
-  }
   remove_default_node_pool = true
   initial_node_count = 1
 
@@ -26,12 +22,6 @@ resource "google_container_cluster" "cluster" {
 
     client_certificate_config {
       issue_client_certificate = false
-    }
-  }
-
-  addons_config {
-    kubernetes_dashboard {
-      disabled = false
     }
   }
 
@@ -51,7 +41,7 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "primary_nodes" {
   name = "car-demo-node-pool-${var.name}"
-  location = var.zone
+  location = var.region
 
   cluster = google_container_cluster.cluster.name
   node_count = var.node_count
@@ -69,6 +59,11 @@ resource "google_container_node_pool" "primary_nodes" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+  }
+
+  autoscaling {
+    max_node_count = var.node_count
+    min_node_count = 1
   }
 
   management {
@@ -89,7 +84,7 @@ resource "null_resource" "setup-cluster" {
   }
 
   provisioner "local-exec" {
-    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.zone} ${var.project}"
+    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
   }
 }
 
@@ -119,7 +114,7 @@ resource "null_resource" "setup-messaging" {
 # Object storage for model updates
 
 resource "google_service_account" "storage-account" {
-  account_id = "car-demo-storage-account-${var.name}"
+  account_id = "car-demo-storage-account"
   display_name = "car-demo-storage-account-${var.name}"
 }
 

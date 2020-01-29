@@ -4,7 +4,7 @@ metadata:
   name: hivemq-cluster1
   namespace: hivemq
 spec:
-  hivemqVersion: 0.1.1
+  hivemqVersion: 0.1.1-4.2.2
   image: sbaier1/hivemq-k8s
   imagePullPolicy: Always
   nodeCount: 5

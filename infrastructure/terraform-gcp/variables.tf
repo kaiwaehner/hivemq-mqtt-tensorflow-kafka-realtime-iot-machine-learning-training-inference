@@ -1,5 +1,5 @@
 variable "node_count" {
-  default = 9
+  default = 3
 }
 
 variable "region" {

@@ -4,11 +4,6 @@ set -e
 # set current directory of script
 MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-until kubectl cluster-info >/dev/null 2>&1; do
-    echo "kubeapi not available yet..."
-    sleep 3
-done
-
 echo "Deploying prometheus..."
 # Make sure the tiller change is rolled out
 # kubectl rollout status -n kube-system deployment tiller-deploy
@@ -57,7 +52,7 @@ cd helm/
 #prepare Confluent Operator installation
 kubectl create namespace operator || true
 # Operator
-helm install \
+helm upgrade --install \
 operator \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -69,7 +64,7 @@ kubectl rollout status deployment -n operator cc-operator
 kubectl get crd | grep confluent
 
 # Zookeeper
-helm install \
+helm upgrade --install \
 zookeeper \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -82,7 +77,7 @@ sleep 10
 kubectl rollout status sts -n operator zookeeper
 
 # kafka
-helm install \
+helm upgrade --install \
 kafka \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -96,7 +91,7 @@ kubectl rollout status sts -n operator kafka
 
 
 # SR
-helm install \
+helm upgrade --install \
 schemaregistry \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -109,7 +104,7 @@ sleep 10
 kubectl rollout status sts -n operator schemaregistry
 
 # ksql
-helm install \
+helm upgrade --install \
 ksql \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
@@ -122,7 +117,7 @@ sleep 10
 kubectl rollout status sts -n operator ksql
 
 # C3
-helm install \
+helm upgrade --install \
 controlcenter \
 ./confluent-operator -f \
 ${MYDIR}/gcp.yaml \
