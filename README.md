@@ -6,7 +6,7 @@ You can also check out the 20min video recording with a live demo: [Streaming Ma
 
 There is also a blog post with more details about [use cases for event streaming and streaming analytics in the automotive industry](https://www.kai-waehner.de/blog/2019/11/22/apache-kafka-automotive-industry-industrial-iot-iiot/).
 
-## Movitation: Demo an IoT Scenario at Scale
+## Motivation: Demo an IoT Scenario at Scale
 
 You want to see an IoT example at huge scale? Not just 100 or 1000 devices producing data, but a really scalable demo with millions of messages per second from tens of thousands of devices?
 
