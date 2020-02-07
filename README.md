@@ -112,7 +112,8 @@ Optional steps (nice to have)
 - Monitoring of model training (via TensorBoard) and model deployment / inference (via some kind of Kafka integration + dashboard technology)
 - Confluent Cloud for Kafka as a Service (-> Focus on business problems, not running infrastructure)
 - Enhance demo with C / librdkafka clients and TensorFlow Lite for edge computing
-- todo - other ideas?
+- Add Confluent Tiered storage as cost-efficient long-term storage
+- TODO - other ideas?
 
 ## Why is Streaming Machine Learning so awesome
 
@@ -120,7 +121,7 @@ Again, you don't need another data store anymore! Just ingest the data directly 
 
 ![Model Training from the distributed commit log of Apache Kafka leveraging TensorFlow I/O](pictures/Kafka_Commit_Log_Model_Training_with_TensorFlow_IO.png)
 
-This totally simplfies your architecture as you don't need another data store in the middle.
+This totally simplfies your architecture as you don't need another data store in the middle. In conjunction with Tiered Storage - a Confluent add-on to Apache Kafka, you can built a cost-efficient long-term storage (aka data lake) with Kafka. No need for HDFS or S3 as additional storage. See the blog post "[Streaming Machine Learning with Tiered Storage and Without a Data Lake](https://www.confluent.io/blog/streaming-machine-learning-with-tiered-storage/)" for more details.
 
 ## Be aware: This is still NOT Online Training
 
@@ -154,6 +155,7 @@ With default configuration, the demo starts at small scale. This is sufficient t
 Afterwards, you execute one single command to set up the infrastructure and one command to generate test data. Of course, you can configure everything to your needs (like the cluster size, test data, etc).
 
 Follow the instructions in the [quick start](infrastructure/README.md) to setup the cluster.
+Please let us know if you have any problems setting up the demo so that we can fix it!
 
 ### Streaming Machine Learning with Kafka and TensorFlow
 
