@@ -21,6 +21,7 @@ The following components are required on your laptop to provison and install the
 * [Helm]: Helps you manage Kubernetes applications - Helm Charts help you define, install, and upgrade even the most complex Kubernetes application, e.g. `brew install kubernetes-helm` (tested with 3.0.1). Please note that we already use Helm 3 (no Tiller!) instead of the painful Helm 2.x with Tiller.
 * [terraform (0.12)](https://www.terraform.io/downloads.html): Enables you to safely and predictably create, change, and improve infrastructure (infrastructure independent, but currently only implemented GCP setup), e.g. `brew install terraform`
 * [gcloud](https://cloud.google.com/sdk/docs/quickstart-macos): Tool that provides the primary CLI to Google Cloud Platform, e.g.  (always run `gcloud init` first)
+* `wget`
 
 Make sure to have up-to-date versions (see the tested versions above). For instance, an older version of helm or kubectl CLI did not work well and threw (sometimes confusing) exceptions.
 
@@ -37,6 +38,10 @@ The setup is tested on Mac OS X. We used HiveMQ 4.2.2 and Confluent Platform 5.4
 1. Go to `terraform-gcp` directory
     * Run `helm repo update` to refresh the repo of Helm first.
     * Run `terraform init` (initializes the setup - only needed to be executed once on your laptop, not every time you want to re-create the infrastructure)
+    * Configure `gcloud` with the project you wish to use:
+      * `gcloud config set project <name>`
+    * Add the `helm` stable repository
+      * `helm repo add stable https://kubernetes-charts.storage.googleapis.com`
     * Run `terraform plan` (plans the setup)
     * Run `terraform apply` (sets up all required infrastructure on GCP - can take 10-20 minutes) - NOTE: If you get any "weird error messages" while the build is running, just execute the command again. This sometimes happens if the connectivity to GCP is bad or if any other cloud issues happen.
     * For a Confluent Control Center, KSQL, Schem Registry, REST Proxy and Kafka we use Google Load Balancers. Please change your /etc/hosts file as mentioned in the documentation [go to confluent](confluent/README.md)
