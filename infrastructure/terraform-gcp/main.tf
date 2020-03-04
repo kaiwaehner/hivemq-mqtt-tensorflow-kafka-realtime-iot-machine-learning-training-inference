@@ -2,6 +2,7 @@ provider "google" {
   credentials = file("account.json")
   project = var.project
   region = var.region
+  version = "3.5.0"
 }
 
 resource "google_container_cluster" "cluster" {
@@ -9,14 +10,9 @@ resource "google_container_cluster" "cluster" {
     delete = "120m"
   }
 
-  name = "car-demo-cluster"
-  location = var.zone
+  name = var.name
+  location = var.region
 
-  maintenance_policy {
-    daily_maintenance_window {
-      start_time = var.daily_maintenance_window_start_time
-    }
-  }
   remove_default_node_pool = true
   initial_node_count = 1
 
@@ -43,9 +39,9 @@ resource "google_container_cluster" "cluster" {
   }*/
 }
 
-resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name = "car-demo-node-pool"
-  location = var.zone
+resource "google_container_node_pool" "primary_nodes" {
+  name = "car-demo-node-pool-${var.name}"
+  location = var.region
 
   cluster = google_container_cluster.cluster.name
   node_count = var.node_count
@@ -63,6 +59,11 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+  }
+
+  autoscaling {
+    max_node_count = var.node_count
+    min_node_count = 1
   }
 
   management {
@@ -83,7 +84,7 @@ resource "null_resource" "setup-cluster" {
   }
 
   provisioner "local-exec" {
-    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.zone} ${var.project}"
+    command = "./00_setup_GKE.sh ${google_container_cluster.cluster.name} ${var.region} ${var.project}"
   }
 }
 
@@ -114,11 +115,11 @@ resource "null_resource" "setup-messaging" {
 
 resource "google_service_account" "storage-account" {
   account_id = "car-demo-storage-account"
-  display_name = "car-demo-storage-account"
+  display_name = "car-demo-storage-account-${var.name}"
 }
 
 resource "google_storage_bucket" "model-bucket" {
-  name = "car-demo-tensorflow-models_${var.project}"
+  name = "tf-models_${var.project}_${var.name}"
   location = "EU"
   force_destroy = true
 }
