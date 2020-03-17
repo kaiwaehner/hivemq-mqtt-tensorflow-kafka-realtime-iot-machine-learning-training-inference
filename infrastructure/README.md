@@ -18,7 +18,7 @@ The following components are required on your laptop to provison and install the
 
 * [jq](https://stedolan.github.io/jq/): Lightweight and flexible command-line JSON processor,  e.g. `brew install jq`
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/): Kubernetes CLI to deploy applications, inspect and manage cluster resources,  e.g. `brew install kubernetes-cli` (tested with 1.16.0)
-* [Helm]: Helps you manage Kubernetes applications - Helm Charts help you define, install, and upgrade even the most complex Kubernetes application, e.g. `brew install kubernetes-helm` (tested with 3.0.1). Please note that we already use Helm 3 (no Tiller!) instead of the painful Helm 2.x with Tiller.
+* [Helm](https://helm.sh/): Helps you manage Kubernetes applications - Helm Charts help you define, install, and upgrade even the most complex Kubernetes application, e.g. `brew install kubernetes-helm` (tested with 3.0.1). Please note that we already use Helm 3 (no Tiller!) instead of the painful Helm 2.x with Tiller.
 * [terraform (0.12)](https://www.terraform.io/downloads.html): Enables you to safely and predictably create, change, and improve infrastructure (infrastructure independent, but currently only implemented GCP setup), e.g. `brew install terraform`
 * [gcloud](https://cloud.google.com/sdk/docs/quickstart-macos): Tool that provides the primary CLI to Google Cloud Platform, e.g.  (always run `gcloud init` first)
 * `wget`
