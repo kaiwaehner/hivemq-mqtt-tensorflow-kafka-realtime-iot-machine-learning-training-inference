@@ -165,3 +165,26 @@ controlcenter:
       property:
         admin: Developer1,Administrators
         disallowed: no_access
+## Connect Cluster
+ ##
+connect:
+  name: connect
+  replicas: 2
+  tls:
+    enabled: false
+    ## "" for none, "tls" for mutual auth
+    authentication:
+      type: ""
+    fullchain: |-
+    privkey: |-
+    cacerts: |-
+  loadBalancer:
+    enabled: false
+    domain: ""
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka:9071
+      brokerCount: 3
+    schemaRegistry:
+      enabled: true
+      url: http://schemaregistry:8081
