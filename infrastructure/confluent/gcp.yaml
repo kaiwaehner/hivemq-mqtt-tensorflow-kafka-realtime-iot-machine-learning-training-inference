@@ -131,7 +131,7 @@ controlcenter:
         endpoint: zookeeper:2181
     connectCluster:
       enabled: false
-      url: http://connectors:8083
+      url: http://connect:8083
     ksql:
       enabled: true
       url: http://ksql:8088
