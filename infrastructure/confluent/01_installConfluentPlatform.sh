@@ -90,7 +90,7 @@ sleep 10
 kubectl rollout status sts -n operator kafka
 
 
-# SR
+# Schema Registry
 helm upgrade --install \
 schemaregistry \
 ./confluent-operator -f \
@@ -102,6 +102,19 @@ echo "After Schema Registry Installation: Check all pods..."
 kubectl get pods -n operator
 sleep 10
 kubectl rollout status sts -n operator schemaregistry
+
+# Kafka Connect
+helm upgrade --install \
+connect \
+./confluent-operator -f \
+${MYDIR}/gcp.yaml \
+--namespace operator \
+--set connect.enabled=true
+
+echo "After Kafka Connect Installation: Check all pods..."
+kubectl get pods -n operator
+sleep 10
+kubectl rollout status sts -n operator connect
 
 # ksql
 helm upgrade --install \
