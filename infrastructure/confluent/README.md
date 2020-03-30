@@ -22,7 +22,7 @@ gcloud container clusters list
 ```
 
 2. During the script execution the Confluent Operator (Version v0.65.1) will be downloaded ([The logic is in 01_installConfluentPlatform.sh](01_installConfluentPlatform.sh)). If there is newer Confluent Operator version please update the link in 01_installConfluentPlatform.sh.
-We use Google Cloud Confluent Operator template [gcp.yaml](gcp.yaml) for installing the Confluent Platform into GKE created K8s cluster. The template is copied into the new downloaded Confluent Operator Helm-Chart-Producer directory(see confluent-operator/helm/provider on your local disk). Please change this file [gcp.yaml](gcp.yaml) for your setup. We use Cloud Region=europe-west1 and Zones=europe-west1-b, europe-west1-c, europe-west1-d. The replicas for Kafka Broker and Zookeeper are set to 3 all other replicas=1.
+We use Google Cloud Confluent Operator template [gcp.yaml](gcp.yaml) for installing the Confluent Platform into GKE created K8s cluster. The template is copied into the new downloaded Confluent Operator Helm-Chart-Producer directory(see confluent-operator/helm/provider on your local disk). Please change this file [gcp.yaml](gcp.yaml) for your setup. We use Cloud Region=europe-west1 and Zones=europe-west1-b, europe-west1-c, europe-west1-d. The replicas for Kafka Broker and Zookeeper are set to 3, Connect to 2, all other replicas to 1.
 The following setup will be provisioned:
 ![GKE cluster deployed pods](images/gke_cluster.png)
 If the GKE cluster is up and running execute the script [01_installConfluentPlatform.sh](01_installConfluentPlatform.sh) manually.
@@ -47,6 +47,8 @@ kubectl get pods -n operator
 NAME                          READY   STATUS    RESTARTS   AGE
 cc-manager-5c8894687d-j6lms   1/1     Running   1          11m
 cc-operator-9648c4f8d-w48v8   1/1     Running   0          11m
+connect-0                     1/1     Running   0          9m
+connect-1                     1/1     Running   0          9m
 controlcenter-0               1/1     Running   0          3m10s
 kafka-0                       1/1     Running   0          8m53s
 kafka-1                       1/1     Running   0          7m31s
@@ -96,6 +98,12 @@ ksql> list tables;
 ```
 
 The script already creates some KSQL Streams and Tables (JSON-to-AVRO Conversion; and a few SELECT Queries). Take a look at these queries or write your own from KSQL CLI or Confluent Control Center.
+
+#### Kafka Connect
+
+The deployment installs two Kafka Connect pods. However, no connector is installed.
+
+To keep the general deployment simple, connector deployments are done seperately (so that you can choose your desired source and sink connectors). This demo will provide a few examples in the future in its own sub-sections.
 
 ### External Access to the Confluent Platform Running in GKE
 
@@ -167,6 +175,7 @@ EXTERNALIP-OF-KB0     b0.mydevplatform.gcp.cloud kafka-0-lb kafka-0 b0
 EXTERNALIP-OF-KB1     b1.mydevplatform.gcp.cloud kafka-1-lb kafka-1 b1
 EXTERNALIP-OF-KB2     b2.mydevplatform.gcp.cloud kafka-2-lb kafka-2 b2
 EXTERNALIP-OF-KB      kafka.mydevplatform.gcp.cloud kafka-bootstrap-lb kafka
+EXTERNALIP-OF-CON     kafka.mydevplatform.gcp.cloud kafka-connect-lb connect
 
 # For example, add the line:
 # 34.77.51.245 controlcenter.mydevplatform.gcp.cloud controlcenter controlcenter-bootstrap-lb
