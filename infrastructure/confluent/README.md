@@ -106,10 +106,12 @@ The script already creates some KSQL Streams and Tables (JSON-to-AVRO Conversion
 
 The `terraform apply (with 01_installConfluentPlatform.sh` created a couple of Google Loadbalancers already, so option 1 is already implemented and default. If you do want to save money, then please go with option 2 instead.
 
+Here are more details about both options:
+
 #### 1. External Loadblancer
 
-The second possibiliy is to create for each Confluent Component an external Loadbalancer in GKE. What we did with the `terraform apply`.
-For this we can use the Confluent Operator and tell k8s to add a loadbalancer
+The first possibiliy is to create for each Confluent Component an external LoadBalancer in GKE. What we did with the `terraform apply`.
+For this we can use the Confluent Operator and tell Kubernetes to add a LoadBalancer
 
 ```bash
 cd infrastructure/terraform-gcp/confluent-operator/helm/
@@ -118,6 +120,12 @@ helm upgrade -f ./providers/gcp.yaml \
  --set kafka.enabled=true \
  --set kafka.loadBalancer.enabled=true \
  --set kafka.loadBalancer.domain=mydevplatform.gcp.cloud kafka \
+ ./confluent-operator
+echo "Create LB for Connect"
+helm upgrade -f ./providers/gcp.yaml \
+ --set connect.enabled=true \
+ --set connect.loadBalancer.enabled=true \
+ --set connect.loadBalancer.domain=mydevplatform.gcp.cloud connect \
  ./confluent-operator
 echo "Create LB for KSQL"
 helm upgrade -f ./providers/gcp.yaml \
@@ -139,7 +147,7 @@ helm upgrade -f ./providers/gcp.yaml \
  ./confluent-operator
 ```
 
-Because we do not want to buy a domain `mydevplatform.gcp.cloud`, we have to add the IPs into our `/etc/hosts` file, so that we can reach the components. 
+Because we do not want to buy a domain `mydevplatform.gcp.cloud`, we have to add the IPs into our `/etc/hosts` file, so that we can reach the components.
 
 First get the external IP adresses of the load balancer:
 
