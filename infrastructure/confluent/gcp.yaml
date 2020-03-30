@@ -179,8 +179,8 @@ connect:
     privkey: |-
     cacerts: |-
   loadBalancer:
-    enabled: false
-    domain: ""
+    enabled: true
+    domain: "mydevplatform.gcp.cloud"
   dependencies:
     kafka:
       bootstrapEndpoint: kafka:9071
