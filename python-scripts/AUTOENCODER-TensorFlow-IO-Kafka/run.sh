@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 if [[ $# != 1 ]]; then
-    echo "Usage: $0 <GCP project name>"
+    echo "Usage: $0 <GCP project name-car-demo-cluster>"
     exit 1
 fi
 
 PROJECT=$1
 set -eo pipefail
 
-IMAGE=${IMAGE:-sbaier1/car-sensor-model:autoencoder}
+IMAGE=${IMAGE:-sbaier1/car-sensor-model:autoencoder-1.1}
 MODEL_NAME=${MODEL_NAME:-model1.h5}
 
 echo "Running model training with image ${IMAGE}, writing to ${MODEL_NAME}, project: ${PROJECT}"
