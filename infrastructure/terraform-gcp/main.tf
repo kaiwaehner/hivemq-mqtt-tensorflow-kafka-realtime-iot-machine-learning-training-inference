@@ -158,3 +158,7 @@ resource "google_service_account_key" "storage-key" {
     google_service_account.storage-account]
   service_account_id = google_service_account.storage-account.name
 }
+
+output "bucket_suffix" {
+  value = "${var.project}_${var.name}"
+}

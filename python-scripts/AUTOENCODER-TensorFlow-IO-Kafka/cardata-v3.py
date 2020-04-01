@@ -34,11 +34,11 @@ if mode != "predict" and mode != "train":
     print("Mode is invalid, must be either 'train' or 'predict':", mode)
     sys.exit(1)
 model_file = sys.argv[6]
-project = sys.argv[7]
+bucket_suffix = sys.argv[7]
 
 # Configure google storage bucket access
 client = storage.Client.from_service_account_json('/credentials/credentials.json')
-bucket = client.get_bucket("car-demo-tensorflow-models_" + project)
+bucket = client.get_bucket("tf-models_" + bucket_suffix)
 
 
 def kafka_dataset(servers, topic, offset, schema, eof=True):
