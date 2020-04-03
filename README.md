@@ -16,6 +16,12 @@ This is the right demo for you! The demo shows how you can integrate with tens o
 
 If you need more background about the challenges of building a scalable IoT infrastructure, the differences and relation between MQTT and Apache Kafka, and best practices for realizing a cloud-native IoT infrastructure based on Kubernetes, check out the slide deck "[Best Practices for Streaming IoT Data with MQTT and Apache Kafka](https://www.slideshare.net/KaiWaehner/best-practices-for-streaming-iot-data-with-mqtt-and-apache-kafka)".
 
+### Background: Digital Twin with Kafka
+
+In addition to the predictive maintenance scenario with machine learning, we also implemented an example of a Digital Twin. More thoughts on this here: "[Apache Kafka as Digital Twin for Open, Scalable, Reliable Industrial IoT (IIoT)](https://www.kai-waehner.de/blog/2019/11/28/apache-kafka-industrial-iot-iiot-build-an-open-scalable-reliable-digital-twin/)".
+
+In our example, we use Kafka as ingestion layer and MongoDB for storage and analytics. However, this is [just one of various IoT architectures for building a digital twin with Apache Kafka](https://www.kai-waehner.de/blog/2020/03/25/architectures-digital-twin-digital-thread-apache-kafka-iot-platforms-machine-learning).
+
 ## Use Case: Anomaly Detection in Real Time for 100000+ Connected Cars
 
 Streaming Machine Learning in Real Time at Scale with [MQTT](http://mqtt.org/), [Apache Kafka](https://kafka.apache.org/), [TensorFlow](https://www.tensorflow.org) and [TensorFlow I/O](https://www.tensorflow.org/io):
@@ -36,6 +42,8 @@ We built two different analytic models using different approaches:
 - Unsupervised learning (used by default in our project): An Autoencoder neural network is trained to detect anomaly detection without any labeled data.
 
 - Supervised learning: A LSTM neural network is trained on labeled data to be able to do predictions about future sensor events.
+
+The [digital twin implementation with Kafka and MongoDB is discussed on its own page](infrastructure/kafka-connect/mongodb/README.md), including implementation details and configuration examples.
 
 ## Architecture
 
