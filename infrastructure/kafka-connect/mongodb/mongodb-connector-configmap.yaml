@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-connector
+data:
+  mongodb-connector.json: '{
+    "name":"sink-mongodb",
+    "config": {
+      "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+      "tasks.max":"1",
+      "topics":"sensor-data",
+      "connection.uri":"mongodb+srv://admin:Confluent123!@confluent-kafka-digital-twin-zd7rp.gcp.mongodb.net/test?retryWrites=true&w=majority",
+      "database":"confluent-kafka-digital-twin",
+      "collection":"sensor-data",
+      "key.converter":"org.apache.kafka.connect.storage.StringConverter",
+      "key.converter.schemas.enable":false,
+      "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+      "value.converter.schemas.enable":false,
+      "transforms":"WrapKey",
+      "transforms.WrapKey.type":"org.apache.kafka.connect.transforms.HoistField$Key",
+      "transforms.WrapKey.field":"_id"
+    }
+  }'
