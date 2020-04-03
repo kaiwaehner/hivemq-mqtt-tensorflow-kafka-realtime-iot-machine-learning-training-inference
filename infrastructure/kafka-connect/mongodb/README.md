@@ -10,6 +10,12 @@ Check out [IoT Architectures for Digital Twin with Apache Kafka](https://www.kai
 
 If you want to learn more about the Kafka / MongoDB integration leveraging Kafka Connect, then the following blog post gets you started: [Getting Started with the MongoDB Connector for Apache Kafka and MongoDB](https://www.confluent.io/blog/getting-started-mongodb-connector-for-apache-kafka-and-mongodb/).
 
+## How to Run the MongoDB Part of the Demo?
+
+If you just want to run the existing example and connect to your MongoDB database, you don't have to do much. Terraform uses the right Kafka Connect Docker Image and starts the Kafka Connect cluster, already. Just go to the MongoDB section and adjust your connection-uri.
+
+The next sections explain more details (if you want to use a Kafka Connect conenctor for another database than MongoDB).
+
 ## Build Kafka Connect Docker Image for MongoDB
 
 Please note that you need to *build your own Kafka Connect Docker Image* if your Connector is not included in the Kafka Connect base image from Confluent Operator. You can skip this step if you want to use one of included connectors.
@@ -18,13 +24,15 @@ The Kafka Connect Docker Image from Confluent comes with a few connectors preins
 
 The [documentation of Confluent Operator](https://docs.confluent.io/current/tutorials/examples/kubernetes/gke-base/docs/index.html#connector-deployments) explains how to build your own Docker image.
 
-We use the following Docker file:
+We use the following [Docker file](Dockerfile):
 
 ```bash
 FROM confluentinc/cp-server-connect-operator:5.4.0.0
 ENV CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
 RUN confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.0.1
 ```
+
+If you want to run this example, you don't need to build your own Docker Image. The Terraform script already starts Kafka Connect using this [Docker Image (uploaded to DockerHub): megachucky/connect-with-mongodb-connector](https://hub.docker.com/repository/docker/megachucky/connect-with-mongodb-connector).
 
 For other source and sink connectors, check out [Confluent Hub](https://www.confluent.io/hub/). There you can find many open source and commercial connectors.
 
@@ -102,7 +110,7 @@ sleep 10
 kubectl rollout status sts -n operator connect
 ```
 
-## MongoDB
+## MongoDB Connection and Deployment
 
 This demo uses MongoDB Atlas, i.e. MongoDB as a fully managed service. Of course, you could also deploy MongoDB within the Kubernetes cluster or connect to any other location.
 
