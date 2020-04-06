@@ -141,12 +141,14 @@ connect-bootstrap-lb   LoadBalancer   10.31.243.186   34.76.164.249   80:31942/T
 For testing, you can use the REST API of Kafka Connect directly for deployment, status check and deletion of the MongoDB connector:
 
 ```bash
+
+# List installed connector libraries (prereq for using a connector)
+curl -s "http://35.205.152.69:80/connector-plugins"
+
+# List deployed connector instances
 curl -s "http://35.205.152.69:80/connectors"
 
-curl -s "http://35.205.152.69:80/connectors/sink-mongodb/status"
-
-curl -s -X DELETE 35.205.152.69:80/connectors/sink-mongodb
-
+# Deploy a new connector
 curl -X PUT http://35.205.152.69/connectors/sink-mongodb/config -H "Content-Type: application/json" -d ' {
       "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
       "tasks.max":"1",
@@ -161,8 +163,13 @@ curl -X PUT http://35.205.152.69/connectors/sink-mongodb/config -H "Content-Type
       "transforms":"WrapKey",
       "transforms.WrapKey.type":"org.apache.kafka.connect.transforms.HoistField$Key",
       "transforms.WrapKey.field":"_id"
-
 }'
+
+# Check status of a deployed connector
+curl -s "http://35.205.152.69:80/connectors/sink-mongodb/status"
+
+# Delete a deployed connector
+curl -s -X DELETE 35.205.152.69:80/connectors/sink-mongodb
 ```
 
 MongoDB Sink does not support Strings. It requires JSON for the key and value of the Kafka message. As the key from the car-sensor Kafka topic is a String, we need to transform it so that it can be ingested into the MongoDB collection.
