@@ -45,6 +45,8 @@ We built two different analytic models using different approaches:
 
 The [digital twin implementation with Kafka and MongoDB is discussed on its own page](infrastructure/kafka-connect/mongodb/README.md), including implementation details and configuration examples.
 
+Another example demonstrates how you can [store all sensor data in a data lake - in this case GCP Google Cloud Storage (GCS)](infrastructure/kafka-connect/gcs/README.md) - for further analytics.
+
 ## Architecture
 
 We use [HiveMQ](https://github.com/hivemq/hivemq-community-edition) as open source MQTT broker to ingest data from IoT devices, ingest the data in real time into an [Apache Kafka](https://github.com/) cluster for preprocessing (using [Kafka Streams](https://kafka.apache.org/documentation/streams/) / [KSQL](https://github.com/confluentinc/ksql)), and model training + inference (using [TensorFlow 2.0](https://www.tensorflow.org/) and its [TensorFlow I/O Kafka plugin](https://github.com/tensorflow/io/tree/master/tensorflow_io/kafka)).
