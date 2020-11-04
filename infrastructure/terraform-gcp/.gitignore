@@ -6,3 +6,5 @@
 *.tfstate.*
 
 account.json
+
+.DS_Store

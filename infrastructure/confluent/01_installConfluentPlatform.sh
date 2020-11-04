@@ -32,9 +32,13 @@ else
   #tar -xvf confluent-operator-20190912-v0.65.1.tar.gz
   #rm confluent-operator-20190912-v0.65.1.tar.gz
   # CP 5.4
-  wget https://platform-ops-bin.s3-us-west-1.amazonaws.com/operator/confluent-operator-20200115-v0.142.1.tar.gz
-  tar -xvf confluent-operator-20200115-v0.142.1.tar.gz
-  rm confluent-operator-20200115-v0.142.1.tar.gz
+  #wget https://platform-ops-bin.s3-us-west-1.amazonaws.com/operator/confluent-operator-20200115-v0.142.1.tar.gz
+  #tar -xvf confluent-operator-20200115-v0.142.1.tar.gz
+  #rm confluent-operator-20200115-v0.142.1.tar.gz
+  # CP 6.0
+  wget https://platform-ops-bin.s3-us-west-1.amazonaws.com/operator/confluent-operator-1.6.0-for-confluent-platform-6.0.0.tar.gz
+  tar -xvf confluent-operator-1.6.0-for-confluent-platform-6.0.0.tar.gz
+  rm confluent-operator-1.6.0-for-confluent-platform-6.0.0.tar.gz
 
   cp ${MYDIR}/gcp.yaml helm/providers/
 fi

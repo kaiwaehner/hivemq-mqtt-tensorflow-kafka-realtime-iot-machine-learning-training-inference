@@ -1,0 +1,40 @@
+{{- $_ := required "Namespace is required" .Release.Namespace }}
+{{- $_ := required "Name of externaldns is required." $.Values.name }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  name: {{ .Values.name }}
+  namespace:  {{ .Release.Namespace }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        args:
+        - --source=service
+        - --source=ingress
+        {{- if eq .Values.global.provider.name "gcp" }}
+        - --provider=google
+        {{- else if eq .Values.global.provider.name "aws" }}
+        - --provider=aws
+        {{- else if eq .Values.global.provider.name "azure" }}
+        - --provider=azure
+        {{- end }}
+        - --policy={{ .Values.policy }}
+        - --interval={{ .Values.interval }}
+        {{- if not (empty .Values.domainFilter) }}
+        - --domain-filter={{ .Values.domainFilter }}
+        {{- end }}
+        - --registry=txt
+        - --txt-owner-id={{ .Values.id }}

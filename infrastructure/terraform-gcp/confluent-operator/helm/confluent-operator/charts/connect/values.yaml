@@ -1,0 +1,263 @@
+## If false, connect will not be installed
+##
+enabled: false
+## Name of the connector
+##
+##
+name: connectors
+#  ## Total replica count equals to the total node required to deploy pods
+#  ##
+replicas: 3
+## Image information
+##
+image:
+  repository: confluentinc/cp-server-connect-operator
+  tag: 6.0.0.0
+## Pod resources configuration
+##
+resources:
+  ## It is recommended to set both resource requests and limits.
+  ## If not configured, kubernetes will set cpu/memory defaults.
+  ## Reference: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  requests:
+    cpu: 200m
+    memory: 4Gi
+  limits: {}
+
+## JVM configuration
+jvmConfig:
+  heapSize: 4G
+
+## Endpoint Configuration
+tls:
+  enabled: false
+  port: 443
+  authentication:
+    type: ""
+  ## Specify if tls should be enabled for inter worker communication. tls.enabled must be set for this to be enabled
+  internalTLS: false
+  jmxTLS: false
+  jmxAuthentication:
+    type: ""
+  jksPassword: mystorepassword
+  cacerts: |-
+  fullchain: |-
+  privkey: |-
+## Pod termination grace-period
+##
+terminationGracePeriodSeconds: 30
+
+## External Access
+##
+loadBalancer:
+  ## Create a LoadBalancer for external networking
+  enabled: false
+  ## External will create public facing endpoints, setting this to internal will
+  ## create a private-facing ELB with VPC peering
+  type: external
+  ## Add other annotations here that you want on the ELB
+  annotations: {}
+  ## If external access is enable, the fqdn must be provided to access connect
+  ##
+  domain: ""
+  ## If prefix is configured, external DNS name is configured as <prefix>.<domain>
+  ## otherwise external DNS name is configured as <name>.<domain> where name is cluster-name.
+  prefix: ""
+
+##
+## Kafka dependencies for internal topics, producer/consumer.
+## Override producer/consumer configuration if required, otherwise it will use
+## whatever provided in the kafka field. Interceptor configurations are
+## based on whatever producer/consumer security are configured.
+##
+dependencies:
+  kafka:
+    tls: 
+      ## If true, TLS configuration is enable
+      ##
+      enabled: false
+      ## Supported authentication types: plain, tls
+      ##
+      authentication:
+         type: ""
+      ## If true, inter-communication will be encrypted if TLS is enabled. The bootstrapEndpoint will have FQDN name.
+      ## If false, the security setting is configured to use either SASL_PLAINTEXT or PLAINTEXT
+      internal: false
+    ## If above tls.internal is true, configure with Kafka bootstrap DNS configuration on port 9092 e.g <kafka.name>.<domain>:9092
+    ## If above tls.internal is false, configure with Kafka service name on port 9071 eg. <kafka.name>:9071 or FQDN name of Kafka service name e.g <name>.<namespace>.svc.cluster.local:9071
+    bootstrapEndpoint: ""
+    ## Broker initial count configuration
+    ##
+    brokerCount: 3
+  ## Producer security configuration to connect to Kafka Cluster pointed by bootstrapEndpoint, used for source connectors.
+  ## If bootstrapEndpoint is not configured, the security is configured based on the kafka dependencies configuration.
+  ## Configure if different bootstrapEndpoint/security is required for producer
+  producer:
+    tls:
+      enabled: false
+      internal: false
+      authentication:
+        type: ""
+    bootstrapEndpoint: ""
+  ## Consumer security configuration to connect to Kafka Cluster pointed by bootstrapEndpoint, used for sink connectors.
+  ## If bootstrapEndpoint is not configured, the security is configured based on the kafka dependencies configuration.
+  ## Configure if different bootstrapEndpoint is required for consumer
+  consumer:
+    tls:
+      enabled: false
+      internal: false
+      authentication:
+        type: ""
+    bootstrapEndpoint: ""
+  ## Interceptor configuration
+  ## If bootstrapEndpoint is not configured, the security is configured based on the kafka dependencies configuration.
+  ## Configure if different bootstrapEndpoint/security is required for interceptor
+  interceptor:
+    ## Enable Interceptor
+    enabled: false
+    ## Period the interceptor should use to publish messages in millisecond
+    ##
+    publishMs: 15000
+    ## Producer Interceptor
+    ##
+    producer:
+      tls:
+        enabled: false
+        internal: false
+        authentication:
+          type: ""
+      bootstrapEndpoint: ""
+    ## Consumer Interceptor
+    ##
+    consumer:
+      tls:
+        enabled: false
+        internal: false
+        authentication:
+          type: ""
+      bootstrapEndpoint: "" 
+  ## Schema Registry Configuration
+  schemaRegistry:
+    enabled: false
+    ## Example http|s://schemaregistry:9081|8081
+    ##
+    url : ""
+    tls:
+      enabled: false
+      authentication:
+        # Supported value is either empty or tls
+        type: ""
+  ## Metadata service for CP RBAC configuration
+  ##
+  mds:
+    authentication:
+      username: ""
+      password: ""
+key:
+  converter: org.apache.kafka.connect.json.JsonConverter
+value:
+  converter: org.apache.kafka.connect.json.JsonConverter 
+schemas:
+  enabled: false
+
+## Pod distribution on nodes with given key and values
+## https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## All forms of affinity default to use preferredDuringSchedulingIgnoredDuringExecution
+affinity:
+  nodeAffinity: {}
+  # nodeAffinity:
+  #   key: components
+  #   values:
+  #   - zookeeper
+  #   - app
+  #   rule: PREFERRED
+  podAffinity: {}
+  # podAffinity:
+  #   rule: PREFERRED
+  #   terms:
+  #   - key: kafka
+  #     values:
+  #     - zookeeper
+  #     - app
+  #     namespaces:
+  #     - ns1
+  #     topologyKey:
+  #       key: kubernetes.io/hostname (optional, kubernetes.io/hostname is the default if not key is provided)
+  #     weight:
+  #       weight: 100 (optional, valid 1-100)
+  podAntiAffinity: {}
+  # podAntiAffinity:
+  #   rule: PREFERRED
+  #   terms:
+  #   - key: kafka
+  #     values:
+  #     - zookeeper
+  #     - app
+  #     namespaces:
+  #     - ns1
+  #     topologyKey:
+  #       key: kubernetes.io/hostname (optional, kubernetes.io/hostname is the default if not key is provided)
+  #     weight:
+  #       weight: 100 (optional, valid 1-100)
+
+## Deprecation Warning! Please use affinity.nodeAffinity instead
+## The node Affinity configuration uses preferredDuringSchedulingIgnoredDuringExecution
+nodeAffinity : {}
+#nodeAffinity:
+#  key: components
+#  values:
+#  - connect
+#  - app
+
+## Deprecation Warning! Please use affinity.podAntiAffinity instead
+## Pod Anti-Affinity
+## It uses preferredDuringSchedulingIgnoredDuringExecution
+## https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#interlude-built-in-node-labels
+## Use this capability, if the cluster has a concept of racks
+rack: {}
+#rack:
+# topology: kubernetes.io/hostname
+
+## Deprecation Warning!
+## Disable HostPort
+## This is mechanism to isolate pods of same type running on the same node through port mapping on the host.
+## If this feature is true, make sure to use nodeAffinity and rack to distribute pod across nodes.
+## Take precaution before enabling it for the Kafka cluster
+disableHostPort: true
+##
+## Inject pod-level annotations
+## Any changes on this field will trigger rolling restart
+##
+podAnnotations: {}
+#podAnnotations:
+#  string: "value"
+#  number: "1"
+#  boolean: "true"
+#  list: "[{\"labels\": {\"key\": \"value\"}},{\"key1\": \"value1\"}]"
+
+## https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets
+mountedSecrets: []
+#mountedSecrets:
+## [Required]
+# - secretRef: my-secret
+## [Optional]
+#   keyItems:
+#   // secret is stored under /mnt/secrets/my-secret/my-group/my-username file instead of /mnt/secrets/my-secret/username
+#   // if provided, only secret keys in items will be mounted. Otherwise, all keys will be mounted.
+## [Required]
+#   - key: username
+#     path: my-group/my-username
+
+## Configure service account for cluster
+## If left blank, will use default kubernetes serviceaccount
+serviceAccountName: ""
+
+## Confluent Telemetry
+## User can enable telemetry at either global or component level by setting telemetry.enabled=true and providing telemetry.secretRef=<k8s-secret-name>.
+## Kubernetes secret named secretRef must contain key "telemetry" with value (base64 encoded) apiKey: <ccloud-api-key>\n apiSecret: <ccloud-api-secret>\n
+## If proxy is set to true, then the "telemetry" key in secret specified by secretRef must additionally contain
+## (base64 encoded) proxyUrl: <proxyUrl>\n proxyUsername: <username>\n proxyPassword: <password>\n
+#telemetry:
+#  enabled: false
+#  secretRef: <k8s-secret-name>
+#  proxy: false

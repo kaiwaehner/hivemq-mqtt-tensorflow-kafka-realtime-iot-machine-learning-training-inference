@@ -1,0 +1,38 @@
+dependencies:
+  - name: operator
+    version: ">=1.0.0"
+    repository: file://./charts/operator
+    condition: operator.enabled
+  - name: externaldns
+    version: ">=1.0.0"
+    repository: file://./charts/externaldns
+    condition: externaldns.enabled
+  - name: zookeeper
+    version: ">=1.0.0"
+    repository: file://./charts/zookeeper
+    condition: zookeeper.enabled
+  - name: kafka
+    version: ">=1.0.0"
+    repository: file://./charts/kafka
+    condition: kafka.enabled
+  - name: controlcenter
+    version: ">=1.0.0"
+    repository: file://./charts/controlcenter
+    condition: controlcenter.enabled
+  - name: connect
+    version: ">=1.0.0"
+    repository: file://./charts/connect
+    condition: connect.enabled
+  - name: schemaregistry
+    version: ">=1.0.0"
+    repository: file://./charts/schemaregistry
+    condition: schemaregistry.enabled
+  - name: replicator
+    version: ">=1.0.0"
+    repository: file://./charts/replicator
+    condition: replicator.enabled
+  - name: ksql
+    version: ">=1.0.0"
+    repository: file://./charts/ksql
+    condition: ksql.enabled
+

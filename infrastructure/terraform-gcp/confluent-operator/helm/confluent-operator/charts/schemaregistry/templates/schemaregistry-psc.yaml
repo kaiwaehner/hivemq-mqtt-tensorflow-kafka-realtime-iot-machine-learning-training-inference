@@ -1,0 +1,171 @@
+{{- $_ := set $ "kreplicas" .Values.dependencies.kafka.brokerCount }}
+{{- $_ := set $ "kafkaDependency" .Values.dependencies.kafka }}
+{{- $_ := required "Namespace is required" .Release.Namespace }}
+{{- $_ := required "Kafka Cluster bootstrap endpoint is required" $.Values.dependencies.kafka.bootstrapEndpoint }}
+{{- $_ := required "Name of Schema Registry is required." $.Values.name }}
+{{- $_ := required "Replica count is required" $.Values.replicas }}
+{{- $_ := required "Docker Repository FQDN path is required" .Values.global.provider.registry.fqdn }}
+{{- if and (not .Values.tls.enabled) .Values.tls.internalTLS }}
+{{- fail "tls must be enabled for internalTLS to be enabled" }}
+{{- end }}
+{{- $k8sInternalDomain := default "svc.cluster.local" $.Values.global.provider.kubernetes.clusterDomain }}
+{{- $replicas := .Values.replicas | int }}
+{{- $_ := set $ "telemetrySupported" true }}
+
+apiVersion: operator.confluent.cloud/v1
+kind: PhysicalStatefulCluster
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  {{- include "confluent-operator.finalizers" . }}
+  {{- include "confluent-operator.component-name" . }}
+  {{- include "confluent-operator.namespace" . }}
+spec:
+  cloud:
+    {{- include "confluent-operator.docker-repo" . }}
+    {{- include "confluent-operator.hostPort" . }}
+  cluster_id: {{ include "confluent-operator.cluster-id" . }}
+  common:
+{{- include "confluent-operator.affinity" (dict "Values" .Values "isPSC" "true") | indent 4 }}
+    config:
+      pod:
+      - config:
+        - name: template.jsonnet
+          {{- $_ := set $ "domainName" $k8sInternalDomain }}
+          value: {{ include "confluent-operator.template-psc" . | b64enc  }}
+        id: {{ .Values.name }}
+      shared:
+      - name: log4j.properties
+        value: |2
+
+          log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+          log4j.appender.stdout.layout=org.apache.log4j.EnhancedPatternLayout
+          log4j.appender.stdout.layout.ConversionPattern=[%p] %d [%t] %c %M - %m%n
+          log4j.rootLogger=INFO, stdout
+      - name: schema-registry.properties
+        value: |2
+{{ include "confluent-operator.config-file-provider" . | indent 10 }}
+{{ include "schemaregistry.kafka-config" .  | indent 10 }}
+          kafkastore.topic=_schemas_{{ .Values.name}}_{{ .Release.Namespace }}
+          kafkastore.topic.replication.factor={{ include  "confluent-operator.replication_count" $ }}
+          schema.registry.group.id=id_{{ .Values.name}}_{{ .Release.Namespace }}
+          confluent.license=${file:/mnt/secrets/license.txt:license}
+          debug={{ $.Values.debug }}
+          {{- if .Values.tls.enabled }}
+          {{- if .Values.tls.internalTLS }}
+          inter.instance.protocol=https
+          {{- end }}
+          listeners=http://0.0.0.0:9081,https://0.0.0.0:8081
+          ssl.keystore.location=/tmp/keystore.jks
+          ssl.keystore.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          ssl.key.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          {{- if eq .Values.tls.authentication.type "tls" }}
+          ssl.client.auth=true
+          {{- end }}
+          {{- if .Values.tls.cacerts }}
+          ssl.truststore.location=/tmp/truststore.jks
+          ssl.truststore.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          {{- end }}
+          {{- else }}
+          listeners=http://0.0.0.0:9081,http://0.0.0.0:8081
+          metrics.jmx.prefix={{ .Values.name}}_{{ .Release.Namespace }}
+          {{- end }}
+{{ include "confluent-operator.cp-mds-config" . | indent 10 }}
+          {{- if .Values.global.authorization.rbac.enabled }}
+          {{- if and (and (not .Values.tls.enabled) .Values.tls.cacerts)  (contains "https" .Values.global.dependencies.mds.endpoint) }}
+          ssl.truststore.location=/tmp/truststore.jks
+          ssl.truststore.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          {{- end }}
+          confluent.metadata.http.auth.credentials.provider=BASIC
+          schema.registry.resource.extension.class=io.confluent.kafka.schemaregistry.security.SchemaRegistrySecurityResourceExtension
+          confluent.schema.registry.authorizer.class=io.confluent.kafka.schemaregistry.security.authorizer.rbac.RbacAuthorizer
+          rest.servlet.initializor.classes=io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler
+          confluent.schema.registry.auth.mechanism=JETTY_AUTH
+          {{- if .Values.dependencies.mds.zookeeper.endpoint }}
+          kafkastore.connection.url={{ .Values.dependencies.mds.zookeeper.endpoint }}
+          {{- end }}
+          {{- end }}
+          {{- $_ := set $ "tlsEnable" .Values.tls.jmxTLS }}
+          {{- $_ := set $ "authType" .Values.tls.jmxAuthentication.type }}
+{{ include "confluent-operator.telemetry" . | indent 10 }}
+{{ include "confluent-operator.jolokia-security-configs" . | indent 6 }}
+
+      - name: jvm.config
+        value: |2
+        {{- include "schemaregistry.jvm-config" . | indent 10 }}
+      - name: admin.properties
+        value: |2
+{{ include "confluent-operator.config-file-provider" . | indent 10 }}
+{{ include "confluent-operator.kafka-client-security" . | indent 10 }}
+    pod_annotations:
+    {{- include "confluent-operator.annotations" . | indent 6 }}
+    {{- include "confluent-operator.psc-init-container" . | indent 4 }}
+    container:
+      image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+      {{- include "confluent-operator.psc-mounted-secrets" . | indent 6 }}
+      {{- if .Values.serviceAccountName }}
+      service_account: {{ .Values.serviceAccountName }}
+      {{- end }}
+      termination_grace_period_seconds: {{ $.Values.terminationGracePeriodSeconds | default 60 }}
+      readiness_probe:
+        exec:
+          command: 
+          - curl
+          - http://localhost:9081/v1/metadata/id
+        initial_delay_seconds: 10
+        timeout_seconds: 10
+      {{- if $.Values.nodeAffinity }}
+      node_affinity:
+        key: {{ $.Values.nodeAffinity.key }}
+        values:
+{{ toYaml $.Values.nodeAffinity.values | trim | indent 8 }}
+      {{- end }}
+      {{- if $.Values.rack }}
+      rack:
+        topology: {{ $.Values.rack.topology }}
+      {{- end }}
+{{- if .Values.global.pod }}      
+{{ include "confluent-operator.psc-pod-security-config" . | trim | indent 4 }}
+{{- end }}
+    network:
+      ports:
+      - name: external
+        port: 8081
+        protocol: TCP
+      - name: internal
+        port: 9081
+        protocol: TCP
+      - name: jmx
+        port: 7203
+        protocol: TCP
+      - name: jolokia
+        port: 7777
+        protocol: TCP
+      {{- if and $.Values.loadBalancer.enabled (ne $.Values.loadBalancer.type "route") }}
+      {{- $_ := required "Configure domain name to access schemaregistry outside kubernetes cluster." .Values.loadBalancer.domain }}
+      proxy:
+        {{- if eq .Values.loadBalancer.type "internal" }}
+        internal: true
+        {{- end }}
+        {{- if .Values.loadBalancer.annotations }}
+        annotations:
+{{ toYaml .Values.loadBalancer.annotations | trim | indent 10 }}
+        {{- end }}
+        bootstrap:
+          {{- include "confluent-operator.dns-name" . | indent 10 }}
+          {{- if .Values.tls.enabled }}
+          port: {{ .Values.tls.port }}
+          {{- else }}
+          port: 80
+          {{- end }}
+      {{- end }}
+    {{- $_ := set $ "name" .Values.name }}
+    {{- $_ := set $ "replicas" .Values.replicas }}
+    replicas: {{ .Values.replicas }}
+    resources:
+{{- include "confluent-operator.resource-requirements" . | indent 6 }}
+    {{- include "confluent-operator.psc-version" . | indent 4 }}
+  {{- if empty $.Values.name }}
+  {{- $_ := required "Connect Cluster name is required" $.Values.name }}
+  {{- end }}  
+  type: {{ $.Values.name }}
+{{- $_ := unset $ "kafkaDependency" }}

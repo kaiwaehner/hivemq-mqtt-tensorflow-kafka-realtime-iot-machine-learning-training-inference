@@ -1,0 +1,19 @@
+{{- $_ := required "api username" .Values.global.sasl.plain.username }}
+{{- $_ := required "api password" .Values.global.sasl.plain.password }}
+apiVersion: v1
+kind: Secret
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.name }}-apikeys
+type: Opaque
+data:
+  apikeys.json : {{ include "confluent-operator.apikeys" . | b64enc }}
+  license.txt: {{ (printf "license=%s" .Values.license)  | b64enc }}
+  jksPassword.txt: {{ (printf "jksPassword=%s" .Values.tls.jksPassword) | b64enc }}
+  {{- include "confluent-operator.global-sasl-secret" . | indent 2 }}
+  {{- include "c3.monitoring-clusters-sasl-secret" . | indent 2 }}
+  {{- if $.Values.mail.enabled }}
+  mail.txt: {{ (printf "username=%s\npassword=%s" .Values.mail.username .Values.mail.password ) | b64enc }}
+  {{- end }}
+  {{- include "confluent-operator.mds-credential-secret" . | indent 2 }}

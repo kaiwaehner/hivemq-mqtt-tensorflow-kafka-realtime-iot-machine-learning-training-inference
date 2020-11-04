@@ -1,0 +1,672 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: kafkaclusters.cluster.confluent.com
+spec:
+  group: cluster.confluent.com
+  names:
+    categories:
+    - all
+    kind: KafkaCluster
+    plural: kafkaclusters
+    shortNames:
+    - kafka
+    - broker
+  scope: Namespaced
+  subresources:
+    scale:
+      specReplicasPath: .spec.replicas
+      statusReplicasPath: .status.replicas
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            authorization:
+              properties:
+                rbac:
+                  properties:
+                    ldap:
+                      properties:
+                        address:
+                          type: string
+                        authentication:
+                          properties:
+                            type:
+                              enum:
+                              - tls
+                              - simple
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        configurations:
+                          properties:
+                            groupMemberAttribute:
+                              type: string
+                            groupMemberAttributePattern:
+                              type: string
+                            groupNameAttribute:
+                              type: string
+                            groupObjectClass:
+                              type: string
+                            groupSearchBase:
+                              type: string
+                            userMemberOfAttributePattern:
+                              type: string
+                            userNameAttribute:
+                              type: string
+                            userObjectClass:
+                              type: string
+                            userSearchBase:
+                              type: string
+                          required:
+                          - userNameAttribute
+                          - userObjectClass
+                          type: object
+                      required:
+                      - authentication
+                      - address
+                      - configurations
+                      type: object
+                    mds:
+                      properties:
+                        https:
+                          type: boolean
+                      required:
+                      - https
+                      type: object
+                  required:
+                  - mds
+                  - ldap
+                  type: object
+                superUsers:
+                  items:
+                    type: string
+                  type: array
+                type:
+                  enum:
+                  - rbac
+                  - simple
+                  type: string
+              required:
+              - type
+              type: object
+            configOverrides:
+              properties:
+                jvm:
+                  items:
+                    type: string
+                  type: array
+                log4j:
+                  items:
+                    type: string
+                  type: array
+                server:
+                  items:
+                    type: string
+                  type: array
+              type: object
+            image:
+              pattern: .+:.+
+              type: string
+            initContainers:
+              items:
+                properties:
+                  args:
+                    items:
+                      type: string
+                    type: array
+                  command:
+                    items:
+                      type: string
+                    type: array
+                  envVar:
+                    type: object
+                  image:
+                    pattern: .+:.+
+                    type: string
+                  name:
+                    type: string
+                required:
+                - name
+                - image
+                - command
+                type: object
+              type: array
+            internalKubDomain:
+              type: string
+            jvmConfig:
+              properties:
+                heapSize:
+                  pattern: ^[0-9]+[M,GB,m,g]{1,2}$
+                  type: string
+              required:
+              - heapSize
+              type: object
+            metricReporter:
+              properties:
+                bootstrapEndpoint:
+                  pattern: .+:[0-9]+
+                  type: string
+                internal:
+                  type: boolean
+                publishMs:
+                  format: int64
+                  type: integer
+                replicationFactor:
+                  exclusiveMinimum: true
+                  format: int32
+                  type: integer
+                tls:
+                  properties:
+                    authentication:
+                      properties:
+                        principalMappingRules:
+                          items:
+                            type: string
+                          type: array
+                        type:
+                          enum:
+                          - tls
+                          - plain
+                          type: string
+                      required:
+                      - type
+                      type: object
+                    enabled:
+                      type: boolean
+                  required:
+                  - enabled
+                  type: object
+              required:
+              - bootstrapEndpoint
+              - replicationFactor
+              type: object
+            mountedSecrets:
+              items:
+                properties:
+                  keyItems:
+                    description: 'Cannot have ''items'' field in CRD: https://github.com/kubernetes/kubernetes/issues/68466'
+                    items:
+                      properties:
+                        key:
+                          minLength: 1
+                          type: string
+                        path:
+                          minLength: 1
+                          type: string
+                      required:
+                      - key
+                      - path
+                      type: object
+                    type: array
+                  secretRef:
+                    minLength: 1
+                    type: string
+                required:
+                - secretRef
+                type: object
+              type: array
+            network:
+              properties:
+                annotations:
+                  type: object
+                bootstrapPrefix:
+                  maxLength: 100
+                  minLength: 1
+                  pattern: ^[^.]+$
+                  type: string
+                brokerPrefix:
+                  maxLength: 100
+                  minLength: 1
+                  pattern: ^[^.]+$
+                  type: string
+                domain:
+                  maxLength: 200
+                  minLength: 1
+                  type: string
+                host:
+                  maxLength: 200
+                  minLength: 1
+                  type: string
+                port:
+                  format: int32
+                  type: integer
+                portOffset:
+                  format: int32
+                  type: integer
+                serviceType:
+                  enum:
+                  - loadBalancer
+                  - nodePort
+                  - staticForPortBasedRouting
+                  - staticForHostBasedRouting
+                  type: string
+                type:
+                  enum:
+                  - external
+                  - internal
+                  - route
+                  type: string
+              type: object
+            options:
+              properties:
+                acl:
+                  description: ACL enabled or disabled
+                  type: boolean
+                enterprise:
+                  description: check if using enterprise or non-enterprise image
+                  type: boolean
+                supers:
+                  pattern: ^(User:[^;]+;)*(User:[^;]+)?$
+                  type: string
+              type: object
+            placement:
+              properties:
+                affinity:
+                  properties:
+                    nodeAffinity:
+                      properties:
+                        key:
+                          maxLength: 64
+                          minLength: 1
+                          type: string
+                        rule:
+                          enum:
+                          - PREFERRED
+                          - REQUIRED
+                          type: string
+                        values:
+                          items:
+                            type: string
+                          minItems: 1
+                          type: array
+                      required:
+                      - key
+                      - values
+                      type: object
+                    podAffinity:
+                      properties:
+                        rule:
+                          enum:
+                          - PREFERRED
+                          - REQUIRED
+                          type: string
+                        terms:
+                          items:
+                            properties:
+                              key:
+                                maxLength: 64
+                                minLength: 1
+                                type: string
+                              namespaces:
+                                items:
+                                  type: string
+                                type: array
+                              topologyKey:
+                                properties:
+                                  key:
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              values:
+                                items:
+                                  type: string
+                                minItems: 1
+                                type: array
+                              weight:
+                                properties:
+                                  weight:
+                                    format: int32
+                                    maximum: 100
+                                    minimum: 1
+                                    type: integer
+                                required:
+                                - weight
+                                type: object
+                            required:
+                            - key
+                            - values
+                            type: object
+                          type: array
+                      required:
+                      - terms
+                      type: object
+                    podAntiAffinity:
+                      properties:
+                        rule:
+                          enum:
+                          - PREFERRED
+                          - REQUIRED
+                          type: string
+                        terms:
+                          items:
+                            properties:
+                              key:
+                                maxLength: 64
+                                minLength: 1
+                                type: string
+                              namespaces:
+                                items:
+                                  type: string
+                                type: array
+                              topologyKey:
+                                properties:
+                                  key:
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              values:
+                                items:
+                                  type: string
+                                minItems: 1
+                                type: array
+                              weight:
+                                properties:
+                                  weight:
+                                    format: int32
+                                    maximum: 100
+                                    minimum: 1
+                                    type: integer
+                                required:
+                                - weight
+                                type: object
+                            required:
+                            - key
+                            - values
+                            type: object
+                          type: array
+                      required:
+                      - terms
+                      type: object
+                  type: object
+                disableHostPort:
+                  type: boolean
+                nodeAffinity:
+                  properties:
+                    key:
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                    rule:
+                      enum:
+                      - PREFERRED
+                      - REQUIRED
+                      type: string
+                    values:
+                      items:
+                        type: string
+                      minItems: 1
+                      type: array
+                  required:
+                  - key
+                  - values
+                  type: object
+                oneReplicaPerNode:
+                  type: boolean
+                rack:
+                  properties:
+                    topology:
+                      type: string
+                  type: object
+              type: object
+            podAnnotations:
+              type: object
+            podSecurityContext:
+              properties:
+                fsGroup:
+                  format: int64
+                  type: integer
+                randomUID:
+                  type: boolean
+                runAsGroup:
+                  format: int64
+                  type: integer
+                runAsNonRoot:
+                  type: boolean
+                runAsUser:
+                  format: int64
+                  type: integer
+                seLinuxOptions:
+                  properties:
+                    level:
+                      type: string
+                    role:
+                      type: string
+                    type:
+                      type: string
+                    user:
+                      type: string
+                  type: object
+                supplementalGroups:
+                  items:
+                    format: int64
+                    type: integer
+                  type: array
+                sysctls:
+                  items:
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                    - name
+                    - value
+                    type: object
+                  type: array
+              type: object
+            replicas:
+              exclusiveMinimum: true
+              format: int32
+              type: integer
+            resources:
+              properties:
+                limits:
+                  properties:
+                    cpu:
+                      pattern: ^[0-9\.]+[m]?$
+                      type: string
+                    memory:
+                      pattern: ^[0-9]+[E,P,T,G,M,K,Ei,Pi,Ti,Gi,Mi,Ki]{1,2}$
+                      type: string
+                  required:
+                  - cpu
+                  - memory
+                  type: object
+                requests:
+                  properties:
+                    cpu:
+                      pattern: ^[0-9\.]+[m]?$
+                      type: string
+                    memory:
+                      pattern: ^[0-9]+[E,P,T,G,M,K,Ei,Pi,Ti,Gi,Mi,Ki]{1,2}$
+                      type: string
+                  required:
+                  - cpu
+                  - memory
+                  type: object
+                storage:
+                  items:
+                    properties:
+                      capacity:
+                        pattern: ^[0-9]+[E,P,T,G,M,K,Ei,Pi,Ti,Gi,Mi,Ki]{1,2}$
+                        type: string
+                      name:
+                        enum:
+                        - data
+                        - data0
+                        - log
+                        - txnlog
+                        maxLength: 10
+                        minLength: 1
+                        type: string
+                      storageClassName:
+                        type: string
+                      type:
+                        format: int32
+                        type: integer
+                    required:
+                    - capacity
+                    - name
+                    type: object
+                  minItems: 1
+                  type: array
+              required:
+              - requests
+              - storage
+              type: object
+            serviceAccountName:
+              type: string
+            terminationGracePeriodInSecond:
+              format: int64
+              minimum: 30
+              type: integer
+            tls:
+              properties:
+                authentication:
+                  properties:
+                    principalMappingRules:
+                      items:
+                        type: string
+                      type: array
+                    type:
+                      enum:
+                      - tls
+                      - plain
+                      type: string
+                  required:
+                  - type
+                  type: object
+                enabled:
+                  type: boolean
+                interbrokerTLS:
+                  type: boolean
+                internalTLS:
+                  type: boolean
+                jmxAuthentication:
+                  properties:
+                    type:
+                      enum:
+                      - tls
+                      type: string
+                  required:
+                  - type
+                  type: object
+                jmxTLS:
+                  type: boolean
+              required:
+              - enabled
+              type: object
+            zones:
+              items:
+                type: string
+              type: array
+            zookeeper:
+              properties:
+                endpoint:
+                  pattern: .+:[0-9]+
+                  type: string
+              required:
+              - endpoint
+              type: object
+          required:
+          - replicas
+          - image
+          - resources
+          - jvmConfig
+          - initContainers
+          type: object
+        status:
+          properties:
+            authenticationType:
+              type: string
+            bootstrapEndpoint:
+              type: string
+            brokerEndpoints:
+              type: object
+            brokerExternalListener:
+              type: string
+            brokerInternalListener:
+              type: string
+            clientAuthentication:
+              type: boolean
+            clusterName:
+              type: string
+            currentReplicas:
+              format: int32
+              type: integer
+            externalClient:
+              type: string
+            internalClient:
+              type: string
+            jmxPort:
+              format: int32
+              type: integer
+            jmxSecurityProtocol:
+              enum:
+              - tls
+              - mtls
+              type: string
+            jolokiaPort:
+              format: int32
+              type: integer
+            mdsEndpoint:
+              type: string
+            minIsr:
+              format: int32
+              type: integer
+            phase:
+              type: string
+            prometheusPort:
+              format: int32
+              type: integer
+            pscVersion:
+              type: string
+            readyReplicas:
+              format: int32
+              type: integer
+            reason:
+              type: string
+            replicas:
+              format: int32
+              type: integer
+            replicationFactor:
+              format: int32
+              type: integer
+            securityProtocol:
+              type: string
+            zookeeperConnect:
+              type: string
+          required:
+          - phase
+          - replicas
+          - currentReplicas
+          - readyReplicas
+          type: object
+  version: v1alpha1
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

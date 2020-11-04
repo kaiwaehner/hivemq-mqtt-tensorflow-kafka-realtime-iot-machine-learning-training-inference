@@ -1,0 +1,16 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    component: operator
+  name: operator-clusterrolebinding
+subjects:
+- kind: ServiceAccount
+  # Name that is specified in operator component subchart (confluent-operator/charts/operator/values.yaml)
+  name: cc-operator
+  # Namespace of operator deployment
+  namespace: operator
+roleRef:
+  kind: ClusterRole
+  name: operator-clusterrole
+  apiGroup: rbac.authorization.k8s.io

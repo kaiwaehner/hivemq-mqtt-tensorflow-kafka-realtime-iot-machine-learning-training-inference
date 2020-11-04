@@ -1,0 +1,138 @@
+# Default values for confluent-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+serviceAccounts:
+   ## Confluent Operator requires cluster-level admin access
+   ##
+   operator:
+      name: cc-operator
+
+global:
+  provider:
+    ## Support values: aws | gcp | azure | private
+    ##
+    name: ""
+    ## Name of region
+    ##
+    region: ""
+    kubernetes:
+      ## Configure if k8s internal domain name is different than svc.cluster.local
+      ##  
+      clusterDomain: ""
+      deployment:
+        ## If kubernetes is deployed in multi zone mode then specify availability-zones as appropriate
+        ## If kubernetes is deployed in single availability zone then specify appropriate values
+        ## For the private cloud, use kubernetes node labels as appropriate
+        zones: []
+    registry:
+      ## Docker registry endpoint where Confluent Images are available.
+      ##
+      fqdn:
+      credential:
+        ## Enable if authentication is required to pull images in kubernetes cluster.
+        ##
+        required: false
+        ## Docker login username
+        ##
+        username: ""
+        ## Docker login password
+        ##
+        password: ""
+  ## User can set storageClassName to provide a user-created storage class. This setting at component-level takes precedence over the global-level.
+  ## If storageClassName is left blank ("") and global.provider.storage is empty, the default storage class will be used.
+  ## If storageClassName is left blank ("") and global.provider.storage is not empty, storage classes will be created
+  ## and used, one per availability zone.
+  storageClassName: ""
+  ## Confluent Telemetry
+  ## User can enable telemetry at either global or component level by setting telemetry.enabled=true and providing telemetry.secretRef=<k8s-secret-name>.
+  ## Kubernetes secret named secretRef must contain key "telemetry" with value (base64 encoded) apiKey: <ccloud-api-key>\n apiSecret: <ccloud-api-secret>\n
+  ## If proxy is set to true, then the "telemetry" key in secret specified by secretRef must additionally contain
+  ## (base64 encoded) proxyUrl: <proxyUrl>\n proxyUsername: <username>\n proxyPassword: <password>\n
+  telemetry:
+    enabled: false
+    secretRef: ""
+    proxy: false
+  ## All containers to run as non root with specific UID/GUID
+  ## For OpenShift enable randomUID to true. If randomUID is false, then you must use right UID/GUID and configure confluent-scc.yaml accordingly.
+  ## The scripts can be found at scripts/openshift/confluent-scc.yaml
+  ## https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#podsecuritycontext-v1-core
+  pod:
+    securityContext:
+      fsGroup: 1001
+      runAsUser: 1001
+      runAsGroup: ""
+      runAsNonRoot: true
+      supplementalGroups: []
+      seLinuxOptions: {}
+    ## Only enable for OpenShift Platform if random UID is required to run container process.
+    ## Follow Readme.md in scripts/openshift folder for more information.
+    ## For Debian based CP images, enable will run the container process as root UID.
+    randomUID: false
+  ## 
+  ## This is configured for inter-broker-configurations username/password. 
+  ## All component and clients use these credentials to communicate with Kafka.
+  ##
+  sasl:
+    plain:
+      username: test
+      password: test123
+  ##
+  ## Init Container configurations
+  ##
+  initContainer:
+    image:
+      repository: confluentinc/cp-init-container-operator
+      tag: 6.0.0.0
+  ##
+  ## Authorization configuration
+  ##
+  authorization:
+    rbac:
+      enabled: false
+    simple:
+      enabled: false
+    ##
+    ##  super users
+    ##
+    superUsers: []
+    #superUsers
+    #- User:user1
+    #- User:user2
+  ##
+  ## Metadata Service configuration for all supported CP component
+  ##
+  dependencies:
+    mds:
+     ## The endpoint of metadata service used by CP component
+     ## If kafka is deployed with external access: http|s://<kafka_bootstrap_endpoint>
+     ## If kafka is deployed without external access: http|s://<kafka.name>:8091|8090
+     endpoint: ""
+     publicKey: ""
+
+operator:
+  enabled: false
+
+zookeeper:
+  enabled: false
+
+kafka:
+  enabled: false
+  
+schemaregistry:
+  enabled: false
+
+controlcenter:
+  enabled: false
+
+replicator:
+  enabled: false
+
+connect:
+  enabled: false
+
+ksql:
+  enabled: false
+
+externaldns:
+  enabled: false
+  

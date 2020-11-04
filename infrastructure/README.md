@@ -18,14 +18,14 @@ The following components are required on your laptop to provison and install the
 
 * [jq](https://stedolan.github.io/jq/): Lightweight and flexible command-line JSON processor,  e.g. `brew install jq`
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/): Kubernetes CLI to deploy applications, inspect and manage cluster resources,  e.g. `brew install kubernetes-cli` (tested with 1.16.0)
-* [Helm](https://helm.sh/): Helps you manage Kubernetes applications - Helm Charts help you define, install, and upgrade even the most complex Kubernetes application, e.g. `brew install kubernetes-helm` (tested with 3.0.1). Please note that we already use Helm 3 (no Tiller!) instead of the painful Helm 2.x with Tiller.
+* [Helm](https://helm.sh/): Helps you manage Kubernetes applications - Helm Charts help you define, install, and upgrade even the most complex Kubernetes application, e.g. `brew install kubernetes-helm` (tested with 3.0.2). Please note that we already use Helm 3 (no Tiller!) instead of the painful Helm 2.x with Tiller.
 * [terraform (0.12)](https://www.terraform.io/downloads.html): Enables you to safely and predictably create, change, and improve infrastructure (infrastructure independent, but currently only implemented GCP setup), e.g. `brew install terraform`
 * [gcloud](https://cloud.google.com/sdk/docs/quickstart-macos): Tool that provides the primary CLI to Google Cloud Platform, e.g.  (always run `gcloud init` first)
 * `wget`
 
 Make sure to have up-to-date versions (see the tested versions above). For instance, an older version of helm or kubectl CLI did not work well and threw (sometimes confusing) exceptions.
 
-The setup is tested on Mac OS X. We used HiveMQ 4.2.2 and Confluent Platform 5.4 (with Apache Kafka 2.4).
+The setup is tested on Mac OS X. We used HiveMQ 4.2.2 and Confluent Platform 5.4, 5.5.1 and 6.0.0.
 
 ## Configure GCP Account and Project
 
@@ -50,7 +50,7 @@ The setup is tested on Mac OS X. We used HiveMQ 4.2.2 and Confluent Platform 5.4
 3. Monitoring and interactive queries
     * Go to [confluent](confluent) directory
     * Use the hints to connect Confluent Control Center, Grafana, Prometheus for monitoring or working with KSQL CLI for interactive queries
-4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl port-forward -n monitoring service/prom-grafana 3000:service`
+4. You can also connect to Grafana and observe Cluster and application-level metrics for HiveMQ and the Device Simulator: `kubectl -n monitoring port-forward service/prometheus-grafana 3000:service`
 5. Streaming Model Training and Inference with Kafka and TensorFlow IO: This includes seperated steps which are explained here: [python-scripts/README.md](../python-scripts/README.md).
 
 For more details about the demo, UIs, customization of the setup, monitoring, etc., please go to the subfolders of the components: [terraform-gcp](terraform-gcp), [confluent](confluent), [hivemq](hivemq), [test-generator](test-generator), [tensorflow-io](python-scripts/README.md).
@@ -58,8 +58,9 @@ For more details about the demo, UIs, customization of the setup, monitoring, et
 ## Deletion of Demo Infrastructure
 
 When done with the demo, go to `terraform-gcp` directory and run `terraform destroy` to stop and remove the created Kubernetes infrastructure. 
+When terraform answered please execute terraform destory again, please do it. If you do a second `terraform destroy`all resources will be deleted and terraform could output: `Error: googleapi: Error 404: Not found: projects/xperryment/locations/europe-west1/clusters/car-demo-cluster., notFound`but this ok and expected.
 
-`Doublecheck the 'disks' in your GCP console`. If you had some errors, the script might not be able to delete all SDDs!
+`Doublecheck the 'disks' in your GCP console` with `gcloud compute disks list `. If you had some errors, the script might not be able to delete all SSDs!
 
 ### Open Source and License Requirements
 

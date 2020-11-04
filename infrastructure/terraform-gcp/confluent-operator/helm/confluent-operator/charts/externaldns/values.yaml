@@ -1,0 +1,18 @@
+enabled: false
+## External DNS name
+##
+name: external-dns
+# username of user being used to auth with kube
+user: ''
+# interval
+interval: 1m
+# domain filter
+domainFilter: '' 
+# unique id per cluster ( if using same DNS service, always append with some unique identifier)
+id: my-identier
+# policy type, value can be sync|upsert-only
+policy: sync
+# image
+image:
+  repository: registry.opensource.zalan.do/teapot/external-dns
+  tag: v0.5.14

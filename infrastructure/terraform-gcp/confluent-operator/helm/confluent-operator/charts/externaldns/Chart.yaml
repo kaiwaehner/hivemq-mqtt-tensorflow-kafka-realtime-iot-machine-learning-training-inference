@@ -1,0 +1,17 @@
+apiVersion: v1
+description: A Helm chart for Kubernetes to deploy external-dns
+name: externaldns
+version: 1.0.0
+appVersion: "1.0"
+keywords:
+- External DNS
+- Confluent
+home: https://www.confluent.io/
+engine: gotpl
+namespace: confluent-operator
+sources:
+  - https://docs.confluent.io/current/index.html
+maintainers:
+  - name: Confluent Cloud
+    email: operator@confluent.io
+tillerVersion: ">=2.9"

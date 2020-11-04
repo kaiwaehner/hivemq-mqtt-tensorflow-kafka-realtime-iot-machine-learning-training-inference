@@ -1,0 +1,415 @@
+{{- $_ := required "Namespace is required" .Release.Namespace }}
+{{- $_ := required "Kafka Cluster Bootstrap Endpoint is required." .Values.dependencies.c3KafkaCluster.bootstrapEndpoint }}
+{{- $_ := required "Zookeeper Cluster endpoint name." .Values.dependencies.c3KafkaCluster.zookeeper.endpoint }}
+{{- $_ := required "Name of controlcenter is required." .Values.name }}
+{{- $_ := required "Docker Repository FQDN path is required" .Values.global.provider.registry.fqdn }}
+{{- $_ := set $ "kreplicas" .Values.dependencies.c3KafkaCluster.brokerCount }}
+{{- $k8sInternalDomain := default "svc.cluster.local" .Values.global.provider.kubernetes.clusterDomain }}
+{{- $replicas := 1 }}
+{{- if and .Values.global.provider.storage .Values.global.storageClassName }}
+{{- fail "Only one between global.provider.storage and global.storageClassName can be set." }}
+{{- end }}
+{{- $helmManagedStorage := .Values.global.provider.storage }}
+{{- $storageClassName := .Values.storageClassName | default .Values.global.storageClassName }}
+{{- $_ := set $ "telemetrySupported" true }}
+
+apiVersion: operator.confluent.cloud/v1
+kind: PhysicalStatefulCluster
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  {{- include "confluent-operator.finalizers" . }}
+  {{- include "confluent-operator.component-name" . }}
+  {{- include "confluent-operator.namespace" . }}
+spec:
+  cloud:
+    {{- include "confluent-operator.docker-repo" . }}
+    {{- include "confluent-operator.hostPort" . }}
+  cluster_id: {{ include "confluent-operator.cluster-id" . }}
+  common:
+{{- include "confluent-operator.affinity" (dict "Values" .Values "isPSC" "true") | indent 4 }}
+    config:
+      pod:
+      - config:
+        - name: template.jsonnet
+          {{- $_ := set $ "domainName" $k8sInternalDomain }}
+          value: {{ include "confluent-operator.template-psc" . | b64enc  }}
+        id: {{ .Values.name }}
+      shared:
+      - name: control-center.properties
+        value: |2
+          # control-center configuration
+{{ include "confluent-operator.config-file-provider" . | indent 10 }}
+          confluent.controlcenter.rest.authentication.skip.paths=/2.0/status/app_info
+          {{- if  .Values.dependencies.c3KafkaCluster.zookeeper.endpoint }}
+          zookeeper.connect={{ .Values.dependencies.c3KafkaCluster.zookeeper.endpoint }}
+          {{- end }}
+          confluent.license=${file:/mnt/secrets/license.txt:license}
+{{ include "c3.monitoring-clusters" . | indent 10 }}
+{{ include "confluent-operator.cp-mds-config" . | indent 10 }}
+          confluent.controlcenter.data.dir=/mnt/data/data0
+          confluent.controlcenter.name=_confluent-controlcenter
+          confluent.controlcenter.disk.skew.warning.min.bytes=1073741824
+{{ include "confluent-operator.telemetry" . | indent 10 }}
+
+      - name: monitoring-interceptor-topic.properties
+        value: |2
+          # Monitoring interceptor configuration
+          confluent.monitoring.interceptor.topic=_confluent-monitoring
+          confluent.monitoring.interceptor.topic.partitions=12
+          #confluent.monitoring.interceptor.topic.retention.ms=
+          confluent.monitoring.interceptor.topic.replication={{ include  "confluent-operator.replication_count" . }}
+          confluent.monitoring.interceptor.topic.skip.backlog.minutes=15
+
+      - name: metrics-topic.properties
+        value: |2
+          # metrics topic configuration
+          confluent.metrics.topic.replication={{ include  "confluent-operator.replication_count" . }}
+          confluent.metrics.topic.partitions=12
+          confluent.metrics.topic.skip.backlog.minutes=15
+
+      - name: command-topic.properties
+        value: |2
+          # command topic configuration
+          confluent.controlcenter.command.topic=_confluent-command
+          confluent.controlcenter.command.topic.replication={{ include  "confluent-operator.replication_count" . }}
+
+      - name: internal-topic.properties
+        value: |2
+          # internal topic configuration
+          confluent.controlcenter.internal.topics.partitions=4
+          confluent.controlcenter.internal.topics.replication={{ include  "confluent-operator.replication_count" . }}
+          confluent.controlcenter.internal.topics.retention.ms=86400000
+          confluent.controlcenter.internal.topics.changelog.segment.bytes=134217728
+
+      - name: components.properties
+        value: |2
+          # components configuration
+          confluent.controlcenter.topic.inspection.enable=true
+          {{- if .Values.dependencies.ksql.enabled }}
+          {{- $_ := required "Ksql internal URL missing" .Values.dependencies.ksql.url }}
+          confluent.controlcenter.ksql.enable=true
+          confluent.controlcenter.ksql.url={{ .Values.dependencies.ksql.url }}
+          confluent.controlcenter.ksql.advertised.url={{ .Values.dependencies.ksql.advertisedUrl }}
+          {{- else }}
+          confluent.controlcenter.ksql.enable=false
+          {{- end }}
+          {{- if .Values.dependencies.schemaRegistry.enabled }}
+          {{- $_ := required "SchemaRegistry URL is required" .Values.dependencies.schemaRegistry.url }}
+          confluent.controlcenter.schema.registry.url={{ .Values.dependencies.schemaRegistry.url }}
+          confluent.controlcenter.schema.registry.enable=true
+          {{- else }}
+          confluent.controlcenter.schema.registry.enable=false
+          {{- end }}
+          {{- if .Values.global.authorization.rbac.enabled }}
+          {{- $_ := required "MDS endpoint required e.g http|s://<kafka_endpoint>" .Values.global.dependencies.mds.endpoint }}
+          confluent.controlcenter.streams.cprest.url={{ .Values.global.dependencies.mds.endpoint }}
+          {{- end }}
+
+      - name: streams.properties
+        value: |2
+          # stream configuration
+{{ include "c3.stream-security-config" . | indent 10 }}
+      - name: https.properties
+        value: |2
+          # https configuration
+          {{- if .Values.tls.enabled }}
+          confluent.controlcenter.rest.listeners=https://0.0.0.0:9021,http://0.0.0.0:8021
+          {{- if eq .Values.tls.authentication.type "tls" }}
+          confluent.controlcenter.rest.ssl.client.auth=true
+          {{- end }}
+          confluent.controlcenter.rest.ssl.keystore.location=/tmp/keystore.jks
+          confluent.controlcenter.rest.ssl.keystore.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          confluent.controlcenter.rest.ssl.key.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          {{- if .Values.tls.cacerts }}
+          confluent.controlcenter.rest.ssl.truststore.location=/tmp/truststore.jks
+          confluent.controlcenter.rest.ssl.truststore.password=${file:/mnt/secrets/jksPassword.txt:jksPassword}
+          {{- end }}
+          {{- else }}
+          confluent.controlcenter.rest.listener=http://0.0.0.0:9021
+          {{- end }}
+      - name: log4j.properties
+        value: |2
+          # log4j configuration
+
+          {{- $_ := set $ "debug" "INFO" }}
+          {{- if .Values.debug }}
+          {{- $_ := set $ "debug" "DEBUG" }}
+          {{- end }}
+          log4j.rootLogger={{ .debug }}, stdout
+          log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+          log4j.appender.stdout.layout=org.apache.log4j.EnhancedPatternLayout
+          log4j.appender.stdout.layout.ConversionPattern=[%d] %p [%t] %m (%c)%n
+          log4j.appender.streams=org.apache.log4j.ConsoleAppender
+          log4j.appender.streams.layout=org.apache.log4j.EnhancedPatternLayout
+          log4j.appender.streams.layout.ConversionPattern=[%d] %p [%t] %m (%c)%n
+          log4j.appender.streams.filter.1=io.confluent.Log4jRateFilter
+          log4j.appender.streams.filter.1.level=ERROR
+          log4j.appender.streams.filter.1.rate=25
+          log4j.logger.org.apache.kafka.streams={{ .debug }}, streams
+          log4j.additivity.org.apache.kafka.streams=false
+          log4j.logger.io.confluent.controlcenter.streams={{ .debug }}, streams
+          log4j.additivity.io.confluent.controlcenter.streams=false
+          log4j.logger.kafka={{ .debug }}, stdout
+          log4j.logger.org.apache.kafka={{ .debug }}, stdout
+          log4j.logger.org.apache.kafka.clients.consumer={{ .debug }}, stdout
+          log4j.logger.org.apache.zookeeper=ERROR, stdout
+          log4j.logger.org.I0Itec.zkclient=ERROR, stdout
+
+      - name: email.properties
+        value: |2
+          # email configuration
+          {{- if .Values.mail.enabled }}
+          confluent.controlcenter.mail.enabled=true
+          confluent.controlcenter.mail.host.name={{ .Values.mail.hostname }}
+          confluent.controlcenter.mail.port={{ .Values.mail.port }}
+          confluent.controlcenter.mail.from={{ .Values.mail.from }}
+          confluent.controlcenter.mail.bounce.address={{ .Values.mail.bounceAddress }}
+          confluent.controlcenter.mail.ssl.checkserveridentity={{ .Values.mail.sslCheckserveridentity }}
+          confluent.controlcenter.mail.starttls.required={{ .Values.mail.starttlsRequired }}
+          confluent.controlcenter.mail.username=${file:/mnt/secrets/mail.txt:username}
+          confluent.controlcenter.mail.password=${file:/mnt/secrets/mail.txt:password}
+          {{- end }}
+      - name: alert.properties
+        value: |2
+          # alert configuration
+          confluent.controlcenter.alert.cluster.down.autocreate=false
+          confluent.controlcenter.alert.cluster.down.to.email={{ .Values.alert.email }}
+          confluent.controlcenter.alert.cluster.down.send.rate=12
+
+      {{- if not (and .Values.tls.enabled (eq .Values.tls.authentication.type "tls")) }}
+      - name: ui-authentication.properties
+        value: |2
+          # ui authentication information
+          {{- if .Values.global.authorization.rbac.enabled }}
+          confluent.controlcenter.rest.authentication.method=BEARER
+          {{- else }}
+          {{- if and .Values.auth.basic.enabled (not .Values.auth.ldap.enabled) }}
+          confluent.controlcenter.rest.authentication.method=BASIC
+          confluent.controlcenter.rest.authentication.realm=c3
+          confluent.controlcenter.rest.authentication.roles=Administrators,Restricted
+          confluent.controlcenter.auth.restricted.roles=Restricted
+          {{- end }}
+          {{- if .Values.auth.ldap.enabled }}
+          confluent.controlcenter.rest.authentication.method=BASIC
+          confluent.controlcenter.rest.authentication.realm=ldap
+          confluent.controlcenter.rest.authentication.roles={{ .Values.auth.ldap.nameOfGroupSearch }}
+          {{- if .Values.auth.ldap.nameOfRestrictedGroup }}
+          confluent.controlcenter.auth.restricted.roles={{ .Values.auth.ldap.nameOfRestrictedGroup }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      {{- end }}
+      - name: login.properties
+        value: |2
+          # basic auth login information
+          {{- if .Values.auth.basic.enabled }}
+{{ toYaml .Values.auth.basic.property | trim | indent 10 }}
+          {{- end }}
+          # basic auth information
+      - name: producer-consumer.properties
+        value: |2
+          # producer and consumer configuration
+          #confluent.controlcenter.streams.num.stream.threads=8
+          #confluent.controlcenter.streams.consumer.session.timeout.ms=275000
+          #confluent.controlcenter.streams.consumer.request.timeout.ms=285000
+          #confluent.controlcenter.streams.retries=
+          #confluent.controlcenter.streams.producer.retries=
+          #confluent.controlcenter.streams.producer.retry.backoff.ms=
+          #confluent.controlcenter.streams.producer.compression.type=lz4
+      - name: connect.properties
+        value: |2
+
+          # connect configuration
+          {{- if .Values.dependencies.connectCluster.enabled }}
+          {{- $_ := required "Connect cluster URL is required" .Values.dependencies.connectCluster.url }}
+          confluent.controlcenter.connect.cluster={{- .Values.dependencies.connectCluster.url }}
+          {{- if  .Values.dependencies.connectCluster.kafkaBootstrapEndpoint }}
+          confluent.controlcenter.connect.bootstrap.servers={{- .Values.dependencies.connectCluster.kafkaBootstrapEndpoint }}
+          {{- end }}
+          {{- if  .Values.dependencies.connectCluster.zookeeperEndpoint }}
+          confluent.controlcenter.connect.zookeeper.connect={{- .Values.dependencies.connectCluster.zookeeperEndpoint }}
+          {{- end }}
+          confluent.controlcenter.connect.timeout.ms={{- .Values.dependencies.connectCluster.timeout }}
+          {{- end }}
+
+      - name: disk-usage-agent.properties
+        value: |2
+
+          disk.data=/mnt/data/data0
+          service.name={{- .Values.name }}
+      - name: propertyfile.jaas
+        value: |2
+           {{- if .Values.auth.basic.enabled }}
+           c3 {
+               org.eclipse.jetty.jaas.spi.PropertyFileLoginModule required
+               debug="true"
+               file="/opt/confluent/etc/control-center/login.properties";
+            };
+            {{- end }}
+            {{- if .Values.auth.ldap.enabled }}
+            ldap{
+              org.eclipse.jetty.jaas.spi.LdapLoginModule required
+              {{- range $key, $value := .Values.auth.ldap.property }}
+              {{ printf "%s=\"%s\"" $key $value }}
+              {{- end }}
+              {{- printf ";"}}
+            };
+            {{- end }}
+      - name: c3-kafka-client-jaas.conf
+        value: |2
+{{ include "confluent-operator.config-file-provider" . | indent 10 }}
+{{- $_ := set $ "kafkaDependency" .Values.dependencies.c3KafkaCluster }}
+{{ include "confluent-operator.kafka-client-security" . | indent 10 }}
+{{- $_ := unset $ "kafkaDependency" }}
+      {{- $_ := set $ "tlsEnable" .Values.tls.jmxTLS }}
+      {{- $_ := set $ "authType" .Values.tls.authentication.type }}
+{{ include "confluent-operator.jolokia-security-configs" . | indent 6 }}
+
+      - name: jvm.config
+        value: |2
+
+          -Xmx{{ $.Values.jvmConfig.heapSize }}
+          -Xms{{ $.Values.jvmConfig.heapSize }}
+          -server
+          -XX:+UseG1GC
+          -XX:MaxGCPauseMillis=20
+          -XX:InitiatingHeapOccupancyPercent=35
+          -XX:+ExplicitGCInvokesConcurrent
+          -XX:G1HeapRegionSize=16
+          -XX:MinMetaspaceFreeRatio=50
+          -XX:MaxMetaspaceFreeRatio=80
+          -Djava.awt.headless=true
+          -Djdk.tls.ephemeralDHKeySize=2048
+
+          -XX:ParallelGCThreads=1
+          -XX:ConcGCThreads=1
+          -Dcom.sun.management.jmxremote=true
+          -Dcom.sun.management.jmxremote.authenticate=false
+          -Dcom.sun.management.jmxremote.local.only=false
+          -Dcom.sun.management.jmxremote.rmi.port=7203
+          -Dcom.sun.management.jmxremote.port=7203
+          {{- if and .Values.dependencies.schemaRegistry.enabled .Values.dependencies.schemaRegistry.tls.enabled }}
+          {{- $_ := set $ "tlsEnable" .Values.dependencies.schemaRegistry.tls.enabled }}
+          {{- $_ := set $ "authType" .Values.dependencies.schemaRegistry.tls.authentication.type }}
+          {{- else if and .Values.dependencies.ksql.enabled .Values.dependencies.ksql.tls.enabled }}
+          {{- $_ := set $ "tlsEnable" .Values.dependencies.ksql.tls.enabled }}
+          {{- $_ := set $ "authType" .Values.dependencies.ksql.tls.authentication.type }}
+          {{- else if and .Values.dependencies.connectCluster.enabled .Values.dependencies.connectCluster.tls.enabled }}
+          {{- $_ := set $ "tlsEnable" .Values.dependencies.connectCluster.tls.enabled }}
+          {{- $_ := set $ "authType" .Values.dependencies.connectCluster.tls.authentication.type }}
+          {{- else }}
+          {{- $_ := set $ "tlsEnable" false }}
+          {{- $_ := set $ "authType" "" }}
+          {{- end }}
+          {{- $_ := set $ "jmxTLSEnable" .Values.tls.jmxTLS }}
+          {{- $_ := set $ "jmxAuthType" .Values.tls.jmxAuthentication.type }}
+{{ include "confluent-operator.jvm-security-configs" . | indent 10 }}
+{{ include "confluent-operator.jmx-security-configs" . | indent 10 }}
+          -XX:+PrintFlagsFinal
+          -XX:+UnlockDiagnosticVMOptions
+    pod_annotations:
+    {{- include "confluent-operator.annotations" . | indent 6 }}
+    {{- include "confluent-operator.psc-init-container" . | indent 4 }}
+    container:
+      image: {{ $.Values.image.repository -}}:{{- $.Values.image.tag }}
+      {{- include "confluent-operator.psc-mounted-secrets" . | indent 6 }}
+      {{- if .Values.serviceAccountName }}
+      service_account: {{ .Values.serviceAccountName }}
+      {{- end }}
+      {{- if .Values.nodeAffinity }}
+      node_affinity:
+        key: {{ .Values.nodeAffinity.key }}
+        values:
+{{ toYaml .Values.nodeAffinity.values | trim | indent 8 }}
+      {{- end }}
+      {{- if .Values.rack }}
+      rack:
+        topology: {{ .Values.rack.topology }}
+      {{- end }}
+      readiness_probe:
+        http:
+          path: /2.0/status/app_info
+          {{- if .Values.tls.enabled }}
+          port: 8021
+          {{- else }}
+          port: 9021
+          {{- end }}
+        initial_delay_seconds: 60
+        timeout_seconds: 60
+      liveness_probe:
+        exec:
+          command:
+          - curl
+          {{- if .Values.tls.enabled }}
+          - http://localhost:8021/2.0/status/app_info
+          {{- else }}
+          - http://localhost:9021/2.0/status/app_info
+          {{- end }}
+        initial_delay_seconds: 60
+        timeout_seconds: 60
+        failure_threshold: 5
+      termination_grace_period_seconds: {{ $.Values.terminationGracePeriodSeconds | default 60 }}
+{{- if .Values.global.pod }}      
+{{ include "confluent-operator.psc-pod-security-config" . | trim | indent 4 }}
+{{- end }}
+    network:
+      ports:
+      - name: external
+        port: 9021
+        protocol: TCP
+      {{- if .Values.tls.enabled }}
+      - name: internal
+        port: 8021
+        protocol: TCP
+      {{ end }}
+      - name: jmx
+        port: 7203
+        protocol: TCP
+      - name: jolokia
+        port: 7777
+        protocol: TCP  
+      {{- if and .Values.loadBalancer.enabled (ne .Values.loadBalancer.type "route") }}
+      {{- $_ := required "Configure domain name to access control center outside kubernetes cluster." .Values.loadBalancer.domain }}
+      proxy:
+        {{- if eq .Values.loadBalancer.type "internal" }}
+        internal: true
+        {{- end }}
+        {{- if .Values.loadBalancer.annotations }}
+        annotations:
+{{ toYaml .Values.loadBalancer.annotations | trim | indent 10 }}
+        {{- end }}
+        bootstrap:
+          {{- include "confluent-operator.dns-name" . | indent 10 }}
+          {{- if .Values.tls.enabled }}
+          port: {{ .Values.tls.port }}
+          {{- else }}
+          port: 80
+          {{- end }}
+        {{- if .Values.tls.enabled }}
+        ssl: true
+        {{- else }}
+        ssl: false
+        {{- end }}
+      {{- end }}
+    {{- $_ := set $ "name" .Values.name }}
+    {{- $_ := set $ "replicas" 1 }}
+    {{- if and (not $storageClassName) $helmManagedStorage }}
+    placement: {{ include  "confluent-operator.pod-distribution" . }}
+    {{- end }}
+    replicas: {{ $replicas }}
+    resources:
+{{- include "confluent-operator.resource-requirements" . | indent 6 }}
+      storage:
+      {{- range $key, $value := .Values.volume }}
+      - capacity: {{ $value }}
+        name: {{ $key }}
+        {{- if or (not $helmManagedStorage) $storageClassName }}
+        {{- if $storageClassName }}
+        storage_class_name: {{ $storageClassName }}
+        {{- end }}
+        {{- else }}
+        type: 1
+        {{- end }}
+      {{- end }}
+    {{- include "confluent-operator.psc-version" . | indent 4 }}
+  type: {{ .Values.name }}

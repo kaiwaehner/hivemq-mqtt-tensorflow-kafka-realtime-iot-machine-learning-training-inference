@@ -8,6 +8,15 @@ Model training and inference are separated by intention into two independent app
 
 - Go to the folder [AUTOENCODER-TensorFlow-IO-Kafka](AUTOENCODER-TensorFlow-IO-Kafka)
 
+- Before starting the training change in [AUTOENCODER-TensorFlow-IO-Kafka/model_training.yaml](AUTOENCODER-TensorFlow-IO-Kafka/model_training.yaml) <project>_car-demo-cluster and set your own value fpr <project>
+    * if you run into errors. If you change variable name in variables.tf (terraform) then please change also car-demo-cluster:
+    ```bash
+    kubectl logs sensor-model-training -n default
+    kubectl  get pods -n default
+    kubectl delete pod sensor-model-training -n default
+    # change your stuff
+    # re-create image, next steps
+    ```
 - Start the model training with `kubectl apply -f model-training.yaml`. Training takes around 10min with default config and is executed only once. The model is stored as file model.h5 in GCS object store.
 
 - Check if model training is finished (i.e. the pod execution complemeted), e.g. with `kubectl get pods -n default`.

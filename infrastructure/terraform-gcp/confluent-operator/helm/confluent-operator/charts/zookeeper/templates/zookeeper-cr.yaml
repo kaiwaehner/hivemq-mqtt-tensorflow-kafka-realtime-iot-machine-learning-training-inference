@@ -1,0 +1,80 @@
+{{- $_ := required "Namespace is required" .Release.Namespace }}
+{{- $_ := required "Name of Zookeeper is required." $.Values.name }}
+{{- $_ := required "Zookeeper replica count is required" $.Values.replicas }}
+{{- $_ := required "Docker Repository FQDN path is required" .Values.global.provider.registry.fqdn }}
+{{- if and .Values.global.provider.storage .Values.global.storageClassName }}
+{{- fail "Only one between global.provider.storage and global.storageClassName can be set." }}
+{{- end }}
+{{- $storageClassName := .Values.storageClassName | default .Values.global.storageClassName }}
+{{- $affinityExists := or (or .Values.affinity.nodeAffinity .Values.affinity.podAffinity) .Values.affinity.podAntiAffinity }}
+{{- $_ := set $ "telemetrySupported" false }}
+
+apiVersion: cluster.confluent.com/v1alpha1
+kind: ZookeeperCluster
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  {{- include "confluent-operator.component-name" . }}
+  {{- include "confluent-operator.namespace" . }}
+spec:
+  replicas: {{ .Values.replicas | int }}
+  image: {{ .Values.global.provider.registry.fqdn }}/{{ .Values.image.repository -}}:{{- .Values.image.tag }}
+  {{- include "confluent-operator.cr-init-container" . | indent 2 }}
+  terminationGracePeriodInSecond: {{ .Values.terminationGracePeriodSeconds | default 864000 }}
+  {{- include "confluent-operator.cr-config-overrides" . | indent 2 }}
+  jvmConfig:
+    heapSize: {{ .Values.jvmConfig.heapSize }}
+  {{- if .Values.global.pod }}
+  {{- include "confluent-operator.cr-pod-security-config" . | indent 2 }}
+  {{- end }}
+  {{- if .Values.global.provider.kubernetes.clusterDomain }}
+  internalKubDomain: {{ .Values.global.provider.kubernetes.clusterDomain }}
+  {{- end }}
+  {{- include "confluent-operator.cr-mounted-secrets" . | indent 2 }}
+  {{- include "confluent-operator.cr-annotations" .  | indent 2 }}
+  resources:
+{{- include "confluent-operator.resource-requirements" . | indent 4 }}
+    storage:
+    {{- range $key, $value := .Values.volume }}
+    - name: {{ $key }}
+      capacity: {{ $value }}
+      {{- if $storageClassName }}
+      storageClassName: {{ $storageClassName }}
+      {{- end }}
+    {{- end }}
+  {{- if or (or (or (or .Values.nodeAffinity .Values.rack) .Values.disableHostPort) $affinityExists) .Values.oneReplicaPerNode }}
+  placement:
+    {{- if .Values.oneReplicaPerNode }}
+    oneReplicaPerNode: {{ .Values.oneReplicaPerNode }}
+    {{- end }}
+    {{- if .Values.disableHostPort }}
+    disableHostPort: {{ .Values.disableHostPort }}
+    {{- end }}
+{{- include "confluent-operator.affinity" (dict "Values" .Values "isPSC" "false") | indent 4 }}
+    {{- if .Values.nodeAffinity }}
+    nodeAffinity:
+      key: {{ .Values.nodeAffinity.key }}
+      values:
+{{ toYaml .Values.nodeAffinity.values | trim | indent 6 }}
+    {{- end }}
+    {{- if .Values.rack }}
+    rack:
+      topology: {{ .Values.rack.topology }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.tls.jmxTLS }}
+  {{- $_ := required "Fullchain PEM cannot be empty" .Values.tls.fullchain }}
+  {{- $_ := required "Private key pem cannot be empty." .Values.tls.privkey }}
+  tls:
+    jmxTLS: {{ .Values.tls.jmxTLS }}
+    {{- if and .Values.tls.jmxAuthentication (not (empty .Values.tls.jmxAuthentication.type)) }}
+    jmxAuthentication:
+      type: {{ .Values.tls.jmxAuthentication.type }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.serviceAccountName }}
+  serviceAccountName: {{ .Values.serviceAccountName }}
+  {{- end }}
+{{- if and (not $storageClassName) .Values.global.provider.storage }}
+  zones:
+{{ toYaml .Values.global.provider.kubernetes.deployment.zones | trim | indent 4 }}
+{{- end }}

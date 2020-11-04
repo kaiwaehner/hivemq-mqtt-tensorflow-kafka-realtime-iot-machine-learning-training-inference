@@ -1,0 +1,3 @@
+{{- if (and .Values.loadBalancer.enabled (and (eq .Values.loadBalancer.type "route") .Values.loadBalancer.domain)) }}
+{{- include "confluent-operator.route" . }}
+{{- end }}

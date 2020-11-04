@@ -1,0 +1,19 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  name: external-dns-viewer
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: external-dns
+subjects:
+- kind: ServiceAccount
+  name: external-dns
+  namespace: {{ .Release.Namespace }}
+{{- if .Values.user }}
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: {{ .Values.user }}
+{{- end }}

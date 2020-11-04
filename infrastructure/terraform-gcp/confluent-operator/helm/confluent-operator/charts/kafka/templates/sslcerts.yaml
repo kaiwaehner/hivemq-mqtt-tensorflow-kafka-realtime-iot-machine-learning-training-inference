@@ -1,0 +1,24 @@
+{{ include "confluent-operator.cert-required" . }}
+apiVersion: v1
+kind: Secret
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.name }}-sslcerts
+type: Opaque
+data:
+  {{- if .Values.tls.fullchain }}
+  fullchain.pem: {{ .Values.tls.fullchain | b64enc }}
+  {{- end }}
+  {{- if .Values.tls.privkey }}
+  privkey.pem: {{ .Values.tls.privkey | b64enc }}
+  {{- end }}
+  {{- if .Values.tls.cacerts }}
+  cacerts.pem: {{ .Values.tls.cacerts | b64enc }}
+  {{- end }}
+  {{- if .Values.global.authorization.rbac.enabled }}
+  {{- $_ := required "MDS public key cannot be empty" .Values.global.dependencies.mds.publicKey }}
+  {{- $_ := required "MDS token key cannot be empty." .Values.services.mds.tokenKeyPair }}
+  mdsTokenKeyPair.pem: {{ .Values.services.mds.tokenKeyPair | b64enc }}
+  mdsPublicKey.pem: {{ .Values.global.dependencies.mds.publicKey | b64enc }}
+  {{- end }}

@@ -1,0 +1,83 @@
+## If false, operator will not be installed
+##
+enabled: false
+## Confluent operator name
+##
+name: cc-operator
+## License Key for Operator
+##
+licenseKey: ""
+publicKey: |-
+  -----BEGIN PUBLIC KEY-----
+  MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaGy8TOdbCMySM7zqZsx
+  n62yuE+BhIPlc9z9ctrX+tBWNCCJePZbKHTZS9uKLeKUi9u07ts/35XRnE4ATD6q
+  lwjnSoJOkeIXcYiJ+XGExN1oRE8Rl5otvdmJEsb9Y6Jsfe2lRCCsZNx6k1s1NmQF
+  R4wnRiKylIiYJ9uWUGfH18JKZqM8z9QqkZ/+zQkzHNYsXn/YyRuDIQXeUSechr93
+  Jjt79AikskicoT04lqz/GaHz2WJEyuvLLE1jNBOComKl05Qb+yvJmGnt/7HX6HT7
+  3hnCXbslwtzp0CmeGOiJRbJxbahkTFqh1oKqZXUDCZrKCNNRvXqN/QHqnawo6kJy
+  8wIDAQAB
+  -----END PUBLIC KEY-----
+## Confluent Operator Image Information
+##
+image:
+  repository: confluentinc/cp-operator-service
+  tag: 0.419.0
+  pullPolicy: Always
+## Confluent Operator Cluster Access
+## If true, operator only creates roles/rolebinding for the release namespace
+## Otherwise, it has cluster access with clusterrole/clusterrrolebinding
+namespaced: false
+## This field should be set only when namespaced is false. If this
+## field is true, helm will install clusterroles and clusterrolebindings and crds. If false
+## Operator will use pre installed clusterroles/bindings and crds.
+installClusterResources: true
+## Confluent Operator Pod Resources
+##
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+## Pod termination grace-period
+##
+terminationGracePeriodSeconds: 30
+## Enable debugging
+##
+debug: false
+##
+## Configure affinity,
+## More information here https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+##
+affinity: {}
+##  Example for nodeAffinity, configure as required.
+##affinity:
+##  nodeAffinity:
+##    requiredDuringSchedulingIgnoredDuringExecution:
+##      nodeSelectorTerms:
+##      - matchExpressions:
+##        - key: "node-role.kubernetes.io/compute"
+##          operator: In
+##          values:
+##          - "true"
+
+##
+## Configure tolerations
+## https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+##
+##tolerations:
+##- key: "dedicated"
+##  operator: "Equal"
+##  value: "operator"
+##  effect: "NoSchedule"
+
+metrics:
+  dataDog:
+    enabled: false
+    port: 8125
+  prometheus:
+    enabled: false
+    port: 7777

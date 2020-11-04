@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  {{- include "confluent-operator.labels" . }}
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.name }}-apikeys
+type: Opaque
+data:
+  {{- if $.Values.basicAuth }}
+  {{- $_ := required "api username" .Values.basicAuth.user }}
+  {{- $_ := required "api password" .Values.basicAuth.password }}
+  client_auth.conf : {{ printf "%s: %s,operator" .Values.basicAuth.user .Values.basicAuth.password | b64enc }}
+  {{- end }}
+  jksPassword.txt: {{ (printf "jksPassword=%s" .Values.tls.jksPassword) | b64enc }}
+  {{- include "confluent-operator.global-sasl-secret" . | indent 2 }}
+  {{- include "confluent-operator.mds-credential-secret" . | indent 2 }}
+

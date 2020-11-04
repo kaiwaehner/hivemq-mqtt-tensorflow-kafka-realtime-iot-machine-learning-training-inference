@@ -1,0 +1,18 @@
+                                              The Confluent Operator
+
+The Component Operator brings the component (Confluent Services) specific controllers for kubernetes by providing components specific Custom Resource
+Definition (CRD) as well as managing other Confluent Services such as Connect, Replicator etc. It runs three controllers.
+
+{{- if .Values.global.provider.registry.credential.required }}
+  - Give the `default` Service Account access to pull images from {{ .Values.global.provider.registry.fqdn }}
+
+  kubectl -n {{ .Release.Namespace }} patch serviceaccount default -p '{"imagePullSecrets": [{"name": "confluent-docker-registry" }]}'
+{{- end }}
+
+  1. Validate if Confluent Operator is running.
+
+  kubectl get pods -n {{ .Release.Namespace }} | grep {{ .Values.name }}
+
+  2. Validate if custom resource definition (CRD) is created.
+
+  kubectl get crd  | grep confluent

@@ -1,0 +1,10 @@
+connect: 6.0.0.0
+controlcenter: 6.0.0.0
+externaldns: v0.5.14
+kafka: 6.0.0.0
+ksql: 6.0.0.0
+operator: 0.419.0
+replicator: 6.0.0.0
+schemaregistry: 6.0.0.0
+zookeeper: 6.0.0.0
+init-container: 6.0.0.0

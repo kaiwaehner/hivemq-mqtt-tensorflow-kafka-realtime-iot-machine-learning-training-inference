@@ -1,0 +1,60 @@
+{{- if (and .Values.loadBalancer.enabled (and (eq .Values.loadBalancer.type "route") .Values.loadBalancer.domain)) }}
+{{- if not .Values.tls.enabled }}
+{{- fail "configure TLS to setup route service" }}
+{{- end }}
+{{- $replicas := $.Values.replicas | int }}
+{{- range $i, $e := until $replicas }}
+{{- $_ := set $ "brokerPrefix" "b" }}
+{{- if not (empty $.Values.loadBalancer.brokerPrefix) }}
+{{- $_ := set $ "brokerPrefix" $.Values.loadBalancer.brokerPrefix }}
+{{- end }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  {{- if $.Values.loadBalancer.annotations }}
+  annotations:
+  {{ toYaml $.Values.loadBalancer.annotations | trim | indent 2 }} 
+  {{- end }}
+  name: {{ $.Values.name }}-{{ $i }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  host: {{ $.brokerPrefix }}{{ $i }}.{{ $.Values.loadBalancer.domain }}
+  {{- if $.Values.loadBalancer.wildCardPolicy }}
+  wildcardPolicy: Subdomain
+  {{- end }}
+  tls:
+    termination: passthrough
+  port:
+    targetPort: external
+  to:
+    kind: Service
+    name: {{ $.Values.name }}-{{ $i }}-internal
+{{- end }}
+{{- $_ := set $ "bootstrapPrefix" .Values.name }}
+{{- if not (empty $.Values.loadBalancer.bootstrapPrefix) }}
+{{- $_ := set $ "bootstrapPrefix" $.Values.loadBalancer.bootstrapPrefix }}
+{{- end }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  {{- if $.Values.loadBalancer.annotations }}
+  annotations:
+  {{ toYaml $.Values.loadBalancer.annotations | trim | indent 2 }} 
+  {{- end }}
+  name: {{ $.Values.name }}-bootstrap
+  namespace: {{ $.Release.Namespace }}
+spec:
+  host: {{ $.bootstrapPrefix }}.{{ $.Values.loadBalancer.domain }}
+  {{- if .Values.loadBalancer.wildCardPolicy }}
+  wildcardPolicy: Subdomain
+  {{- end }}
+  tls:
+    termination: passthrough
+  port:
+    targetPort: external
+  to:
+    kind: Service
+    name: {{ .Values.name }}
+{{- end }}

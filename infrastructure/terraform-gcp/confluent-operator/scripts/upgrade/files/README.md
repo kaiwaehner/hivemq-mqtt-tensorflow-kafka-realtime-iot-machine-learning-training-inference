@@ -1,0 +1,1 @@
+The snapshot.0 file is downloaded from here https://issues.apache.org/jira/secure/attachment/12928686/snapshot.0

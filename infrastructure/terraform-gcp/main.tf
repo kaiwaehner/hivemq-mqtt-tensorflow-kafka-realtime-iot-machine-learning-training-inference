@@ -106,7 +106,7 @@ resource "null_resource" "setup-messaging" {
   }
 
   provisioner "local-exec" {
-    command = "./destroy.sh"
+    command = "./destroy.sh ${var.project} ${var.region} ${var.name}"
     when = "destroy"
   }
 }
