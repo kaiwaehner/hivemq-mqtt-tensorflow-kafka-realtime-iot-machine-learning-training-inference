@@ -17,7 +17,7 @@ spec:
        - model-predictions
        - train
        - model1.h5
-       - xperryment_car-demo-cluster
+       - kai-waehner-project_car-demo-cluster
       volumeMounts:
         - name: storage-secret
           mountPath: /credentials
