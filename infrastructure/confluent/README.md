@@ -81,7 +81,11 @@ security.protocol=SASL_PLAINTEXT
 Query the bootstrap server:
 
 ```bash
+# get the version of confluent platform
+kafka-topics --version
 kafka-broker-api-versions --command-config kafka.properties --bootstrap-server kafka:9071
+# list topics: internal and created topics
+kafka-topics --list --command-config kafka.properties --bootstrap-server kafka:9071
 ```
 
 #### Test KSQL (Data Analysis and Processing)
@@ -221,7 +225,20 @@ kubefwd is generating for all k8s services an Port forwarding and add in /etc/ho
 
 ### Test Control Center (Monitoring) with external access
 
-Use your browser and go to [http://controlcenter:9021](http://controlcenter:9021) enter the Username=admin and Password=Developer1.
+Please be aware that we have now a couple of Port 80 accesses running:
+```bash
+kubectl get services -n operator | grep LoadBalancer
+connect-bootstrap-lb          LoadBalancer   10.31.251.131   34.78.14.84     80:30780/TCP                                   40m
+controlcenter-bootstrap-lb    LoadBalancer   10.31.251.69    34.77.215.100   80:30240/TCP                                   37m
+kafka-0-lb                    LoadBalancer   10.31.240.64    34.76.110.6     9092:30800/TCP                                 42m
+kafka-1-lb                    LoadBalancer   10.31.254.180   34.78.57.254    9092:30587/TCP                                 42m
+kafka-2-lb                    LoadBalancer   10.31.240.145   34.78.44.127    9092:32690/TCP                                 42m
+kafka-bootstrap-lb            LoadBalancer   10.31.251.160   34.76.43.198    9092:31051/TCP                                 42m
+ksql-bootstrap-lb             LoadBalancer   10.31.243.225   34.78.203.230   80:30109/TCP                                   38m
+schemaregistry-bootstrap-lb   LoadBalancer   10.31.254.192   34.77.237.172   80:30828/TCP                                   41m
+```
+
+Use your browser and go to [http://controlcenter:80](http://controlcenter:80) enter the Username=admin and Password=Developer1.
 
 Please note that https (default by most web browers) is not configured, explicity type http://URL:port.
 (Here you can use also KSQL)
@@ -232,13 +249,57 @@ Please follow the Confluent documentation [External Access](https://docs.conflue
 
 ## Kubernetes Dashboard
 
+* Create a service account
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+```
+* Create ClusterRoleBindung
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kub
+```
+* create token `kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')`
+* Login to K8s dashboard using The token from `gcloud config config-helper --format=json | jq -r '.credential.access_token'`
 * Run `kubectl proxy &`
 * Go to [K8s dashboard](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
-* Login to K8s dashboard using The token from `gcloud config config-helper --format=json | jq -r '.credential.access_token'`
+* Login to K8s dashboard using The token from `kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')`
+
+Note: Please check your browser with Chrome I got the message, after login with token: `Mark cross-site cookies as Secure to allow setting them in cross-site contexts`. With Safari I do not got a problem.
+And please after you are finish with your demo, check if kubectl proxy is running: `ps -ef | grep proxy`. If yes, kill the process `kill -9 <process id>``
 
 ## Grafana Dashboards
 
-* Forward local port to Grafana service: `kubectl -n monitoring port-forward service/prom-grafana 3000:service`
+Get services from monitoring namespace:
+```bash
+kubectl get services -n monitoring
+alertmanager-operated                     ClusterIP   None            <none>        9093/TCP,9094/TCP,9094/UDP   59m
+prometheus-grafana                        ClusterIP   10.31.240.63    <none>        80/TCP                       59m
+prometheus-kube-state-metrics             ClusterIP   10.31.240.46    <none>        8080/TCP                     59m
+prometheus-operated                       ClusterIP   None            <none>        9090/TCP                     59m
+prometheus-prometheus-node-exporter       ClusterIP   10.31.245.236   <none>        9100/TCP                     59m
+prometheus-prometheus-oper-alertmanager   ClusterIP   10.31.248.114   <none>        9093/TCP                     59m
+prometheus-prometheus-oper-operator       ClusterIP   10.31.250.49    <none>        8080/TCP,443/TCP             59m
+prometheus-prometheus-oper-prometheus     ClusterIP   10.31.248.245   <none>        9090/TCP                     59m
+```
+
+* Forward local port to Grafana service: `kubectl -n monitoring port-forward service/prometheus-grafana 3000:service`
 * Go to [localhost:3000](http://localhost:3000) (login: admin, prom-operator)
 * Dashboards will be deployed automatically (if they are not visible, bounce the deployment by deleting the current Grafana pod. It will reload the ConfigMaps after it restarts.)
 
@@ -247,6 +308,8 @@ Please follow the Confluent documentation [External Access](https://docs.conflue
 For more details, follow the examples of how to use and play with Confluent Platform on GCP K8s on [Confluent docs](https://docs.confluent.io/current/installation/operator/co-deployment.html)
 
 ## Destroy Confluent Platform from GKE
+
+Please use 
 
 * Run the script 02_deleteConfluentPlatform.sh to delete the Confluent Platform from GKE
 
